@@ -1,0 +1,22 @@
+<launch>
+  <!-- Load parameters -->
+  <rosparam file="$(find drone_control)/config/target_params.yaml" command="load"/>
+
+  <!-- Start camera calibration (publishes camera info and transforms) -->
+  <node pkg="drone_control" type="camera_calibration.py" name="camera_calibration" output="screen"/>
+
+  <!-- Start YOLO detector -->
+  <node pkg="drone_control" type="yolo_detector.py" name="yolo_detector" output="screen">
+    <param name="confidence_threshold" value="0.5"/>
+    <param name="image_topic" value="/camera/color/image_raw"/>
+  </node>
+
+  <!-- Start sensor fusion (optional, for IMU/GPS/vision fusion) -->
+  <node pkg="drone_control" type="sensor_fusion.py" name="sensor_fusion" output="screen"/>
+
+  <!-- Start target tracking controller (mission state machine) -->
+  <node pkg="drone_control" type="target_tracking_controller.py" name="target_tracking_controller" output="screen"/>
+
+  <!-- Start vehicle state monitor (safety and status) -->
+  <node pkg="drone_control" type="vehicle_state_monitor.py" name="vehicle_state_monitor" output="screen"/>
+</launch>

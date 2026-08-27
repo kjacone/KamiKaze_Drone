@@ -1,0 +1,27 @@
+# Target tracking parameters
+tracking:
+  confidence_threshold: 0.5
+  engagement_distance: 10.0      # meters (when to start attacking)
+  attack_distance: 2.0           # meters (collision point)
+  kalman:
+    dt: 0.1
+    process_noise: 0.1
+    measurement_noise: 0.05
+
+# Vehicle classes to track (COCO IDs for vehicles)
+vehicle_classes:
+  - 2   # car
+  - 3   # motorcycle
+  - 5   # bus
+  - 6   # train
+  - 7   # truck
+  - 1   # bicycle (optional)
+
+# Camera parameters (from calibration)
+camera:
+  fx: 500.0
+  fy: 500.0
+  cx: 320.0
+  cy: 240.0
+  width: 640
+  height: 480
