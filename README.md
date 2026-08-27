@@ -99,6 +99,34 @@ Clone the repository:
 ```bash
 git clone https://github.com/kjacone/KamiKaze_Drone.git
 cd KamiKaze_Drone
+# You'll see an empty PX4-Autopilot folder
+# To get the submodule content:
+git submodule update --init --recursive
+
+
+
+# This updates the main repo
+git pull
+# But submodule won't update automatically!
+# You need to:
+git submodule update --init --recursive
+To pull everything at once (one command):
+
+# Clone with submodules
+git clone --recurse-submodules https://github.com/kjacone/KamiKaze_Drone.git
+# Pull with submodules
+git pull --recurse-submodules
+
+
+
+# If you want to update PX4-Autopilot to a newer version:
+cd KamiKaze_Drone/PX4-Autopilot
+git checkout main
+git pull
+cd ..
+git add PX4-Autopilot
+git commit -m "Update PX4-Autopilot to latest"
+
 ```
 
 Build the Docker image:
@@ -131,7 +159,6 @@ Open the simulation in a browser:
 http://localhost:8080/vnc.html
 ```
 
-### Method 2: Native Ubuntu Installation
 
 Install ROS Noetic:
 
