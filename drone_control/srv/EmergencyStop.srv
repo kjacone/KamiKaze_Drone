@@ -1,0 +1,7 @@
+# drone_control/srv/EmergencyStop.srv
+# Emergency stop
+
+string reason               # Reason for emergency stop
+---
+bool success                # Emergency stop result
+string message              # Response message

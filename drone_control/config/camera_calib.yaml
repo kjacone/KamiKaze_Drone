@@ -1,0 +1,105 @@
+# drone_control/config/camera_calib.yaml
+# Camera calibration parameters
+
+camera:
+  # Camera identification
+  id: "camera_0"
+  model: "pinhole"
+  
+  # Image dimensions
+  width: 640
+  height: 480
+  
+  # Intrinsic parameters
+  intrinsic:
+    fx: 500.0
+    fy: 500.0
+    cx: 320.0
+    cy: 240.0
+    fov: 60.0  # degrees
+    
+  # Distortion coefficients
+  distortion:
+    model: "rational_polynomial"
+    coefficients:
+      k1: 0.0
+      k2: 0.0
+      p1: 0.0
+      p2: 0.0
+      k3: 0.0
+      
+  # Projection matrix
+  projection:
+    P: [500, 0, 320, 0, 0, 500, 240, 0, 0, 0, 1, 0]
+    
+  # Rectification matrix
+  rectification:
+    R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+    
+  # Extrinsic parameters (camera to drone body frame)
+  extrinsic:
+    translation: [0.0, 0.0, 0.0]  # [x, y, z] in meters
+    rotation: [0.0, 0.0, 0.0]      # [roll, pitch, yaw] in radians
+    rotation_matrix:
+      - [1.0, 0.0, 0.0]
+      - [0.0, 1.0, 0.0]
+      - [0.0, 0.0, 1.0]
+      
+  # Calibration status
+  calibration:
+    date: "2024-01-01"
+    method: "opencv"
+    reprojection_error: 0.1
+    status: "calibrated"
+    
+# ============================================
+# IMAGE PROCESSING PARAMETERS
+# ============================================
+image_processing:
+  # Pre-processing
+  preprocessing:
+    resize: [416, 416]
+    normalize: true
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
+    
+  # Color space
+  color_space: "RGB"
+  
+  # Region of interest
+  roi:
+    enabled: true
+    x: 0
+    y: 0
+    width: 640
+    height: 480
+    
+  # Augmentation (for training)
+  augmentation:
+    horizontal_flip: true
+    rotation: 0.1
+    scale: 0.05
+    brightness: 0.1
+    
+# ============================================
+# STEREO CAMERA (if available)
+# ============================================
+stereo:
+  enabled: false
+  
+  # Stereo baseline
+  baseline: 0.1  # meters
+  
+  # Depth parameters
+  depth:
+    min_distance: 0.5
+    max_distance: 20.0
+    disparity_range: [0, 80]
+    
+  # Stereo matching
+  matching:
+    algorithm: "SGBM"
+    num_disparities: 64
+    block_size: 11
+    p1: 8
+    p2: 32

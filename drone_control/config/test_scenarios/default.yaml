@@ -1,0 +1,39 @@
+# drone_control/config/test_scenarios/default.yaml
+scenario:
+  name: default
+  description: "Standard test scenario with multiple targets"
+  duration: 60
+  target_count: 3
+  target_behavior:
+    - type: stationary
+      position: [10, 10, 5]
+      size: [1, 1, 1]
+      color: [255, 0, 0]
+    - type: linear
+      start: [0, 0, 5]
+      end: [20, 20, 10]
+      speed: 2.0
+      size: [1.5, 1.5, 1.5]
+      color: [0, 255, 0]
+    - type: circular
+      center: [10, 10, 7]
+      radius: 5
+      speed: 1.5
+      size: [1, 1, 1]
+      color: [0, 0, 255]
+  
+  environmental_conditions:
+    weather: clear
+    visibility: 1.0
+    wind_speed: 0
+    
+  detection_parameters:
+    accuracy: 0.95
+    latency: 0.05
+    false_positive_rate: 0.02
+    
+  performance_requirements:
+    max_latency: 0.1
+    min_fps: 30
+    memory_limit: 2048
+    cpu_utilization: 70

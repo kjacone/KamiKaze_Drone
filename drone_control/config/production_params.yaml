@@ -1,0 +1,26 @@
+# drone_control/config/production_params.yaml
+# Production mode parameters
+
+# System settings
+system:
+  mode: "production"
+  log_level: "info"
+  enable_profiling: false
+  enable_diagnostics: true
+  
+# Safety settings
+safety:
+  enable_geofence: true
+  enable_emergency_landing: true
+  enable_collision_avoidance: true
+  
+# Performance settings
+performance:
+  publish_rate: 50
+  control_rate: 50
+  detection_rate: 30
+  
+# Resource limits
+resources:
+  max_memory_mb: 2048
+  max_cpu_percent: 80

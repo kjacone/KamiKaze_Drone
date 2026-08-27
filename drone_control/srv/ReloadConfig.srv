@@ -1,0 +1,7 @@
+# drone_control/srv/ReloadConfig.srv
+# Reload configuration
+
+string config_file          # Config file to reload (empty for all)
+---
+bool success                # Reload result
+string message              # Reload message

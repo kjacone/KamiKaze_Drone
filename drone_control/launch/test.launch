@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- ============================================ -->
+  <!-- TEST LAUNCH CONFIGURATION                    -->
+  <!-- ============================================ -->
+  
+  <arg name="scenario" default="default" doc="Test scenario to run"/>
+  <arg name="gui" default="false" doc="Show GUI during tests"/>
+  <arg name="headless" default="true" doc="Run without GUI for CI/CD"/>
+  <arg name="timeout" default="120" doc="Test timeout in seconds"/>
+  <arg name="record_data" default="true" doc="Record test data"/>
+  
+  <!-- Load test configuration -->
+  <rosparam file="$(find drone_control)/config/test_params.yaml" command="load"/>
+  
+  <!-- Launch core system in test mode -->
+  <include file="$(find drone_control)/launch/kamikaze.launch">
+    <arg name="mode" value="test"/>
+    <arg name="simulation" value="true"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="enable_safety" value="true"/>
+    <arg name="enable_diagnostics" value="true"/>
+    <arg name="test_scenario" value="$(arg scenario)"/>
+    <arg name="test_timeout" value="$(arg timeout)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="record_test_data" value="$(arg record_data)"/>
+  </include>
+  
+  <!-- Test verification node -->
+  <node pkg="drone_control" type="test_verification.py" 
+        name="test_verification" output="screen" required="false">
+    <param name="expected_outputs" value="true"/>
+    <param name="tolerance" value="0.1"/>
+    <param name="scenario" value="$(arg scenario)"/>
+  </node>
+  
+  <!-- Test results publisher -->
+  <node pkg="drone_control" type="test_results_publisher.py" 
+        name="test_results_publisher" output="screen" required="false">
+    <param name="output_dir" value="$(find drone_control)/test_results/$(arg scenario)"/>
+  </node>
+  
+</launch>

@@ -1,0 +1,20 @@
+# Diagnostic aggregator configuration
+pub_rate: 1.0
+base_path: ''
+analyzers:
+  system:
+    type: GenericAnalyzer
+    path: System
+    contains: ['CPU', 'Memory', 'Disk']
+  nodes:
+    type: GenericAnalyzer
+    path: Nodes
+    contains: ['nodelet', 'node']
+  hardware:
+    type: GenericAnalyzer
+    path: Hardware
+    contains: ['Battery', 'Temp', 'Voltage']
+  communication:
+    type: GenericAnalyzer
+    path: Communication
+    contains: ['Network', 'Topic', 'Service']

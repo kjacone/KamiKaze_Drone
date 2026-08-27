@@ -1,0 +1,11 @@
+# Debug mode specific parameters
+debug:
+  debug_mode: true
+  log_level: debug
+  verbose_output: true
+  enable_profiling: true
+  profile_output_path: /var/log/drone_control/profile.log
+  save_intermediate_data: true
+  intermediate_data_path: /tmp/drone_control_debug/
+  enable_visualization: true
+  step_through_mode: false

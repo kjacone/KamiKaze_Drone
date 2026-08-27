@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 import rospy
 import numpy as np
 from nav_msgs.msg import Odometry

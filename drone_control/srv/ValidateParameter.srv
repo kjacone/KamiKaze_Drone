@@ -1,0 +1,9 @@
+# drone_control/srv/ValidateParameter.srv
+# Validate a parameter
+
+string param_path           # Parameter path (e.g., /detection/confidence_threshold)
+string param_value          # Parameter value as string
+---
+bool success                # Validation result
+string message              # Validation message
+string schema               # Schema information as JSON

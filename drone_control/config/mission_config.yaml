@@ -1,0 +1,50 @@
+# drone_control/config/mission_config.yaml
+# Mission state machine configuration
+
+# General mission settings
+timeout: 300                # Mission timeout in seconds
+max_retries: 3              # Maximum retry attempts
+search_altitude: 10.0       # Default search altitude in meters
+approach_speed: 2.0         # Default approach speed in m/s
+
+# Search patterns
+search_patterns:
+  default:
+    type: "spiral"
+    radius: 50.0
+    spacing: 10.0
+  lawnmower:
+    type: "lawnmower"
+    width: 100.0
+    length: 100.0
+    spacing: 10.0
+
+# Engagement logic
+engagement:
+  mode: "autonomous"        # autonomous, manual, semi_autonomous
+  priority_high: "engage"
+  priority_low: "track"
+  
+# State timeouts (seconds)
+state_timeouts:
+  initializing: 10
+  searching: 300
+  tracking: 300
+  engaging: 60
+  attacking: 30
+  returning: 120
+  landing: 60
+  emergency: 30
+
+# Recovery behavior
+recovery:
+  on_target_lost: "search"
+  on_emergency: "land"
+  on_failure: "return_home"
+  
+# Notification settings
+notifications:
+  enabled: true
+  topics:
+    - "/mission_status"
+    - "/system_status"

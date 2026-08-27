@@ -1,0 +1,65 @@
+# drone_control/config/test_params.yaml
+# Test mode specific parameters
+
+test_mode:
+  enabled: true
+  mock_sensors: true
+  simulate_targets: true
+  record_all_topics: true
+  
+  # Detection testing
+  detector:
+    confidence_threshold: 0.5
+    nms_threshold: 0.4
+    input_size: 416
+    mock_accuracy: 0.95
+    frame_skip: 0  # Process every frame in test mode
+    
+  # Tracker testing  
+  tracker:
+    max_lost_frames: 10
+    kalman_noise: 0.1
+    mock_trajectories: true
+    
+  # Controller testing
+  controller:
+    mock_feedback: true
+    response_delay: 0.1  # Simulated delay in seconds
+    noise_level: 0.05    # Sensor noise for testing robustness
+
+  # Fault injection
+  fault_injection:
+    enabled: false
+    failure_rate: 0.01
+    failure_types: ['dropped_frames', 'delayed_messages', 'noisy_detections']
+    
+  # Logging
+  logging:
+    level: debug
+    file: true
+    console: true
+    max_size: 100  # MB
+    
+  test_output:
+    save_video: true
+    save_images: true
+    save_plots: true
+    video_format: mp4
+    image_format: png
+
+# Test scenarios (overridden by scenario-specific configs)
+scenarios:
+  default:
+    duration: 60
+    target_count: 3
+    target_behavior: ['stationary', 'linear', 'circular']
+    
+  edge_cases:
+    duration: 30
+    target_count: 1
+    target_behavior: ['fast_motion', 'occlusion', 'disappearing']
+    
+  stress:
+    duration: 120
+    target_count: 10
+    target_behavior: ['random', 'collision', 'crossing']

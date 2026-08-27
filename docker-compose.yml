@@ -1,24 +1,64 @@
+version: '3.8'
+
 services:
   kamikaze:
     build:
       context: .
       network: host
-    platform: linux/amd64
+      # Use platform: linux/amd64 for Intel Mac, or linux/arm64 for M1 Mac
+      # Uncomment the appropriate line:
+      # platform: linux/amd64  # For Intel Mac
+      # platform: linux/arm64  # For M1/M2 Mac
     container_name: kamikaze_drone
     hostname: kamikaze
     environment:
-      - DISPLAY=:1
+      - DISPLAY=${DISPLAY:-:1}
       - ROS_HOSTNAME=localhost
       - ROS_MASTER_URI=http://localhost:11311
+      - TEST_MODE=${TEST_MODE:-}  # Set to "true" to run in test mode
+      - DEBUG_MODE=${DEBUG_MODE:-}  # Set to "true" to run in debug mode
+      - SKIP_SIMULATION=${SKIP_SIMULATION:-}  # Set to "true" to skip PX4
+      - ENABLE_GUI=${ENABLE_GUI:-}  # Set to "true" to enable VNC
     volumes:
       - ./entrypoint.sh:/entrypoint.sh
       - ./PX4-Autopilot:/root/PX4-Autopilot
-      - ./drone_control:/root/catkin_ws/src/drone_control   # Only the source, not the whole workspace
-    # ports:   # remove – host networking already exposes all ports
-    #   - "8080:8080"
-    #   - "8090:8090"
-    #   - "14540:14540/udp"
+      - ./drone_control:/root/catkin_ws/src/drone_control
+      # Uncomment to mount ROS logs for debugging
+      # - ./logs:/root/.ros/log
     command: /bin/bash /entrypoint.sh
     stdin_open: true
     tty: true
     network_mode: host
+    # Restart policy
+    restart: unless-stopped
+    # Resource limits for M1 Mac
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+
+  # For running tests only (no PX4/Gazebo)
+  kamikaze-test:
+    build:
+      context: .
+      network: host
+    container_name: kamikaze_test
+    hostname: kamikaze-test
+    environment:
+      - ROS_HOSTNAME=localhost
+      - ROS_MASTER_URI=http://localhost:11311
+      - TEST_MODE=true
+      - SKIP_SIMULATION=true
+    volumes:
+      - ./entrypoint.sh:/entrypoint.sh
+      - ./drone_control:/root/catkin_ws/src/drone_control
+    command: /bin/bash /entrypoint.sh
+    stdin_open: true
+    tty: true
+    network_mode: host
+    profiles:
+      - test

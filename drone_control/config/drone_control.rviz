@@ -1,0 +1,208 @@
+Panels:
+  - Class: rviz/Displays
+    Help Height: 78
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /Status1
+        - /Grid1
+        - /TF1
+        - /Camera Image1
+        - /Target Markers1
+      Splitter Ratio: 0.5
+    Tree Height: 582
+  - Class: rviz/Selection
+    Name: Selection
+  - Class: rviz/Tool Properties
+    Name: Tool Properties
+    Expanded:
+      - /2D Pose Estimate1
+      - /2D Nav Goal1
+      - /Publish Point1
+  - Class: rviz/Views
+    Name: Views
+    Expanded:
+      - /Current View1
+  - Class: rviz/Time
+    Name: Time
+    SyncMode: 0
+    SyncSource: Camera Image
+
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 1
+      Class: rviz/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 10
+      Reference Frame: map
+      Value: true
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+        camera_color_frame:
+          Value: true
+        camera_depth_frame:
+          Value: true
+        camera_link:
+          Value: true
+        camera_optical_frame:
+          Value: true
+        map:
+          Value: true
+        odom:
+          Value: true
+        world:
+          Value: true
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        map:
+          odom:
+            base_link:
+              camera_link:
+                camera_color_frame:
+                  {}
+                camera_depth_frame:
+                  {}
+                camera_optical_frame:
+                  {}
+              camera_color_frame:
+                {}
+              camera_depth_frame:
+                {}
+              camera_optical_frame:
+                {}
+      Update Interval: 0
+      Value: true
+    - Class: rviz/Image
+      Enabled: true
+      Image Topic: /camera/color/image_raw
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Camera Image
+      Normalize Range: true
+      Transport Hint: raw
+      Unreliable: false
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /drone_control/target_markers
+      Name: Target Markers
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Name: Target Bounding Box
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Path
+      Enabled: true
+      Name: Drone Trajectory
+      Topic: /drone_control/trajectory
+      Value: true
+    - Class: rviz/PoseArray
+      Enabled: true
+      Name: Drone Position History
+      Topic: /drone_control/position_history
+      Value: true
+    - Class: rviz/RobotModel
+      Enabled: false
+      Name: RobotModel
+      Visual Enabled: true
+    - Class: rviz/Map
+      Enabled: false
+      Name: Map
+      Topic: /map
+      Value: false
+    - Class: rviz/InteractiveMarkers
+      Enabled: false
+      Name: Interactive Markers
+      Update Topic: /move_base/feedback
+    - Class: rviz/Camera
+      Enabled: false
+      Name: Camera View
+      Zoom Factor: 1
+      Value: false
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Default Light:
+      Ambient Light Color: 255; 255; 255
+      Directional Light Color: 255; 255; 255
+      Directional Light Pitch: 0.7853981633974483
+      Directional Light Yaw: 0.7853981633974483
+    Fixed Frame: map
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz/Interact
+      Hide Inactive Objects: true
+    - Class: rviz/MoveCamera
+    - Class: rviz/Select
+    - Class: rviz/FocusCamera
+    - Class: rviz/Measure
+    - Class: rviz/SetInitialPose
+      Topic: /initialpose
+    - Class: rviz/SetGoal
+      Topic: /move_base_simple/goal
+    - Class: rviz/PublishPoint
+      Single click: true
+      Topic: /clicked_point
+  Value: true
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 10
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.059999999999999998
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.050000000000000003
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.0099999999999999985
+      Pitch: 0.78539816339744828
+      Target Frame: <Fixed Frame>
+      Value: Orbit (rviz)
+      Yaw: 0.78539816339744828
+    Saved: ~
+
+Window Geometry:
+  Camera Image:
+    collapsed: false
+  Displays:
+    collapsed: false
+  Height: 1024
+  Hide Left Dock: false
+  Hide Right Dock: false
+  QMainWindow State: 000000ff00000000fd00000004000000000000016a00000314fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c0061007900730100000028000002aa000000c900fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb0000001400430061006d00650072006100200049006d006100670065000000013d000001130000001600fffffffb00000020007200760069007a002d007200650063006f00760065007200790020006f006e0000000291000000880000000000000000fb0000000a0049006d006100670065000000037d000000c40000001600fffffffb0000000a005600690065007700730000000324000000b5000000a400ffffff000000010000010f00000314fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730100000324000000b50000000000000000fb0000001200530065006c0065006300740069006f006e01000001e10000009b000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004a00000003efc0100000002fb0000000800540069006d0065000100000000000004a0000002bc00fffffffb0000000800540069006d00650000000000000004a00000000000000000000002dc00000314000000040000000400000008000000008fc010000000200000001000000000400000001000000000000000000000000000000000000000000000000000000000000000000000000000000
+  Width: 1280
+  X: 50
+  Y: 50

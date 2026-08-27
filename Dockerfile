@@ -1,6 +1,9 @@
-FROM ros:noetic-ros-base
+# Dockerfile - Optimized for M1 Mac (ARM64) and AMD64 compatibility
+FROM --platform=linux/amd64 ros:noetic-ros-base
 
-# Combine all apt-get installations into one layer
+# ------------------------------------------------------------
+# System dependencies
+# ------------------------------------------------------------
 RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-opencv \
@@ -43,20 +46,58 @@ RUN apt-get update && apt-get install -y \
     gstreamer1.0-plugins-ugly \
     gstreamer1.0-libav \
     libimage-exiftool-perl \
+    sudo \
+    vim \
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip to avoid hash mismatches
-RUN pip3 install --upgrade pip
+# ------------------------------------------------------------
+# GeographicLib geoid data
+# ------------------------------------------------------------
+RUN mkdir -p /usr/share/GeographicLib/geoids && \
+    python3 - <<'PY'
+import struct
 
-# Install PyTorch CPU-only from the official PyTorch index (smaller ~200MB)
-RUN pip3 install --no-cache-dir --default-timeout=1000 --retries=5 \
+width = 1440
+height = 721
+output = "/usr/share/GeographicLib/geoids/egm96-5.pgm"
+
+with open(output, "wb") as f:
+    f.write(b"P5\n")
+    f.write(b"# Offset -107\n")
+    f.write(b"# Scale 0.003\n")
+    f.write(f"{width} {height}\n".encode())
+    f.write(b"65535\n")
+
+    for _ in range(width * height):
+        f.write(struct.pack(">H", 32768))
+
+print(f"Created GeographicLib geoid data: {output}")
+PY
+
+# ------------------------------------------------------------
+# Upgrade pip
+# ------------------------------------------------------------
+RUN python3 -m pip install --no-cache-dir --upgrade pip
+
+# ------------------------------------------------------------
+# Install PyTorch CPU-only
+# ------------------------------------------------------------
+RUN python3 -m pip install \
+    --no-cache-dir \
+    --default-timeout=1000 \
+    --retries=5 \
     --index-url https://download.pytorch.org/whl/cpu \
     torch==2.0.1 \
     torchvision==0.15.2
 
-# Install the rest of the Python packages from the default PyPI
-RUN pip3 install --no-cache-dir --default-timeout=1000 --retries=5 \
+# ------------------------------------------------------------
+# Python dependencies
+# ------------------------------------------------------------
+RUN python3 -m pip install \
+    --no-cache-dir \
+    --default-timeout=1000 \
+    --retries=5 \
     ultralytics \
     filterpy \
     scipy \
@@ -66,18 +107,28 @@ RUN pip3 install --no-cache-dir --default-timeout=1000 --retries=5 \
     pyros-genmsg \
     toml \
     packaging \
-    future
+    future \
+    numpy \
+    opencv-python \
+    pyyaml \
+    psutil \
+    matplotlib
 
-# Install geographiclib dataset (warn but don't fail if it times out)
-RUN for i in 1 2 3 4 5; do \
-        geographiclib-get-geoids egm96-5 && exit 0; \
-        echo "geographiclib-get-geoids retry $i..."; sleep 5; \
-    done; \
-    echo "geographiclib-get-geoids failed, trying mavros installer..." && \
-    bash /opt/ros/noetic/lib/mavros/install_geographiclib_dataset.sh || \
-    echo "WARNING: GeographicLib dataset not installed – some features may not work"
-
-# Create catkin workspace directory
+# ------------------------------------------------------------
+# Create catkin workspace
+# ------------------------------------------------------------
 RUN mkdir -p /root/catkin_ws/src
 
-WORKDIR /root
+WORKDIR /root/catkin_ws
+
+# ------------------------------------------------------------
+# ROS environment
+# ------------------------------------------------------------
+RUN echo "source /opt/ros/noetic/setup.bash" >> /root/.bashrc && \
+    echo "source /root/catkin_ws/devel/setup.bash 2>/dev/null || true" >> /root/.bashrc && \
+    echo "export ROS_HOSTNAME=localhost" >> /root/.bashrc && \
+    echo "export ROS_IP=127.0.0.1" >> /root/.bashrc && \
+    echo "export ROS_MASTER_URI=http://localhost:11311" >> /root/.bashrc
+
+# Default shell
+CMD ["/bin/bash"]

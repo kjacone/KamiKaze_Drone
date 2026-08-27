@@ -18,6 +18,23 @@ add_message_files(
   Object.msg
   DetectedObjects.msg
   Target.msg
+  TrackedTarget.msg
+  TrackedTargets.msg
+  ControlCommand.msg
+  MissionStatus.msg
+  Command.msg
+  CommandResponse.msg
+  SafetyStatus.msg
+  NodeHealth.msg
+  DiagnosticStatus.msg
+)
+
+# Declare services
+add_service_files(
+  FILES
+  ValidateParameter.srv
+  ReloadConfig.srv
+  EmergencyStop.srv
 )
 
 # Generate messages
@@ -26,6 +43,7 @@ generate_messages(
   std_msgs
   geometry_msgs
   sensor_msgs
+  nav_msgs
 )
 
 # Catkin package
@@ -41,11 +59,32 @@ catkin_package(
 
 # Install all Python scripts
 catkin_install_python(PROGRAMS
-  scripts/vehicle_state_monitor.py
-  scripts/target_tracking_controller.py
-  scripts/yolo_detector.py
-  scripts/camera_calibration.py
-  scripts/sensor_fusion.py
+  # Core nodes
+  scripts/core/camera_calibration.py
+  scripts/core/sensor_fusion.py
+  scripts/core/collision_avoidance.py
+  
+  # Detectors
+  scripts/detectors/yolo_detector.py
+  
+  # Controllers
+  scripts/controllers/mission_manager.py
+  scripts/controllers/command_interpreter.py
+  scripts/controllers/target_tracking_controller.py
+  
+  # Monitors
+  scripts/monitors/vehicle_state_monitor.py
+  scripts/monitors/safety_monitor.py
+  scripts/monitors/system_health_monitor.py
+  scripts/monitors/health_checker.py
+  
+  # Utils
+  scripts/utils/error_handler.py
+  scripts/utils/message_validator.py
+  scripts/utils/parameter_validator.py
+  scripts/utils/reload_parameters.py
+  scripts/utils/generate_schema_doc.py
+  
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

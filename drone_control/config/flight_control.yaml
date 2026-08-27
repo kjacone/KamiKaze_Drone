@@ -1,0 +1,147 @@
+# drone_control/config/flight_control.yaml
+# Flight control and dynamics parameters
+
+# ============================================
+# PID CONTROLLER PARAMETERS
+# ============================================
+pid:
+  # Position controller
+  position:
+    x:
+      p: 1.0
+      i: 0.01
+      d: 0.1
+      integral_clamp: 5.0
+    y:
+      p: 1.0
+      i: 0.01
+      d: 0.1
+      integral_clamp: 5.0
+    z:
+      p: 1.2
+      i: 0.02
+      d: 0.15
+      integral_clamp: 5.0
+      
+  # Velocity controller
+  velocity:
+    x:
+      p: 0.5
+      i: 0.005
+      d: 0.05
+    y:
+      p: 0.5
+      i: 0.005
+      d: 0.05
+    z:
+      p: 0.6
+      i: 0.01
+      d: 0.06
+      
+  # Attitude controller
+  attitude:
+    roll:
+      p: 4.0
+      i: 0.0
+      d: 0.1
+    pitch:
+      p: 4.0
+      i: 0.0
+      d: 0.1
+    yaw:
+      p: 2.0
+      i: 0.01
+      d: 0.05
+      
+  # Rate controller
+  rate:
+    roll:
+      p: 0.2
+      i: 0.01
+      d: 0.01
+    pitch:
+      p: 0.2
+      i: 0.01
+      d: 0.01
+    yaw:
+      p: 0.1
+      i: 0.005
+      d: 0.005
+
+# ============================================
+# FLIGHT DYNAMICS
+# ============================================
+dynamics:
+  # Physical constraints
+  constraints:
+    max_velocity: 5.0  # m/s
+    max_acceleration: 2.0  # m/s^2
+    max_yaw_rate: 1.0  # rad/s
+    
+  # Safety margins
+  safety_margins:
+    min_altitude: 2.0  # meters
+    max_altitude: 50.0  # meters
+    max_tilt: 0.8  # radians
+    max_rotation_rate: 1.5  # rad/s
+    
+  # Vehicle properties
+  vehicle:
+    mass: 1.5  # kg
+    moment_of_inertia: [0.01, 0.01, 0.02]  # kg*m^2
+    thrust_to_weight: 2.0
+    max_thrust: 30.0  # N
+
+# ============================================
+# MISSION PARAMETERS
+# ============================================
+mission:
+  # Search patterns
+  search_patterns:
+    type: "spiral"  # 'spiral', 'lawnmower', 'spiral_altitude'
+    params:
+      radius: 50.0
+      spacing: 10.0
+      altitude: 10.0
+      
+  # Engagement logic
+  engagement:
+    mode: "autonomous"  # 'autonomous', 'manual', 'semi_autonomous'
+    priority_high: "engage"
+    priority_low: "track"
+    
+  # Collision avoidance
+  collision_avoidance:
+    enable: true
+    min_distance: 1.5  # meters
+    safety_margin: 1.2  # multiplier
+    avoidance_method: "potential_field"  # 'potential_field', 'vector_field', 'model_predictive'
+    
+  # Waypoint parameters
+  waypoints:
+    tolerance: 0.5  # meters
+    loiter_time: 2.0  # seconds
+    approach_speed: 1.0  # m/s
+
+# ============================================
+# SIMULATION PARAMETERS
+# ============================================
+simulation:
+  physics:
+    enable_gravity: true
+    enable_wind: false
+    enable_turbulence: false
+    
+  environment:
+    wind_speed: 0.0
+    wind_direction: 0.0
+    turbulence_intensity: 0.0
+    
+  noise:
+    sensor_noise: 0.01
+    actuator_noise: 0.005
+    time_delay: 0.0
+    
+  speed:
+    simulation_speed: 1.0
+    real_time_factor: 1.0

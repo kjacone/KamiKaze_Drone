@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 import rospy
 from drone_control.msg import DetectedObjects, Object, BBox
 

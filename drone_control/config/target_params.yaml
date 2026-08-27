@@ -1,27 +1,155 @@
-# Target tracking parameters
-tracking:
+# drone_control/config/target_params.yaml
+# Target detection and tracking parameters
+
+# ============================================
+# TARGET DETECTION PARAMETERS
+# ============================================
+detection:
+  # YOLO model configuration
+  model:
+    path: "/root/PX4-Autopilot/yolov8s.pt"
+    device: "cpu"  # 'cpu' or 'cuda'
+    input_size: 416
+    batch_size: 1
+  
+  # Detection thresholds
   confidence_threshold: 0.5
-  engagement_distance: 10.0      # meters (when to start attacking)
-  attack_distance: 2.0           # meters (collision point)
+  nms_threshold: 0.4
+  max_detections: 100
+  
+  # Vehicle classes to track (COCO dataset IDs)
+  vehicle_classes:
+    - 1   # bicycle
+    - 2   # car
+    - 3   # motorcycle
+    - 5   # bus
+    - 6   # train
+    - 7   # truck
+    - 8   # boat
+    
+  # Class-specific thresholds
+  class_thresholds:
+    2: 0.6   # car - higher threshold
+    3: 0.5   # motorcycle
+    5: 0.7   # bus - higher threshold
+    7: 0.6   # truck
+    
+  # Performance tuning
+  performance:
+    max_fps: 30
+    frame_skip: 0  # 0 = process every frame
+    parallel_inference: false
+    gpu_memory_limit: 2048  # MB
+
+# ============================================
+# TARGET TRACKING PARAMETERS
+# ============================================
+tracking:
+  # Engagement distances
+  engagement_distance: 10.0  # meters (when to start tracking)
+  attack_distance: 2.0       # meters (collision point)
+  disengagement_distance: 15.0  # meters (when to abandon track)
+  
+  # Track management
+  max_tracks: 20
+  max_lost_frames: 10
+  min_track_length: 3  # Minimum frames before confirming track
+  track_confidence_threshold: 0.3
+  
+  # Association parameters
+  association:
+    iou_threshold: 0.3
+    distance_threshold: 1.0  # meters
+    appearance_weight: 0.3
+    motion_weight: 0.7
+    
+  # Kalman Filter parameters
   kalman:
-    dt: 0.1
+    dt: 0.1  # time step
     process_noise: 0.1
     measurement_noise: 0.05
+    initial_velocity: 0.0
+    
+    # State vector: [x, y, z, vx, vy, vz]
+    state_dim: 6
+    measurement_dim: 3
+    
+    # Process noise covariance matrix
+    process_noise_matrix:
+      - [0.1, 0.0, 0.0, 0.0, 0.0, 0.0]
+      - [0.0, 0.1, 0.0, 0.0, 0.0, 0.0]
+      - [0.0, 0.0, 0.1, 0.0, 0.0, 0.0]
+      - [0.0, 0.0, 0.0, 0.01, 0.0, 0.0]
+      - [0.0, 0.0, 0.0, 0.0, 0.01, 0.0]
+      - [0.0, 0.0, 0.0, 0.0, 0.0, 0.01]
+    
+    # Measurement noise covariance matrix
+    measurement_noise_matrix:
+      - [0.05, 0.0, 0.0]
+      - [0.0, 0.05, 0.0]
+      - [0.0, 0.0, 0.05]
+  
+  # Motion models
+  motion_models:
+    - type: "constant_velocity"
+      probability: 0.8
+    - type: "constant_acceleration"
+      probability: 0.2
 
-# Vehicle classes to track (COCO IDs for vehicles)
-vehicle_classes:
-  - 2   # car
-  - 3   # motorcycle
-  - 5   # bus
-  - 6   # train
-  - 7   # truck
-  - 1   # bicycle (optional)
+# ============================================
+# TARGET BEHAVIOR PARAMETERS
+# ============================================
+behavior:
+  # Target speed classifications
+  speed_classes:
+    stationary: 0.0
+    slow: 2.0
+    medium: 5.0
+    fast: 10.0
+    extreme: 20.0
+    
+  # Behavioral models
+  models:
+    random_walk:
+      noise_scale: 0.1
+      persistence: 0.8
+      
+    pursuit:
+      max_acceleration: 2.0
+      max_turn_rate: 1.0
+      
+    evasion:
+      max_acceleration: 3.0
+      max_turn_rate: 2.0
+      
+  # Threat assessment
+  threat:
+    distance_weights: [0.4, 0.3, 0.2, 0.1]  # Distance bands
+    speed_thresholds:
+      low: 2.0
+      medium: 5.0
+      high: 10.0
+    priority_boost: 1.2  # Multiplier for high-threat targets
 
-# Camera parameters (from calibration)
-camera:
-  fx: 500.0
-  fy: 500.0
-  cx: 320.0
-  cy: 240.0
-  width: 640
-  height: 480
+# ============================================
+# SYSTEM PERFORMANCE PARAMETERS
+# ============================================
+performance:
+  # Update rates
+  update_rates:
+    detection: 30  # Hz
+    tracking: 30   # Hz
+    control: 50    # Hz
+    state: 10      # Hz
+    
+  # Latency requirements
+  latency:
+    max_detection: 0.1   # seconds
+    max_tracking: 0.05   # seconds
+    max_control: 0.02    # seconds
+    
+  # Resource limits
+  resources:
+    max_memory_mb: 2048
+    max_cpu_percent: 80
+    max_gpu_memory_mb: 1024
