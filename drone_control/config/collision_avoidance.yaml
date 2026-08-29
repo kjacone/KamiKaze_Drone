@@ -1,0 +1,84 @@
+# Collision Avoidance Configuration
+# Sensor fusion parameters
+sensor_fusion:
+  enabled: true
+  sensor_config:
+    lidar:
+      priority: 0.7
+      max_range: 30.0
+      min_range: 0.1
+      update_rate: 10
+    camera:
+      priority: 0.2
+      fov: 90  # degrees
+      update_rate: 30
+      min_confidence: 0.3
+    radar:
+      priority: 0.1
+      max_range: 50.0
+      update_rate: 5
+      velocity_threshold: 0.5
+  
+  fusion_algorithm: "extended_kalman"  # or "bayesian", "particle"
+  outlier_rejection: true
+  outlier_threshold: 3.0  # standard deviations
+  
+# Avoidance algorithm settings
+avoidance:
+  algorithm: "apf"  # artificial potential field
+  # Options: apf, rrt, rrt_star, dwa, dynamic_window
+  
+  # Artificial Potential Field settings
+  apf:
+    attractive_gain: 1.0
+    repulsive_gain: 2.0
+    obstacle_influence_distance: 5.0
+    goal_influence_distance: 10.0
+  
+  # Dynamic Window Approach settings
+  dwa:
+    velocity_samples: 20
+    acceleration_samples: 10
+    heading_weight: 0.5
+    velocity_weight: 0.3
+    distance_weight: 0.2
+  
+  # Common parameters
+  min_distance: 1.5  # meters
+  avoidance_aggressiveness: 0.8  # 0-1
+  prediction_horizon: 2.0  # seconds
+  dynamic_obstacle_enabled: true
+  obstacle_tracking_enabled: true
+  
+# Risk assessment thresholds
+risk_assessment:
+  min_risk_threshold: 0.3
+  moderate_risk_threshold: 0.6
+  high_risk_threshold: 0.8
+  critical_risk_threshold: 0.95
+  
+  risk_factors:
+    distance_to_obstacle: 0.4
+    obstacle_relative_velocity: 0.3
+    obstacle_heading_angle: 0.2
+    sensor_confidence: 0.1
+  
+# Maneuver selection
+maneuvers:
+  allowed_maneuvers:
+    - "stop"
+    - "avoid_left"
+    - "avoid_right"
+    - "avoid_up"
+    - "avoid_down"
+    - "hover"
+    - "emergency_landing"
+  
+  min_clearance: 0.5  # meters
+  maneuver_timeout: 5.0  # seconds
+  
+# Performance settings
+performance:
+  max_obstacles: 50
+  update_rate: 20  # Hz
+  publish_debug: false

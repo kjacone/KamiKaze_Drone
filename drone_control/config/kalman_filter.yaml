@@ -2,131 +2,69 @@
 # Kalman filter configuration
 
 kalman_filter:
-  # Filter type
-  type: "extended"  # 'linear', 'extended', 'unscented'
-  
-  # State vector: [x, y, z, vx, vy, vz, ax, ay, az]
+  type: "extended"
   state_dim: 9
   measurement_dim: 3
   
-  # ============================================
-  # NOISE PARAMETERS
-  # ============================================
   noise:
-    # Process noise
     process:
       position: 0.1
       velocity: 0.05
       acceleration: 0.02
-      
-      # Process noise covariance matrix (Q)
-      Q:
-        - [0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        - [0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        - [0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        - [0.0, 0.0, 0.0, 0.005, 0.0, 0.0, 0.0, 0.0, 0.0]
-        - [0.0, 0.0, 0.0, 0.0, 0.005, 0.0, 0.0, 0.0, 0.0]
-        - [0.0, 0.0, 0.0, 0.0, 0.0, 0.005, 0.0, 0.0, 0.0]
-        - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0]
-        - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001, 0.0]
-        - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.001]
-        
-    # Measurement noise
     measurement:
       position: 0.05
-      
-      # Measurement noise covariance matrix (R)
-      R:
-        - [0.0025, 0.0, 0.0]
-        - [0.0, 0.0025, 0.0]
-        - [0.0, 0.0, 0.0025]
-        
-  # ============================================
-  # FILTER PARAMETERS
-  # ============================================
+  
   parameters:
-    # Time step
     dt: 0.1
-    
-    # Adaptive tuning
     adaptive:
       enabled: true
-      update_rate: 10  # Hz
+      update_rate: 10
       innovation_threshold: 0.5
-      
-    # Outlier rejection
     outlier_rejection:
       enabled: true
       mahalanobis_threshold: 3.0
       gating: true
-      
-    # Initialization
     initialization:
       max_measurements: 5
       min_velocity_samples: 3
-      
-    # Convergence
     convergence:
       max_iterations: 10
       epsilon: 0.001
-      
-  # ============================================
-  # MULTI-TARGET TRACKING
-  # ============================================
+
   multi_target:
     enabled: true
     max_targets: 20
-    
-    # Data association
     association:
-      method: "gmphd"  # 'gmphd', 'jpda', 'global_nearest'
-      
-      # Gating
+      method: "gmphd"
       gating:
         enabled: true
         gate_size: 3.0
         dynamic_gating: true
-        
-      # Track management
       track_management:
         birth_probability: 0.1
         death_threshold: 0.5
         merge_threshold: 0.3
-        
-    # Track scoring
     scoring:
       position_weight: 0.4
       velocity_weight: 0.3
       appearance_weight: 0.3
       history_length: 10
 
-# ============================================
-# SENSOR FUSION PARAMETERS
-# ============================================
 sensor_fusion:
-  # Sensor types
   sensors:
     - type: "camera"
       weight: 0.6
       update_rate: 30
-      
     - type: "radar"
       weight: 0.3
       update_rate: 10
-      
     - type: "lidar"
       weight: 0.1
       update_rate: 5
-      
-  # Fusion algorithms
   algorithms:
-    type: "centralized"  # 'centralized', 'decentralized', 'distributed'
-    
-    # Centralized fusion
+    type: "centralized"
     centralized:
       measurement_dim: 9
-      
-    # Track-to-track fusion
     track_to_track:
       covariance_intersection: true
       gamma: 0.5

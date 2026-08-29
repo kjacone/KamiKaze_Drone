@@ -1,0 +1,51 @@
+.git
+.gitignore
+.github
+
+# ROS build artifacts
+build/
+devel/
+install/
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+
+# Large simulation/output files
+*.bag
+*.db3
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# YOLO/model artifacts
+runs/
+wandb/
+# *.pt
+*.onnx
+*.engine
+
+# Temporary files
+tmp/
+temp/
+*.log

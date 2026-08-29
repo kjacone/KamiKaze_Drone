@@ -1,0 +1,282 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM
+
+env:
+  DOCKER_REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Job 1: Code Quality and Linting
+  lint:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10']
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pylint black mypy isort
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+    
+    - name: Lint with flake8
+      run: |
+        flake8 drone_control/scripts/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 drone_control/scripts/ --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
+    
+    - name: Check formatting with black
+      run: |
+        black --check drone_control/scripts/
+    
+    - name: Sort imports with isort
+      run: |
+        isort --check-only drone_control/scripts/
+    
+    - name: Type check with mypy
+      run: |
+        mypy drone_control/scripts/ --ignore-missing-imports
+    
+    - name: Lint with pylint
+      run: |
+        pylint drone_control/scripts/ --fail-under=7.0 --reports=y --output-format=parseable
+
+  # Job 2: Build and Test
+  test:
+    runs-on: ubuntu-22.04
+    needs: lint
+    strategy:
+      matrix:
+        test-type: ['unit', 'integration', 'system']
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        cache: 'pip'
+    
+    - name: Install ROS
+      run: |
+        sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+        sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+        sudo apt update
+        sudo apt install -y ros-noetic-ros-base python3-catkin-tools python3-rosdep python3-rosinstall
+        sudo rosdep init || true
+        rosdep update
+    
+    - name: Install project dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-html pytest-xdist coverage
+        sudo apt install -y ros-noetic-rostest ros-noetic-roslaunch
+    
+    - name: Build workspace
+      run: |
+        source /opt/ros/noetic/setup.bash
+        cd $GITHUB_WORKSPACE
+        catkin build --cmake-args -DCMAKE_BUILD_TYPE=Release
+    
+    - name: Run ${{ matrix.test-type }} tests
+      run: |
+        source /opt/ros/noetic/setup.bash
+        source $GITHUB_WORKSPACE/devel/setup.bash
+        export ROS_MASTER_URI=http://localhost:11311
+        export ROS_IP=127.0.0.1
+        
+        if [ "${{ matrix.test-type }}" = "unit" ]; then
+          pytest drone_control/test/unit/ -v --cov=drone_control --cov-report=html --cov-report=term -n auto
+        elif [ "${{ matrix.test-type }}" = "integration" ]; then
+          pytest drone_control/test/integration/ -v --cov=drone_control --cov-append -n auto
+        else
+          roslaunch drone_control test.launch mode:=test headless:=true --screen || true
+        fi
+    
+    - name: Upload test coverage
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-${{ matrix.test-type }}
+        path: |
+          ./htmlcov/
+          ./coverage.xml
+          ./test-reports/
+    
+    - name: Upload test logs
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-logs-${{ matrix.test-type }}
+        path: |
+          ./logs/
+          ./test_results/
+          ./test-reports/
+
+  # Job 3: Security Scanning
+  security-scan:
+    runs-on: ubuntu-22.04
+    needs: lint
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH'
+    
+    - name: Upload Trivy results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+    
+    - name: Run Bandit security scan
+      run: |
+        pip install bandit
+        bandit -r drone_control/scripts/ -f json -o bandit-report.json || true
+    
+    - name: Upload Bandit results
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          trivy-results.sarif
+
+  # Job 4: Performance Regression Testing
+  performance-test:
+    runs-on: ubuntu-22.04
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    - name: Install performance testing tools
+      run: |
+        pip install locust pytest-benchmark memory-profiler
+        sudo apt install -y sysstat linux-tools-common
+    
+    - name: Run performance benchmarks
+      run: |
+        python -m pytest drone_control/test/performance/ -v --benchmark-json=benchmark.json
+    
+    - name: Upload performance results
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-results
+        path: |
+          benchmark.json
+          performance-reports/
+
+  # Job 5: Docker Build and Push
+  docker-build:
+    runs-on: ubuntu-22.04
+    needs: [test, security-scan, performance-test]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Log in to container registry
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ env.DOCKER_REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,format=long
+    
+    - name: Build and push Docker images
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: docker/Dockerfile.prod
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILDKIT_INLINE_CACHE=1
+
+  # Job 6: Deployment
+  deploy:
+    runs-on: ubuntu-22.04
+    needs: docker-build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install Docker Compose
+      run: |
+        sudo curl -L "https://github.com/docker/compose/releases/download/v2.17.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+    
+    - name: Deploy to production
+      run: |
+        docker-compose -f docker-compose.yml -f docker/docker-compose.prod.yml pull
+        docker-compose -f docker-compose.yml -f docker/docker-compose.prod.yml up -d --remove-orphans
+    
+    - name: Health check
+      run: |
+        sleep 30
+        curl -f http://localhost:11311 || exit 1
+        curl -f http://localhost:3000 || exit 1
+        curl -f http://localhost:9090 || exit 1
+    
+    - name: Notify deployment status
+      if: always()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const status = '${{ job.status }}' === 'success' ? '✅ SUCCESS' : '❌ FAILURE';
+          github.rest.repos.createCommitStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            sha: context.sha,
+            state: '${{ job.status }}' === 'success' ? 'success' : 'failure',
+            context: 'deployment',
+            description: `Deployment to production ${status}`,
+            target_url: 'https://${{ github.repository_owner }}.github.io/${{ github.repository }}'
+          })

@@ -1,166 +1,357 @@
-# Autonomous Kamikaze Drone Project
+# 🚁 Autonomous Kamikaze Drone Project
 
-> Educational and research use only.
->
-> This project is intended for controlled simulation environments. It is not
-> recommended for real-world surveillance, tracking, weaponization, or
-> operational deployment. Users are responsible for complying with all
-> applicable laws, safety requirements, and organizational policies.
+> **Educational and research use only.**
+
+This project is intended for controlled simulation environments. It is **not recommended for real-world surveillance, tracking, weaponization, or operational deployment**. Users are responsible for complying with all applicable laws, safety requirements, and organizational policies.
+
+---
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [System Architecture](#system-architecture)
-- [Key Components](#key-components)
+  - [Core Components](#core-components)
+  - [Data Flow](#data-flow)
+  - [Monitoring](#monitoring)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
+  - [Docker Setup](#docker-setup)
+  - [Native Ubuntu Setup](#native-ubuntu-setup)
 - [Running the Project](#running-the-project)
+  - [Docker Mode](#docker-mode)
+  - [Native Mode](#native-mode)
 - [Configuration](#configuration)
 - [Troubleshooting](#troubleshooting)
 - [Project Structure](#project-structure)
-- [Mission States](#mission-states)
+- [Mission and Control Components](#mission-and-control-components)
+- [Network Ports](#network-ports)
+- [Development](#development)
 - [Contributing](#contributing)
 - [License](#license)
 - [Disclaimer](#disclaimer)
 
+---
+
 ## Overview
 
-This repository contains a ROS-based autonomous drone simulation that combines
-YOLOv8 object detection, MAVROS, PX4 SITL, and Gazebo Classic. The project is
-structured for experimenting with simulated perception, vehicle state
-monitoring, and target-tracking control loops.
+This repository contains a ROS-based autonomous drone simulation combining:
 
-## System Architecture
+| Technology | Purpose |
+|---|---|
+| **YOLOv8** | Simulated object detection |
+| **ROS Noetic** | Robotics middleware |
+| **MAVROS** | ROS ↔ MAVLink/PX4 communication |
+| **PX4 SITL** | Simulated flight controller |
+| **Gazebo Classic** | 3D simulation environment |
+| **Docker** | Reproducible development environment |
+| **noVNC** | Browser-based graphical simulation access |
+| **Prometheus** | Metrics collection |
+| **Grafana** | Monitoring and visualization |
+| **Node Exporter** | Host/system metrics |
+| **cAdvisor** | Container metrics |
+
+The project is structured for experimenting with simulated perception, vehicle-state monitoring, target tracking, trajectory planning, control loops, safety monitoring, and system observability.
+
+All flight behavior described in this repository is intended to remain inside the simulation environment.
+
+---
+
+# System Architecture
+
+## Core Components
+
+The main Docker Compose stack is organized around the `kamikaze_drone` container and an optional monitoring stack.
 
 ```text
-Camera / Detection (YOLOv8)
-        |
-        v
-/detected_objects
-        |
-        v
-Target Tracking Controller
-        |
-        +-- /mavros/setpoint_raw/local
-        |
-        +-- /mavros/setpoint_velocity/cmd_vel_unstamped
-                         |
-                         v
-                       MAVROS
-                         |
-                         v
-                        PX4
-                         |
-                         v
-                       Gazebo
-                         |
-                         +-- Position / IMU feedback
+┌──────────────────────────────────────────────────────────────────────┐
+│                         DOCKER COMPOSE STACK                         │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  ┌──────────────────────┐       ┌──────────────────────────────┐    │
+│  │   kamikaze_drone     │       │      Monitoring Stack        │    │
+│  │   Main Container     │──────▶│ Prometheus / Grafana / etc. │    │
+│  └──────────┬───────────┘       └──────────────────────────────┘    │
+│             │                                                        │
+│             ▼                                                        │
+│  ┌──────────────────────┐                                            │
+│  │      ROS Master      │                                            │
+│  │       roscore        │                                            │
+│  └──────────┬───────────┘                                            │
+│             │                                                        │
+│             ▼                                                        │
+│  ┌──────────────────────┐                                            │
+│  │   PX4 SITL + Gazebo  │                                            │
+│  └──────────┬───────────┘                                            │
+│             │                                                        │
+│             ▼                                                        │
+│  ┌──────────────────────┐                                            │
+│  │       MAVROS         │                                            │
+│  │     FCU Bridge       │                                            │
+│  └──────────┬───────────┘                                            │
+│             │                                                        │
+│             ▼                                                        │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │                    ROS Control Nodes                         │   │
+│  │ YOLO → Tracking → Planning → Control → Safety/Monitoring    │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
-## Key Components
+### Component Connections
 
-| Component | Description | Interface |
-| --- | --- | --- |
-| YOLO Detector | Detects supported object classes in image streams. | Publishes `/detected_objects`. |
-| Target Tracker | Runs the target-tracking state machine. | Subscribes to `/detected_objects` and `/mavros/local_position/odom`. |
-| Vehicle State Monitor | Monitors vehicle state from MAVROS. | Reads MAVROS state and odometry topics. |
-| PX4 SITL | Simulated flight controller. | Runs PX4 software-in-the-loop. |
-| MAVROS | ROS-to-PX4 communication bridge. | Exposes MAVLink data as ROS topics and services. |
-| Gazebo Classic | 3D simulation environment. | Provides simulated world and sensor feedback. |
+```text
+Gazebo
+   │
+   ▼
+PX4 SITL
+   │
+   ▼
+MAVROS
+   │
+   ▼
+ROS Control Nodes
+   │
+   ├── YOLO Detector
+   ├── Target Tracker
+   ├── Trajectory Planner
+   ├── Predictive Controller
+   ├── Collision Avoidance
+   └── Performance Monitor
+```
 
-## Prerequisites
+### Service Dependencies
 
-### Docker Setup
+```text
+kamikaze_drone
+│
+├── ROS Master (roscore)
+│
+├── Gazebo
+│   └── Port 11345
+│
+├── PX4 SITL
+│   ├── TCP 4560
+│   ├── UDP 14540
+│   └── UDP 14580
+│
+├── MAVROS
+│   └── FCU URL: udp://:14540@127.0.0.1:14557
+│
+└── ROS Control Nodes
+    ├── YOLO detector
+    ├── Trajectory planner
+    ├── Predictive controller
+    ├── Collision avoidance
+    └── Performance monitor
 
-The Docker workflow is recommended for a consistent local environment.
+Monitoring
+│
+├── Prometheus
+│   └── Port 9090
+│
+├── Grafana
+│   └── Port 3000
+│
+├── Node Exporter
+│   └── Port 9100
+│
+└── cAdvisor
+    └── Port 8081
+```
 
-- Docker Engine 20.10 or newer
-- Docker Compose 1.29 or newer, or the Docker Compose v2 plugin
-- 8 GB RAM minimum
-- 16 GB RAM recommended
-- 20 GB free disk space or more
+---
 
-### Native Setup
+## Data Flow
 
-- Ubuntu 20.04 LTS
-- ROS Noetic
+### Control Loop
+
+```text
+Camera Image
+     │
+     ▼
+YOLO Detector
+     │
+     ▼
+Detection Array
+     │
+     ▼
+Target Tracking
+     │
+     ▼
+Trajectory Planner
+     │
+     ▼
+Path
+     │
+     ▼
+Predictive Controller
+     │
+     ▼
+Control Command
+     │
+     ▼
+MAVROS
+     │
+     ▼
+PX4 SITL
+     │
+     ▼
+Gazebo
+     │
+     ▼
+State Feedback
+     │
+     ▼
+Sensor Fusion / EKF
+```
+
+### Monitoring Flow
+
+```text
+ROS Nodes
+    │
+    ▼
+Performance Monitor
+    │
+    ▼
+Prometheus
+    │
+    ▼
+Grafana
+```
+
+Metrics include:
+
+- CPU and memory statistics
+- System health
+- Control latency
+- Throughput
+- Custom application metrics
+- Container metrics
+- Time-series monitoring
+
+---
+
+# Prerequisites
+
+## Docker Setup
+
+The Docker workflow is recommended for a consistent development and simulation environment.
+
+### Minimum
+
+- Docker Engine **20.10+**
+- Docker Compose **1.29+** or Compose v2
+- **8 GB RAM**
+- **20 GB free disk space**
+
+### Recommended
+
+- **16 GB RAM or more**
+- Hardware virtualization enabled
+- NVIDIA GPU for faster YOLO inference, where supported
+
+## Native Ubuntu Setup
+
+The native workflow requires:
+
+- Ubuntu **20.04 LTS**
+- ROS **Noetic**
 - PX4 Autopilot
-- MAVROS and MAVROS Extras
+- MAVROS
+- MAVROS Extras
 - Gazebo Classic
 - Python 3
-- NVIDIA GPU optional, for faster YOLO inference
+- NVIDIA GPU — optional
 
-## Installation
+> **Note:** ROS Noetic is designed for Ubuntu 20.04. Native installation on other Ubuntu versions may require additional compatibility work.
 
-### Method 1: Docker
+---
 
-Clone the repository:
+# Installation
+
+## Docker Setup
+
+### 1. Clone the Repository
+
+Clone the repository together with the PX4 submodule:
 
 ```bash
-git clone https://github.com/kjacone/KamiKaze_Drone.git
-cd KamiKaze_Drone
-# You'll see an empty PX4-Autopilot folder
-# To get the submodule content:
-git submodule update --init --recursive
-
-
-
-# This updates the main repo
-git pull
-# But submodule won't update automatically!
-# You need to:
-git submodule update --init --recursive
-To pull everything at once (one command):
-
-# Clone with submodules
 git clone --recurse-submodules https://github.com/kjacone/KamiKaze_Drone.git
-# Pull with submodules
-git pull --recurse-submodules
+cd KamiKaze_Drone
+```
 
+If the repository was cloned without submodules:
 
+```bash
+git submodule update --init --recursive
+```
 
-# If you want to update PX4-Autopilot to a newer version:
-cd KamiKaze_Drone/PX4-Autopilot
+### 2. Update the Repository
+
+```bash
+git pull
+git submodule update --init --recursive
+```
+
+### 3. Update PX4
+
+Only update the PX4 submodule intentionally, since changing the PX4 revision can introduce compatibility changes.
+
+```bash
+cd PX4-Autopilot
 git checkout main
 git pull
 cd ..
-git add PX4-Autopilot
-git commit -m "Update PX4-Autopilot to latest"
-
 ```
 
-Build the Docker image:
+Record the new submodule revision:
+
+```bash
+git add PX4-Autopilot
+git commit -m "Update PX4-Autopilot"
+```
+
+> **Important:** Validate the entire simulation after changing the PX4 revision.
+
+### 4. Build the Docker Image
 
 ```bash
 docker-compose build
 ```
 
-Start the container:
+### 5. Start the Container
 
 ```bash
 docker-compose up -d
 ```
 
-Verify that the container is running:
+### 6. Verify the Container
 
 ```bash
 docker ps | grep kamikaze_drone
 ```
 
-View logs:
+### 7. View Logs
 
 ```bash
 docker logs kamikaze_drone
 ```
 
-Open the simulation in a browser:
+### 8. Open the Simulation
+
+Open the browser-based VNC interface:
 
 ```text
 http://localhost:8080/vnc.html
 ```
 
+---
 
-Install ROS Noetic:
+## Native Ubuntu Setup
+
+### 1. Install ROS Noetic
 
 ```bash
 sudo apt update
@@ -170,7 +361,7 @@ echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-Install MAVROS:
+### 2. Install MAVROS
 
 ```bash
 sudo apt install ros-noetic-mavros ros-noetic-mavros-extras
@@ -178,27 +369,30 @@ sudo apt install geographiclib-tools
 sudo geographiclib-get-geoids egm96-5
 ```
 
-Install PX4 Autopilot:
+### 3. Install PX4 Autopilot
 
 ```bash
 git clone https://github.com/PX4/PX4-Autopilot.git --recursive
 cd PX4-Autopilot
 bash ./Tools/setup/ubuntu.sh --no-nuttx
+cd ..
 ```
 
-Install Gazebo ROS packages:
+### 4. Install Gazebo ROS Packages
 
 ```bash
 sudo apt install ros-noetic-gazebo-ros-pkgs ros-noetic-gazebo-ros-control
 ```
 
-Install Python dependencies:
+### 5. Install Python Dependencies
+
+From the project root:
 
 ```bash
 pip3 install -r requirements.txt
 ```
 
-Clone this repository:
+### 6. Clone the Project
 
 ```bash
 cd ~
@@ -206,11 +400,12 @@ git clone https://github.com/kjacone/KamiKaze_Drone.git
 cd KamiKaze_Drone
 ```
 
-Set up the ROS workspace:
+### 7. Create the ROS Workspace
 
 ```bash
 mkdir -p ~/catkin_ws/src
 cd ~/catkin_ws/src
+
 ln -s ~/KamiKaze_Drone/drone_control .
 
 cd ~/catkin_ws
@@ -218,73 +413,82 @@ catkin_make
 source devel/setup.bash
 ```
 
-Copy the modified Iris model, if your setup requires it:
+### 8. Copy the Modified Iris Model
+
+If the simulation requires the project's modified Iris model:
 
 ```bash
 cp ~/KamiKaze_Drone/modified_px4/Tools/simulation/gazebo-classic/models/iris/iris.sdf.jinja \
-  ~/PX4-Autopilot/Tools/simulation/gazebo-classic/models/iris/
+   ~/PX4-Autopilot/Tools/simulation/gazebo-classic/models/iris/
 ```
 
-## Running the Project
+---
 
-### Docker Mode
+# Running the Project
 
-Start the container:
+## Docker Mode
+
+### 1. Start the Simulation
 
 ```bash
 docker-compose up -d
 ```
 
-Open noVNC:
+### 2. Open noVNC
+
+Open:
 
 ```text
 http://localhost:8080/vnc.html
 ```
 
-Enter the running container:
+### 3. Enter the Container
 
 ```bash
 docker exec -it kamikaze_drone bash
 ```
 
-Source the ROS workspace inside the container:
+### 4. Source the ROS Workspace
 
 ```bash
 source /root/catkin_ws/devel/setup.bash
 ```
 
-Run the test detector:
+### 5. Run the Test Detector
 
 ```bash
 rosrun drone_control test_detector.py
 ```
 
-Run the YOLO detector:
+### 6. Run the YOLO Detector
 
 ```bash
 rosrun drone_control yolo_detector.py
 ```
 
-Monitor velocity commands:
+### 7. Monitor Velocity Commands
 
 ```bash
 rostopic echo /mavros/setpoint_velocity/cmd_vel_unstamped
 ```
 
-Stop the container:
+### 8. Stop the Simulation
 
 ```bash
 docker-compose down
 ```
 
-### Native Mode
+---
 
-Open five terminals and run the following commands.
+## Native Mode
 
-#### Terminal 1: Launch PX4 SITL
+The native workflow uses separate terminals for PX4, MAVROS, monitoring, control, and visualization.
+
+### Terminal 1 — Launch PX4 SITL
 
 ```bash
 cd ~/PX4-Autopilot
+
 DONT_RUN=1 make px4_sitl_default gazebo-classic_iris
 
 source Tools/simulation/gazebo-classic/setup_gazebo.bash \
@@ -297,7 +501,7 @@ export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:$(pwd)/Tools/simulation/gazebo-classic
 roslaunch px4 posix_sitl.launch
 ```
 
-#### Terminal 2: Launch MAVROS
+### Terminal 2 — Launch MAVROS
 
 ```bash
 source ~/catkin_ws/devel/setup.bash
@@ -306,21 +510,21 @@ roslaunch mavros px4.launch \
   fcu_url:=udp://:14540@127.0.0.1:14557
 ```
 
-#### Terminal 3: Start Vehicle State Monitor
+### Terminal 3 — Start Vehicle State Monitor
 
 ```bash
 source ~/catkin_ws/devel/setup.bash
 rosrun drone_control vehicle_state_monitor.py
 ```
 
-#### Terminal 4: Start Target Tracking Controller
+### Terminal 4 — Start Target Tracking Controller
 
 ```bash
 source ~/catkin_ws/devel/setup.bash
 rosrun drone_control target_tracking_controller.py
 ```
 
-#### Terminal 5: Visualize Processed Images
+### Terminal 5 — Visualize Processed Images
 
 Start `rqt`:
 
@@ -328,15 +532,29 @@ Start `rqt`:
 rqt
 ```
 
-Then open `Plugins > Visualization > Image View` and select:
+Then open:
+
+**Plugins → Visualization → Image View**
+
+Select:
 
 ```text
 /processed_image
 ```
 
-## Configuration
+---
 
-### Target Parameters
+# Configuration
+
+Configuration files are located under:
+
+```text
+drone_control/config/
+```
+
+The repository contains configuration for tracking, mission behavior, flight control, camera calibration, filtering, system parameters, testing, debugging, diagnostics, and test scenarios.
+
+## Target Parameters
 
 Target-tracking parameters are stored in:
 
@@ -358,41 +576,45 @@ detection:
   vehicle_classes: [2, 3, 5, 6, 7]
 ```
 
-The configured COCO class IDs correspond to:
+Configured COCO class IDs:
 
 | Class ID | Object |
-| ---: | --- |
+|---:|---|
 | `2` | Car |
 | `3` | Motorcycle |
 | `5` | Bus |
 | `6` | Train |
 | `7` | Truck |
 
-### Docker Compose
+> These values are part of the simulation configuration. Changes should be tested in simulation before being used in other environments.
 
-Useful Docker Compose settings are defined in:
+## Docker Compose
+
+Docker configuration is defined in:
 
 ```text
 docker-compose.yml
 ```
 
-Common environment variables:
+### Common Environment Variables
 
 | Variable | Purpose |
-| --- | --- |
-| `DISPLAY` | Virtual X display used by the GUI simulation. |
-| `ROS_MASTER_URI` | ROS master address. |
+|---|---|
+| `DISPLAY` | Virtual X display used by the GUI simulation |
+| `ROS_MASTER_URI` | ROS master address |
 
-Common volume mounts:
+### Common Volume Mounts
 
 | Host Path | Container Path | Purpose |
-| --- | --- | --- |
-| `./PX4-Autopilot` | `/root/PX4-Autopilot` | PX4 source tree. |
-| `./drone_control` | `/root/catkin_ws/src/drone_control` | ROS control package. |
+|---|---|---|
+| `./PX4-Autopilot` | `/root/PX4-Autopilot` | PX4 source tree |
+| `./drone_control` | `/root/catkin_ws/src/drone_control` | ROS control package |
 
-## Troubleshooting
+---
 
-### noVNC Shows the Ubuntu Logo Instead of Gazebo
+# Troubleshooting
+
+## noVNC Shows the Ubuntu Logo Instead of Gazebo
 
 Enter the container:
 
@@ -406,22 +628,26 @@ Restart the display stack:
 pkill -f Xvfb
 pkill -f x11vnc
 pkill -f websockify
+
 sleep 2
 
 Xvfb :1 -screen 0 1280x800x24 &
 sleep 2
+
 DISPLAY=:1 fluxbox &
 x11vnc -display :1 -forever -nopw -quiet &
-websockify --web=/usr/share/novnc 8080 localhost:5900 &
+websockify --web=/usr/share/novnc 8080 localhost:5900
 ```
 
-Open:
+Then open:
 
 ```text
 http://localhost:8080/vnc.html
 ```
 
-### Drone Is Not Moving
+---
+
+## Drone Is Not Moving
 
 Check MAVROS state:
 
@@ -429,19 +655,27 @@ Check MAVROS state:
 rostopic echo /mavros/state
 ```
 
-Verify that MAVROS is connected:
+Verify that MAVROS reports:
 
 ```text
 connected: True
 ```
 
-Verify that the flight controller is in the expected simulation mode:
+Also verify that the flight controller is in the expected simulation mode:
 
 ```text
 mode: "OFFBOARD"
 ```
 
-### No Target Detection
+Check whether the controller is publishing setpoints:
+
+```bash
+rostopic echo /mavros/setpoint_velocity/cmd_vel_unstamped
+```
+
+---
+
+## No Target Detection
 
 Check whether the detection topic is publishing:
 
@@ -455,13 +689,15 @@ If there is no output, run the test detector:
 rosrun drone_control test_detector.py
 ```
 
-Inspect detections:
+Inspect detection messages:
 
 ```bash
 rostopic echo /detected_objects
 ```
 
-### MAVROS Is Not Connecting
+---
+
+## MAVROS Is Not Connecting
 
 Check MAVROS state:
 
@@ -469,118 +705,292 @@ Check MAVROS state:
 rostopic echo /mavros/state
 ```
 
-If MAVROS is not connected, restart it:
+Restart MAVROS:
 
 ```bash
 roslaunch mavros px4.launch \
   fcu_url:=udp://:14540@127.0.0.1:14557
 ```
 
-### Useful Docker Commands
+---
 
-Follow logs:
+# Useful Docker Commands
+
+### Follow Logs
 
 ```bash
 docker logs -f kamikaze_drone
 ```
 
-Check simulation processes:
+### Check Simulation Processes
 
 ```bash
 docker exec kamikaze_drone ps aux | grep -E 'px4|mavros|gz|ros'
 ```
 
-Restart the container:
+### Restart the Container
 
 ```bash
 docker restart kamikaze_drone
 ```
 
-Rebuild after code changes:
+### Rebuild After Code Changes
 
 ```bash
 docker-compose up -d --build
 ```
 
-## Project Structure
+### Rebuild from Scratch
+
+```bash
+docker-compose down
+docker-compose build kamikaze --no-cache
+docker-compose --profile monitoring up -d
+```
+
+### Quick ROS Diagnostics
+
+```bash
+# Check whether ROS Master is running
+docker exec kamikaze_drone rostopic list
+
+# List running ROS nodes
+docker exec kamikaze_drone rosnode list
+
+# Test the YOLO detector
+docker exec kamikaze_drone rosrun drone_control yolo_detector.py --help
+
+# Check Prometheus metrics
+curl http://localhost:9090/metrics
+
+# Check Grafana health
+curl http://localhost:3000/api/health
+```
+
+---
+
+# Project Structure
 
 ```text
 KamiKaze_Drone/
-|-- Dockerfile
-|-- LICENSE
-|-- README.md
-|-- docker-compose.yml
-|-- entrypoint.sh
-|-- requirements.txt
-|-- catkin_ws/
-|-- drone_control/
-|   |-- CMakeLists.txt
-|   |-- package.xml
-|   |-- config/
-|   |   `-- target_params.yaml
-|   |-- launch/
-|   |   `-- kamikaze.launch
-|   |-- msg/
-|   |   |-- BBox.msg
-|   |   |-- DetectedObjects.msg
-|   |   |-- Object.msg
-|   |   `-- Target.msg
-|   `-- scripts/
-|       |-- camera_calibration.py
-|       |-- sensor_fusion.py
-|       |-- target_tracking_controller.py
-|       |-- test_detector.py
-|       |-- vehicle_state_monitor.py
-|       `-- yolo_detector.py
-`-- PX4-Autopilot/
-    `-- PX4 flight stack
+├── Dockerfile
+├── docker-compose.yml
+├── entrypoint.sh
+├── requirements.txt
+├── README.md
+├── LICENSE
+│
+├── PX4-Autopilot/                    # PX4 flight stack Git submodule
+│
+├── catkin_ws/                        # ROS workspace / mount point
+│
+└── drone_control/                    # Main ROS package
+    ├── CMakeLists.txt
+    ├── package.xml
+    │
+    ├── config/
+    │   ├── target_params.yaml
+    │   ├── mission_config.yaml
+    │   ├── flight_control.yaml
+    │   ├── camera_calib.yaml
+    │   ├── kalman_filter.yaml
+    │   ├── system_params.yaml
+    │   ├── production_params.yaml
+    │   ├── test_params.yaml
+    │   ├── debug_params.yaml
+    │   ├── diagnostics.yaml
+    │   ├── drone_control.rviz
+    │   └── test_scenarios/
+    │
+    ├── launch/
+    │   ├── kamikaze.launch
+    │   ├── test.launch
+    │   └── test_minimal.launch
+    │
+    ├── msg/
+    │   ├── BBox.msg
+    │   ├── Object.msg
+    │   ├── DetectedObjects.msg
+    │   ├── Target.msg
+    │   ├── TrackedTarget.msg
+    │   ├── TrackedTargets.msg
+    │   ├── ControlCommand.msg
+    │   ├── MissionStatus.msg
+    │   ├── Command.msg
+    │   ├── CommandResponse.msg
+    │   ├── SafetyStatus.msg
+    │   ├── NodeHealth.msg
+    │   ├── DiagnosticStatus.msg
+    │   ├── Detection.msg
+    │   └── DetectionArray.msg
+    │
+    ├── srv/
+    │   ├── EmergencyStop.srv
+    │   ├── ValidateParameter.srv
+    │   └── ReloadConfig.srv
+    │
+    ├── lib/
+    │   ├── control_lib.py
+    │   ├── mission_lib.py
+    │   ├── safety_lib.py
+    │   └── __init__.py
+    │
+    └── scripts/
+        ├── controllers/
+        │   ├── target_tracking_controller.py
+        │   ├── mission_manager.py
+        │   ├── flight_controller.py
+        │   ├── waypoint_navigator.py
+        │   ├── trajectory_planner.py
+        │   ├── predictive_controller.py
+        │   ├── collision_avoidance.py
+        │   ├── command_interpreter.py
+        │   └── __init__.py
+        │
+        ├── detectors/
+        │   ├── yolo_detector.py
+        │   ├── object_tracker.py
+        │   └── __init__.py
+        │
+        ├── monitors/
+        │   ├── vehicle_state_monitor.py
+        │   ├── safety_monitor.py
+        │   ├── system_health_monitor.py
+        │   ├── health_checker.py
+        │   ├── diagnostic_reporter.py
+        │   └── __init__.py
+        │
+        ├── core/
+        │   ├── camera_calibration.py
+        │   ├── sensor_fusion.py
+        │   └── collision_avoidance.py
+        │
+        ├── utils/
+        │   ├── error_handler.py
+        │   ├── message_validator.py
+        │   ├── parameter_validator.py
+        │   ├── parameter_loader.py
+        │   ├── reload_parameters.py
+        │   ├── generate_schema_doc.py
+        │   ├── performance_monitor.py
+        │   └── __init__.py
+        │
+        └── standalone/
+            ├── test_detector.py
+            ├── test_recorder.py
+            ├── test_verification.py
+            ├── simulated_target.py
+            ├── startup_notifier.py
+            ├── diagnostic_reporter.py
+            └── parameter_validation_service.py
 ```
 
-## Mission States
+---
 
-The target-tracking controller uses the following simulation state machine:
+# Mission and Control Components
 
-```text
-SEARCHING
-    |
-    | target detected
-    v
-TRACKING
-    |
-    | target confirmed
-    v
-ENGAGING
-    |
-    | final approach condition reached
-    v
-ATTACK
+The ROS package is organized into functional areas:
+
+| Area | Components |
+|---|---|
+| **Detection** | YOLO detector, object tracker |
+| **Control** | Flight controller, target tracking, trajectory planning |
+| **Navigation** | Waypoint navigator, trajectory planner |
+| **Prediction** | Predictive controller |
+| **Safety** | Collision avoidance, safety monitor |
+| **Mission** | Mission manager, mission status |
+| **State** | Vehicle state monitor, sensor fusion |
+| **Diagnostics** | Health checker, diagnostic reporter |
+| **Utilities** | Parameter validation/loading, error handling |
+| **Testing** | Test detector, recorder, verification, simulated target |
+
+---
+
+# Network Ports
+
+| Component | Port | Purpose |
+|---|---:|---|
+| ROS Master | `11311` | ROS service discovery |
+| Gazebo | `11345` | Gazebo communication |
+| PX4 SITL | `4560` | Simulator connection |
+| PX4 SITL | `14540` | MAVLink communication |
+| PX4 SITL | `14580` | MAVLink onboard |
+| MAVROS | `14557` | FCU bridge |
+| Prometheus | `9090` | Metrics collection |
+| Grafana | `3000` | Monitoring dashboard |
+| Node Exporter | `9100` | System metrics |
+| cAdvisor | `8081` | Container metrics |
+| noVNC | `8080` | Browser-based GUI |
+
+---
+
+# Development
+
+## Recommended Development Workflow
+
+1. Make changes inside `drone_control/`.
+2. Rebuild the ROS workspace or Docker image.
+3. Start the simulation.
+4. Verify ROS topics and node health.
+5. Test perception and control behavior in simulation.
+6. Review Prometheus/Grafana metrics.
+7. Run the relevant test scripts.
+8. Document configuration or behavioral changes.
+
+## Basic Verification
+
+```bash
+# ROS topics
+rostopic list
+
+# ROS nodes
+rosnode list
+
+# MAVROS state
+rostopic echo /mavros/state
+
+# Detection rate
+rostopic hz /detected_objects
+
+# Velocity commands
+rostopic echo /mavros/setpoint_velocity/cmd_vel_unstamped
 ```
 
-| State | Description |
-| --- | --- |
-| `SEARCHING` | Searches for detectable objects in the simulated scene. |
-| `TRACKING` | Maintains a track on a detected object. |
-| `ENGAGING` | Moves toward the selected simulated target. |
-| `ATTACK` | Executes the configured final approach behavior in simulation. |
+---
 
-## Contributing
+# Contributing
 
-Contributions are welcome.
+Contributions should remain focused on **simulation, research, safety, testing, and educational use**.
 
-1. Fork the repository.
-2. Create a feature branch.
-3. Make your changes.
-4. Test the changes in simulation.
-5. Submit a pull request.
+Before submitting changes:
 
-## License
+- Test changes inside the simulation environment.
+- Document new dependencies.
+- Document configuration changes.
+- Avoid committing secrets or credentials.
+- Verify Docker and native workflows where applicable.
+- Include relevant diagnostics when changing ROS nodes or communication flows.
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for the
-full license text.
+---
 
-## Disclaimer
+# License
 
-This software is provided for educational and research purposes in simulated
-environments. The authors and contributors are not responsible for misuse,
-damage, injury, legal consequences, or any other outcomes resulting from the use
-or modification of this software.
+See [`LICENSE`](LICENSE) for the project's licensing terms.
+
+---
+
+# Disclaimer
+
+> **This repository is provided for controlled simulation, educational, and research purposes.**
+
+The project contains autonomous perception, tracking, planning, and control components. These capabilities should be evaluated only in appropriate simulated or otherwise authorized environments.
+
+**Do not deploy the system for real-world weaponization, harmful targeting, unauthorized surveillance, or other unsafe or unlawful activity.**
+
+Users are responsible for ensuring that their use of this software complies with applicable laws, regulations, safety requirements, and organizational policies.
+
+---
+
+## Documentation Source
+
+This README was organized from the project documentation supplied with this repository. Technical commands, paths, ports, components, and configuration examples were retained from the supplied material.

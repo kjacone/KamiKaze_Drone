@@ -83,25 +83,25 @@ class ParameterValidator:
         """Schema for target_params.yaml"""
         return [
             ParameterSchema(
-                "detection.confidence_threshold", 
+                "detection/confidence_threshold", 
                 ParameterType.PROBABILITY,
                 default=0.5,
                 description="Minimum confidence for detection"
             ),
             ParameterSchema(
-                "detection.nms_threshold",
+                "detection/nms_threshold",  # Fixed: changed dot to slash
                 ParameterType.PROBABILITY,
                 default=0.4,
                 description="Non-maximum suppression threshold"
             ),
             ParameterSchema(
-                "detection.vehicle_classes",
+                "detection/vehicle_classes",  # Fixed: changed dot to slash
                 ParameterType.LIST,
                 default=[1, 2, 3, 5, 6, 7, 8],
                 description="COCO class IDs to track"
             ),
             ParameterSchema(
-                "tracking.engagement_distance",
+                "tracking/engagement_distance",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=10.0,
                 min_value=1.0,
@@ -109,7 +109,7 @@ class ParameterValidator:
                 description="Distance to start tracking in meters"
             ),
             ParameterSchema(
-                "tracking.attack_distance",
+                "tracking/attack_distance",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=2.0,
                 min_value=0.5,
@@ -117,7 +117,7 @@ class ParameterValidator:
                 description="Distance to engage target in meters"
             ),
             ParameterSchema(
-                "tracking.kalman.process_noise",
+                "tracking/kalman/process_noise",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=0.1,
                 min_value=0.01,
@@ -125,7 +125,7 @@ class ParameterValidator:
                 description="Kalman filter process noise"
             ),
             ParameterSchema(
-                "tracking.kalman.measurement_noise",
+                "tracking/kalman/measurement_noise",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=0.05,
                 min_value=0.001,
@@ -138,42 +138,42 @@ class ParameterValidator:
         """Schema for camera_calib.yaml"""
         return [
             ParameterSchema(
-                "camera.width",
+                "camera/width",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_INT,
                 default=640,
                 min_value=1,
                 description="Camera width in pixels"
             ),
             ParameterSchema(
-                "camera.height",
+                "camera/height",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_INT,
                 default=480,
                 min_value=1,
                 description="Camera height in pixels"
             ),
             ParameterSchema(
-                "camera.intrinsic.fx",
+                "camera/intrinsic/fx",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=500.0,
                 min_value=1.0,
                 description="Focal length x in pixels"
             ),
             ParameterSchema(
-                "camera.intrinsic.fy",
+                "camera/intrinsic/fy",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=500.0,
                 min_value=1.0,
                 description="Focal length y in pixels"
             ),
             ParameterSchema(
-                "camera.intrinsic.cx",
+                "camera/intrinsic/cx",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=320.0,
                 min_value=0,
                 description="Principal point x in pixels"
             ),
             ParameterSchema(
-                "camera.intrinsic.cy",
+                "camera/intrinsic/cy",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=240.0,
                 min_value=0,
@@ -185,7 +185,7 @@ class ParameterValidator:
         """Schema for flight_control.yaml"""
         return [
             ParameterSchema(
-                "dynamics.constraints.max_velocity",
+                "dynamics/constraints/max_velocity",  # Fixed: changed dot to slash
                 ParameterType.VELOCITY,
                 default=5.0,
                 min_value=0.5,
@@ -193,7 +193,7 @@ class ParameterValidator:
                 description="Maximum velocity in m/s"
             ),
             ParameterSchema(
-                "dynamics.constraints.max_acceleration",
+                "dynamics/constraints/max_acceleration",  # Fixed: changed dot to slash
                 ParameterType.ACCELERATION,
                 default=2.0,
                 min_value=0.5,
@@ -201,7 +201,7 @@ class ParameterValidator:
                 description="Maximum acceleration in m/s^2"
             ),
             ParameterSchema(
-                "dynamics.safety_margins.min_altitude",
+                "dynamics/safety_margins/min_altitude",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=2.0,
                 min_value=0.5,
@@ -209,7 +209,7 @@ class ParameterValidator:
                 description="Minimum safe altitude in meters"
             ),
             ParameterSchema(
-                "dynamics.safety_margins.max_altitude",
+                "dynamics/safety_margins/max_altitude",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=50.0,
                 min_value=10.0,
@@ -217,7 +217,7 @@ class ParameterValidator:
                 description="Maximum safe altitude in meters"
             ),
             ParameterSchema(
-                "mission.collision_avoidance.min_distance",
+                "mission/collision_avoidance/min_distance",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=1.5,
                 min_value=0.5,
@@ -225,7 +225,7 @@ class ParameterValidator:
                 description="Minimum collision avoidance distance in meters"
             ),
             ParameterSchema(
-                "mission.engagement.mode",
+                "mission/engagement/mode",  # Fixed: changed dot to slash
                 ParameterType.STRING,
                 default="autonomous",
                 allowed_values=["autonomous", "manual", "semi_autonomous"],
@@ -237,7 +237,7 @@ class ParameterValidator:
         """Schema for kalman_filter.yaml"""
         return [
             ParameterSchema(
-                "kalman_filter.state_dim",
+                "kalman_filter/state_dim",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_INT,
                 default=9,
                 min_value=3,
@@ -245,7 +245,7 @@ class ParameterValidator:
                 description="State vector dimension"
             ),
             ParameterSchema(
-                "kalman_filter.noise.process.position",
+                "kalman_filter/noise/process/position",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=0.1,
                 min_value=0.001,
@@ -253,7 +253,7 @@ class ParameterValidator:
                 description="Position process noise"
             ),
             ParameterSchema(
-                "kalman_filter.noise.process.velocity",
+                "kalman_filter/noise/process/velocity",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=0.05,
                 min_value=0.001,
@@ -261,7 +261,7 @@ class ParameterValidator:
                 description="Velocity process noise"
             ),
             ParameterSchema(
-                "kalman_filter.noise.measurement.position",
+                "kalman_filter/noise/measurement/position",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=0.05,
                 min_value=0.001,
@@ -269,7 +269,7 @@ class ParameterValidator:
                 description="Position measurement noise"
             ),
             ParameterSchema(
-                "kalman_filter.parameters.dt",
+                "kalman_filter/parameters/dt",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=0.1,
                 min_value=0.01,
@@ -282,7 +282,7 @@ class ParameterValidator:
         """Schema for system_params.yaml"""
         return [
             ParameterSchema(
-                "safety.geofence.radius",
+                "safety/geofence/radius",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=100.0,
                 min_value=10.0,
@@ -290,7 +290,7 @@ class ParameterValidator:
                 description="Geofence radius in meters"
             ),
             ParameterSchema(
-                "safety.geofence.height",
+                "safety/geofence/height",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=50.0,
                 min_value=5.0,
@@ -298,7 +298,7 @@ class ParameterValidator:
                 description="Geofence height in meters"
             ),
             ParameterSchema(
-                "safety.failsafe.battery_critical",
+                "safety/failsafe/battery_critical",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=15.0,
                 min_value=5.0,
@@ -306,7 +306,7 @@ class ParameterValidator:
                 description="Critical battery percentage"
             ),
             ParameterSchema(
-                "safety.failsafe.lost_connection",
+                "safety/failsafe/lost_connection",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_FLOAT,
                 default=5.0,
                 min_value=1.0,
@@ -314,7 +314,7 @@ class ParameterValidator:
                 description="Lost connection timeout in seconds"
             ),
             ParameterSchema(
-                "performance.publish_rate",
+                "performance/publish_rate",  # Fixed: changed dot to slash
                 ParameterType.POSITIVE_INT,
                 default=50,
                 min_value=10,

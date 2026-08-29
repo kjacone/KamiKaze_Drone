@@ -1,0 +1,52 @@
+# # Dockerfile.predictive - Predictive Controller Container
+# FROM ros:noetic-ros-base
+
+# # Install dependencies
+# RUN apt-get update && apt-get install -y \
+#     python3-pip \
+#     python3-numpy \
+#     python3-scipy \
+#     && rm -rf /var/lib/apt/lists/*
+
+# # Install PyTorch and dependencies
+# RUN pip3 install --no-cache-dir \
+#     --index-url https://download.pytorch.org/whl/cpu \
+#     torch==2.0.1 \
+#     torchvision==0.15.2 \
+#     numpy==1.24.3 \
+#     scipy==1.10.1
+
+# WORKDIR /root
+
+# # Health check
+# HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+#     CMD rosnode list | grep -q predictive_controller || exit 1
+
+# CMD ["/bin/bash"]
+
+
+
+# Predictive Controller Service
+FROM kamikaze-drone:latest AS base
+
+# Install predictive control dependencies
+RUN python3 -m pip install \
+    --no-cache-dir \
+    scikit-learn \
+    pandas \
+    numpy \
+    scipy \
+    matplotlib \
+    seaborn \
+    tensorflow-cpu \
+    keras
+
+# Copy predictive controller
+COPY drone_control/scripts/controllers/predictive_controller.py /opt/predictive_controller.py
+RUN chmod +x /opt/predictive_controller.py
+
+# Create model directory
+RUN mkdir -p /root/models/predictive
+VOLUME /root/models/predictive
+
+CMD ["/bin/bash", "-c", "source /opt/ros/noetic/setup.bash && source /root/catkin_ws/devel/setup.bash && python3 /opt/predictive_controller.py"]

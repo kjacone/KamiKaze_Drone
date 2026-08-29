@@ -9,114 +9,65 @@
   <arg name="simulation" default="true" doc="Use simulation (true) or real hardware (false)"/>
   <arg name="enable_safety" default="true" doc="Enable safety verification nodes"/>
   <arg name="enable_diagnostics" default="false" doc="Enable diagnostic tools"/>
-  <arg name="gui" default="true" doc="Enable GUI visualization"/>
+  <arg name="gui" default="false" doc="Enable GUI visualization"/>
   <arg name="validate_params" default="true" doc="Validate parameters on startup"/>
   
   <!-- === TEST MODE SPECIFIC ARGUMENTS === -->
   <arg name="test_scenario" default="default" doc="Test scenario to run"/>
   <arg name="test_timeout" default="120" doc="Test timeout in seconds"/>
-  <arg name="headless" default="false" doc="Run without GUI for CI/CD"/>
-  <arg name="record_test_data" default="true" doc="Record test data for analysis"/>
   
   <!-- === DEBUG MODE SPECIFIC ARGUMENTS === -->
-  <arg name="debug_level" default="debug" doc="Debug level (debug, info, warning, error)"/>
+  <arg name="debug_level" default="debug" doc="Debug level"/>
   <arg name="enable_profiling" default="true" doc="Enable performance profiling"/>
   
   <!-- === PARAMETER LOADING === -->
-  <!-- Load base parameters -->
-  <rosparam file="$(find drone_control)/config/target_params.yaml" command="load"/>
-  <rosparam file="$(find drone_control)/config/camera_calib.yaml" command="load"/>
-  <rosparam file="$(find drone_control)/config/flight_control.yaml" command="load"/>
-  <rosparam file="$(find drone_control)/config/kalman_filter.yaml" command="load"/>
-  <rosparam file="$(find drone_control)/config/system_params.yaml" command="load"/>
-  <rosparam file="$(find drone_control)/config/mission_config.yaml" command="load"/>
+  <rosparam file="$(find drone_control)/config/target_params.yaml" command="load" ns="target_params"/>
+  <rosparam file="$(find drone_control)/config/camera_calib.yaml" command="load" ns="camera_calib"/>
+  <rosparam file="$(find drone_control)/config/flight_control.yaml" command="load" ns="flight_control"/>
+  <rosparam file="$(find drone_control)/config/kalman_filter.yaml" command="load" ns="kalman_filter"/>
+  <rosparam file="$(find drone_control)/config/system_params.yaml" command="load" ns="system_params"/>
   
-  <!-- Load mode-specific parameters -->
-  <group if="$(eval arg('mode') == 'test')">
-    <rosparam file="$(find drone_control)/config/test_params.yaml" command="load"/>
-    <rosparam file="$(find drone_control)/config/test_scenarios/$(arg test_scenario).yaml" command="load" ns="test_scenario"/>
-    <param name="/test_mode" value="true"/>
-    <param name="/debug_mode" value="false"/>
-    <param name="/test_scenario" value="$(arg test_scenario)"/>
-    <param name="/test_timeout" value="$(arg test_timeout)"/>
-    <param name="/record_test_data" value="$(arg record_test_data)"/>
-  </group>
-  
-  <group if="$(eval arg('mode') == 'debug')">
-    <rosparam file="$(find drone_control)/config/debug_params.yaml" command="load"/>
-    <param name="/test_mode" value="false"/>
-    <param name="/debug_mode" value="true"/>
-    <param name="/log_level" value="$(arg debug_level)"/>
-    <param name="/enable_profiling" value="$(arg enable_profiling)"/>
-  </group>
-  
-  <group if="$(eval arg('mode') == 'production')">
-    <rosparam file="$(find drone_control)/config/production_params.yaml" command="load"/>
-    <param name="/test_mode" value="false"/>
-    <param name="/debug_mode" value="false"/>
-    <param name="/log_level" value="info"/>
-    <param name="/enable_profiling" value="false"/>
-  </group>
+  <!-- Add required parameter that was missing -->
+  <param name="/system_params/performance/publish_rate" value="50"/>
   
   <!-- === SIMULATION VS REAL HARDWARE === -->
-  <group if="$(arg simulation)">
-    <param name="/use_simulation" value="true"/>
-    <param name="camera/image_topic" value="/camera/color/image_raw"/>
-    <param name="camera/camera_info_topic" value="/camera/color/camera_info"/>
-  </group>
-  
-  <group unless="$(arg simulation)">
-    <param name="/use_simulation" value="false"/>
-    <param name="camera/image_topic" value="/camera/color/image_raw"/>
-    <param name="camera/camera_info_topic" value="/camera/color/camera_info"/>
-    <param name="hardware/device_id" value="0"/>
-    <param name="hardware/fps" value="30"/>
-  </group>
-  
-  <!-- === PARAMETER VALIDATION NODE === -->
-  <group if="$(arg validate_params)">
-    <node pkg="drone_control" type="parameter_validator.py" 
-          name="parameter_validator" output="screen" required="true">
-      <param name="config_dir" value="$(find drone_control)/config"/>
-      <param name="validate_on_startup" value="true"/>
-      <param name="generate_schema" value="$(eval arg('mode') == 'debug')"/>
-    </node>
-  </group>
+  <param name="/use_simulation" value="$(arg simulation)"/>
   
   <!-- ============================================ -->
-  <!-- CORE SYSTEM NODES                           -->
+  <!-- PARAMETER VALIDATION                         -->
+  <!-- ============================================ -->
+  
+  <node pkg="drone_control" type="parameter_validator.py" 
+        name="parameter_validator" output="screen" required="true">
+    <param name="config_dir" value="$(find drone_control)/config"/>
+    <param name="validate_on_startup" value="true"/>
+  </node>
+  
+  <!-- ============================================ -->
+  <!-- CORE SYSTEM NODES (Existing)                -->
   <!-- ============================================ -->
   
   <!-- Command Interpreter -->
   <node pkg="drone_control" type="command_interpreter.py" 
-        name="command_interpreter" output="screen" required="true">
-    <param name="debug_mode" value="$(eval arg('mode') == 'debug')"/>
-  </node>
+        name="command_interpreter" output="screen" required="true"/>
   
   <!-- Mission Manager -->
   <node pkg="drone_control" type="mission_manager.py" 
-        name="mission_manager" output="screen" required="true" respawn="$(eval arg('mode') != 'test')">
+        name="mission_manager" output="screen" required="true">
     <param name="mission_config" value="$(find drone_control)/config/mission_config.yaml"/>
-    <param name="debug_mode" value="$(eval arg('mode') == 'debug')"/>
-    <param name="test_mode" value="$(eval arg('mode') == 'test')"/>
   </node>
   
   <!-- Camera Calibration -->
   <node pkg="drone_control" type="camera_calibration.py" 
         name="camera_calibration" output="screen" required="false">
-    <param name="camera_frame" value="camera_link"/>
-    <param name="camera_info_topic" value="/camera/color/camera_info"/>
-    <param name="image_topic" value="/camera/color/image_raw"/>
     <param name="simulation_mode" value="$(arg simulation)"/>
   </node>
   
-  <!-- YOLO Detector -->
+  <!-- YOLO Detector - Comment out if model not available -->
   <node pkg="drone_control" type="yolo_detector.py" 
-        name="yolo_detector" output="screen" required="true" respawn="$(eval arg('mode') != 'test')">
-    <param name="model_path" value="/root/PX4-Autopilot/yolov8s.pt"/>
+        name="yolo_detector" output="screen" required="false">
+    <param name="model_path" value="/PX4-Autopilot/yolov8s.pt"/>
     <param name="device" value="cpu"/>
-    <param name="debug_mode" value="$(eval arg('mode') == 'debug')"/>
-    <param name="test_mode" value="$(eval arg('mode') == 'test')"/>
   </node>
   
   <!-- Sensor Fusion -->
@@ -124,46 +75,29 @@
         name="sensor_fusion" output="screen" required="false">
     <param name="publish_rate" value="20"/>
     <param name="simulation_mode" value="$(arg simulation)"/>
-    <param name="test_mode" value="$(eval arg('mode') == 'test')"/>
   </node>
   
   <!-- Target Tracking Controller -->
   <node pkg="drone_control" type="target_tracking_controller.py" 
-        name="target_tracking_controller" output="screen" required="true" respawn="$(eval arg('mode') != 'test')">
+        name="target_tracking_controller" output="screen" required="false">
     <param name="simulation_mode" value="$(arg simulation)"/>
-    <param name="debug_mode" value="$(eval arg('mode') == 'debug')"/>
-    <param name="test_mode" value="$(eval arg('mode') == 'test')"/>
   </node>
   
   <!-- Vehicle State Monitor -->
   <node pkg="drone_control" type="vehicle_state_monitor.py" 
-        name="vehicle_state_monitor" output="screen" required="true">
+        name="vehicle_state_monitor" output="screen" required="false">
     <param name="simulation_mode" value="$(arg simulation)"/>
-    <param name="test_mode" value="$(eval arg('mode') == 'test')"/>
   </node>
   
   <!-- ============================================ -->
-  <!-- SAFETY NODES                               -->
+  <!-- SAFETY NODES                                -->
   <!-- ============================================ -->
   
   <group if="$(arg enable_safety)">
     <!-- Safety Monitor -->
     <node pkg="drone_control" type="safety_monitor.py" 
-          name="safety_monitor" output="screen" required="true" respawn="true">
+          name="safety_monitor" output="screen" required="true">
       <param name="enable_geofence" value="true"/>
-      <param name="geofence_radius" value="100.0"/>
-      <param name="max_altitude" value="50.0"/>
-      <param name="min_altitude" value="2.0"/>
-      <param name="enable_emergency_landing" value="true"/>
-      <param name="simulation_mode" value="$(arg simulation)"/>
-      <param name="test_mode" value="$(eval arg('mode') == 'test')"/>
-    </node>
-    
-    <!-- Collision Avoidance -->
-    <node pkg="drone_control" type="collision_avoidance.py" 
-          name="collision_avoidance" output="screen" required="false">
-      <param name="enable" value="true"/>
-      <param name="min_distance" value="1.5"/>
       <param name="simulation_mode" value="$(arg simulation)"/>
     </node>
   </group>
@@ -174,77 +108,31 @@
   
   <!-- System Health Monitor -->
   <node pkg="drone_control" type="system_health_monitor.py" 
-        name="system_health_monitor" output="screen" required="false">
-    <param name="check_interval" value="2.0"/>
+        name="system_health_monitor" output="screen" required="true">
+    <param name="monitoring_interval" value="2.0"/>
+    <param name="critical_threshold_cpu" value="90.0"/>
+    <param name="critical_threshold_memory" value="90.0"/>
+    <param name="warning_threshold_cpu" value="70.0"/>
+    <param name="warning_threshold_memory" value="70.0"/>
+    <param name="enable_network_monitoring" value="true"/>
+    <param name="enable_disk_monitoring" value="true"/>
+    <param name="enable_process_monitoring" value="true"/>
   </node>
   
   <!-- Health Checker -->
   <node pkg="drone_control" type="health_checker.py" 
-        name="health_checker" output="screen" respawn="true">
-    <param name="check_interval" value="5.0"/>
-    <param name="timeout_threshold" value="10.0"/>
-    <param name="restart_on_failure" value="$(eval arg('mode') != 'test')"/>
-    <param name="max_restarts" value="3"/>
+        name="health_checker" output="screen" required="false">
+         <param name="check_interval" value="5.0"/>
+  <param name="timeout_threshold" value="10.0"/>
+  <param name="restart_on_failure" value="false"/>  <!-- Disable automatic restarts -->
+  <param name="max_restarts" value="0"/>  
+   
     <rosparam param="monitored_nodes">
       ['yolo_detector', 'target_tracking_controller', 
        'vehicle_state_monitor', 'mission_manager',
        'safety_monitor', 'command_interpreter']
     </rosparam>
   </node>
-  
-  <!-- ============================================ -->
-  <!-- TEST MODE SPECIFIC NODES                    -->
-  <!-- ============================================ -->
-  
-  <group if="$(eval arg('mode') == 'test')">
-    <!-- Test Detector -->
-    <node pkg="drone_control" type="test_detector.py" 
-          name="test_detector" output="screen" required="true" respawn="false">
-      <param name="test_scenario" value="$(arg test_scenario)"/>
-      <param name="mock_detections" value="true"/>
-      <param name="detection_accuracy" value="0.95"/>
-    </node>
-    
-    <!-- Test Data Recorder -->
-    <node pkg="drone_control" type="test_recorder.py" 
-          name="test_recorder" output="log" required="false">
-      <param name="record_topics" value="['/target_detections', '/tracked_targets', '/control_command', '/safety_status']"/>
-      <param name="output_dir" value="$(find drone_control)/test_results/$(arg test_scenario)"/>
-      <param name="max_duration" value="$(arg test_timeout)"/>
-    </node>
-    
-    <!-- Simulated Target Generator -->
-    <node pkg="drone_control" type="simulated_target.py" 
-          name="simulated_target" output="screen" required="true">
-      <param name="enable" value="true"/>
-      <param name="update_rate" value="30"/>
-      <param name="scenario" value="$(arg test_scenario)"/>
-    </node>
-  </group>
-  
-  <!-- ============================================ -->
-  <!-- DEBUG MODE SPECIFIC NODES                   -->
-  <!-- ============================================ -->
-  
-  <group if="$(eval arg('mode') == 'debug')">
-    <node pkg="rqt_console" type="rqt_console" name="rqt_console" 
-          output="screen" if="$(arg gui)"/>
-    
-    <node pkg="rqt_graph" type="rqt_graph" name="rqt_graph" 
-          output="screen" if="$(arg gui)"/>
-  </group>
-  
-  <!-- ============================================ -->
-  <!-- DIAGNOSTIC TOOLS                            -->
-  <!-- ============================================ -->
-  
-  <group if="$(arg enable_diagnostics)">
-    <node pkg="drone_control" type="diagnostic_reporter.py" 
-          name="diagnostic_reporter" output="screen" required="false">
-      <param name="report_rate" value="5.0"/>
-      <param name="output_file" value="$(find drone_control)/logs/diagnostic.log"/>
-    </node>
-  </group>
   
   <!-- ============================================ -->
   <!-- VISUALIZATION (GUI)                         -->
@@ -254,21 +142,6 @@
     <node pkg="rviz" type="rviz" name="rviz" 
           args="-d $(find drone_control)/config/drone_control.rviz"
           output="screen" required="false"/>
-    
-    <node pkg="image_view" type="image_view" name="image_view"
-          output="screen" required="false">
-      <remap from="image" to="/camera/color/image_raw"/>
-    </node>
   </group>
-  
-  <!-- ============================================ -->
-  <!-- STARTUP NOTIFICATION                        -->
-  <!-- ============================================ -->
-  
-  <node pkg="drone_control" type="startup_notifier.py" 
-        name="startup_notifier" output="screen" required="false">
-    <param name="mode" value="$(arg mode)"/>
-    <param name="simulation" value="$(arg simulation)"/>
-  </node>
   
 </launch>

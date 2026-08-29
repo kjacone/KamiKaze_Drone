@@ -26,7 +26,7 @@ class TestVerification:
         self.mission_data = []
         self.start_time = time.time()
         
-        # Subscribers
+        # Subscribers - FIXED with correct message types
         rospy.Subscriber('/tracked_targets', TrackedTargets, self._tracking_callback)
         rospy.Subscriber('/safety_status', SafetyStatus, self._safety_callback)
         rospy.Subscriber('/mission_status', MissionStatus, self._mission_callback)
@@ -40,16 +40,19 @@ class TestVerification:
         """Collect tracking data"""
         self.tracking_data.append({
             'timestamp': time.time(),
-            'count': len(msg.targets),
-            'targets': [{'id': t.id, 'confidence': t.confidence} for t in msg.targets]
+            'count': msg.count,
+            'targets': [{'id': t.id, 'confidence': t.confidence, 'distance': t.distance} 
+                       for t in msg.targets]
         })
         
     def _safety_callback(self, msg):
-        """Collect safety data"""
+        """Collect safety data - FIXED for SafetyStatus fields"""
         self.safety_data.append({
             'timestamp': time.time(),
             'is_safe': msg.is_safe,
-            'violations': list(msg.violations)
+            'violations': list(msg.violations),
+            'emergency_active': msg.emergency_active,
+            'emergency_reason': msg.emergency_reason
         })
         
     def _mission_callback(self, msg):
@@ -82,6 +85,12 @@ class TestVerification:
         if self.safety_data:
             violations = [d for d in self.safety_data if not d['is_safe']]
             results['safety_violations'] = len(violations)
+            results['emergency_events'] = sum([1 for d in self.safety_data if d['emergency_active']])
+            
+        # Check if mission completed
+        if self.mission_data:
+            final_state = self.mission_data[-1]['state']
+            results['final_state'] = final_state
             
         # Publish results
         results_msg = String()

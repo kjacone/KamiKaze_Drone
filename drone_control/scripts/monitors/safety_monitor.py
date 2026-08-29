@@ -13,6 +13,8 @@ from drone_control.msg import NodeHealth, Command, CommandResponse, SafetyStatus
 from std_srvs.srv import Trigger, TriggerResponse
 import sys
 import os
+import psutil
+import time
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -42,21 +44,24 @@ class SafetyMonitor:
         self.simulation_mode = rospy.get_param('/use_simulation', True)
         self.test_mode = rospy.get_param('/test_mode', False)
         
-        # State
+        # State - initialize before any timers
         self.current_pose = None
         self.current_velocity = None
         self.is_safe = True
+        self.is_healthy = True
         self.safety_violations = []
         self.emergency_active = False
+        self.error_count = 0
+        self.last_health_publish = time.time()
         
         # Subscribers
         rospy.Subscriber('/mavros/local_position/pose', PoseStamped, self._pose_callback)
         rospy.Subscriber('/mavros/local_position/velocity', Twist, self._velocity_callback)
         rospy.Subscriber('/mavros/state', State, self._state_callback)
         
-        # Publishers
+        # Publishers - CORRECTED: Namespaced topic matching health_checker expectations
         self.safety_pub = rospy.Publisher('/safety_status', SafetyStatus, queue_size=10)
-        self.health_pub = rospy.Publisher('/node_health', NodeHealth, queue_size=10)
+        self.health_pub = rospy.Publisher('/safety_monitor/node_health', NodeHealth, queue_size=10)
         self.emergency_pub = rospy.Publisher('/emergency_triggered', Bool, queue_size=10)
         
         # Services
@@ -70,6 +75,27 @@ class SafetyMonitor:
         self.health_timer = rospy.Timer(rospy.Duration(1.0), self._publish_health)
         
         rospy.loginfo("Safety Monitor initialized")
+        rospy.loginfo(f"Health publisher: /safety_monitor/node_health")
+
+    def _publish_health(self, event):
+        """Publish node health to namespaced topic with all required fields"""
+        try:
+            msg = NodeHealth()
+            msg.node_name = 'safety_monitor'
+            msg.status = 'running' if self.is_healthy else 'error'
+            msg.timestamp = rospy.Time.now()
+            msg.is_healthy = self.is_healthy and not self.emergency_active
+            msg.detection_count = 0
+            msg.error_count = self.error_count
+            msg.fps = 0.0
+            msg.cpu_usage = psutil.cpu_percent()
+            msg.memory_usage = psutil.virtual_memory().percent
+            
+            self.health_pub.publish(msg)
+            self.last_health_publish = time.time()
+            
+        except Exception as e:
+            rospy.logwarn(f"Error publishing health: {e}")
         
     def _pose_callback(self, msg):
         self.current_pose = msg.pose
@@ -90,43 +116,49 @@ class SafetyMonitor:
         violations = []
         pos = self.current_pose.position
         
-        # Check geofence
-        if self.geofence_enabled:
-            distance = np.linalg.norm([pos.x, pos.y])
-            if distance > self.geofence_radius:
-                violations.append(f"GEOFENCE_BREACH: {distance:.1f}m > {self.geofence_radius}m")
-                
-        # Check altitude
-        if pos.z > self.max_altitude:
-            violations.append(f"ALTITUDE_TOO_HIGH: {pos.z:.1f}m > {self.max_altitude}m")
-        elif pos.z < self.min_altitude:
-            violations.append(f"ALTITUDE_TOO_LOW: {pos.z:.1f}m < {self.min_altitude}m")
-            
-        # Check velocity
-        if self.current_velocity:
-            speed = np.linalg.norm([
-                self.current_velocity.linear.x,
-                self.current_velocity.linear.y,
-                self.current_velocity.linear.z
-            ])
-            max_speed = rospy.get_param('dynamics/constraints/max_velocity', 5.0)
-            if speed > max_speed * 1.5:
-                violations.append(f"SPEED_EXCEEDED: {speed:.1f}m/s")
-                
-        # Handle violations
-        if violations:
-            self.is_safe = False
-            for violation in violations:
-                if violation not in self.safety_violations:
-                    self.safety_violations.append(violation)
-                    rospy.logwarn(f"Safety violation: {violation}")
+        try:
+            # Check geofence
+            if self.geofence_enabled:
+                distance = np.linalg.norm([pos.x, pos.y])
+                if distance > self.geofence_radius:
+                    violations.append(f"GEOFENCE_BREACH: {distance:.1f}m > {self.geofence_radius}m")
                     
-            # Trigger emergency for critical violations
-            if any('GEOFENCE' in v or 'ALTITUDE' in v for v in violations):
-                self._trigger_emergency(violations[0])
-        else:
-            self.is_safe = True
-            self.safety_violations = []
+            # Check altitude
+            if pos.z > self.max_altitude:
+                violations.append(f"ALTITUDE_TOO_HIGH: {pos.z:.1f}m > {self.max_altitude}m")
+            elif pos.z < self.min_altitude:
+                violations.append(f"ALTITUDE_TOO_LOW: {pos.z:.1f}m < {self.min_altitude}m")
+                
+            # Check velocity
+            if self.current_velocity:
+                speed = np.linalg.norm([
+                    self.current_velocity.linear.x,
+                    self.current_velocity.linear.y,
+                    self.current_velocity.linear.z
+                ])
+                max_speed = rospy.get_param('dynamics/constraints/max_velocity', 5.0)
+                if speed > max_speed * 1.5:
+                    violations.append(f"SPEED_EXCEEDED: {speed:.1f}m/s")
+                    
+            # Handle violations
+            if violations:
+                self.is_safe = False
+                for violation in violations:
+                    if violation not in self.safety_violations:
+                        self.safety_violations.append(violation)
+                        rospy.logwarn(f"Safety violation: {violation}")
+                        self.error_count += 1
+                        
+                # Trigger emergency for critical violations
+                if any('GEOFENCE' in v or 'ALTITUDE' in v for v in violations):
+                    self._trigger_emergency(violations[0])
+            else:
+                self.is_safe = True
+                self.safety_violations = []
+                
+        except Exception as e:
+            self.error_handler.handle_error(e, "Safety check failed")
+            self.error_count += 1
             
         # Publish safety status
         status_msg = SafetyStatus()
@@ -139,6 +171,7 @@ class SafetyMonitor:
         """Trigger emergency procedures"""
         if not self.emergency_active:
             self.emergency_active = True
+            self.is_healthy = False
             rospy.logerr(f"EMERGENCY TRIGGERED: {reason}")
             
             # Publish emergency
@@ -188,15 +221,6 @@ class SafetyMonitor:
             success=True,
             message=str(status)
         )
-        
-    def _publish_health(self, event):
-        """Publish node health"""
-        health_msg = NodeHealth()
-        health_msg.node_name = 'safety_monitor'
-        health_msg.status = 'running' if self.is_safe else 'emergency'
-        health_msg.timestamp = rospy.Time.now()
-        health_msg.is_healthy = self.is_safe
-        self.health_pub.publish(health_msg)
 
 if __name__ == '__main__':
     try:

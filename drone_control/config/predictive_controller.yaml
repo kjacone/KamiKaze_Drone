@@ -1,0 +1,57 @@
+# Predictive Controller Configuration
+# MPC parameters
+mpc:
+  prediction_horizon: 2.0  # seconds
+  control_horizon: 0.5  # seconds
+  dt: 0.05  # seconds
+  optimization_iterations: 100
+  solver_tolerance: 1e-6
+  warm_start: true
+  
+# Neural network settings
+neural_network:
+  enabled: true
+  model_path: "/root/PX4-Autopilot/mpc_model.pt"
+  device: "cpu"  # cpu or cuda
+  inference_interval: 0.1  # seconds
+  batch_size: 1
+  input_dim: 12  # state dimension
+  output_dim: 4  # control dimension
+  hidden_dim: 128
+  num_layers: 3
+  
+# Optimization constraints
+constraints:
+  max_velocity: 10.0  # m/s
+  max_acceleration: 5.0  # m/s^2
+  max_yaw_rate: 1.0  # rad/s
+  max_roll: 0.5  # rad
+  max_pitch: 0.5  # rad
+  max_thrust: 10.0  # N
+  position_tolerance: 0.1  # m
+  velocity_tolerance: 0.1  # m/s
+  
+# Weight parameters
+weights:
+  position_weight: 1.0
+  velocity_weight: 0.5
+  acceleration_weight: 0.1
+  control_weight: 0.1
+  terminal_weight: 2.0
+  obstacle_weight: 1.5
+  smoothness_weight: 0.2
+  
+# State estimation
+state_estimation:
+  use_extended_kalman_filter: true
+  process_noise: 0.01
+  measurement_noise: 0.1
+  observation_rate: 20  # Hz
+  
+# Safety constraints
+safety:
+  collision_distance: 1.0  # m
+  max_altitude: 50.0  # m
+  min_altitude: 2.0  # m
+  geofence_radius: 100.0  # m
+  emergency_landing_time: 5.0  # seconds

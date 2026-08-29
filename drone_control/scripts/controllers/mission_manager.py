@@ -8,10 +8,10 @@ import rospy
 import time
 import json
 from enum import Enum
-from typing import Dict, List, Optional, Callable, Any
+from typing import Dict, List, Optional, Callable
 from dataclasses import dataclass, field
 from std_msgs.msg import String
-from drone_control.msg import MissionStatus, Command, CommandResponse, NodeHealth
+from drone_control.msg import MissionStatus, Command, CommandResponse, NodeHealth, TrackedTargets, SafetyStatus
 import sys
 import os
 import yaml
@@ -30,6 +30,7 @@ except ImportError:
 
 class MissionState(Enum):
     """Mission states"""
+    NONE = "none"  # Added for emergency transitions
     IDLE = "idle"
     INITIALIZING = "initializing"
     SEARCHING = "searching"
@@ -95,18 +96,21 @@ class MissionManager:
         
         # Publishers
         self.status_pub = rospy.Publisher('/mission_status', MissionStatus, queue_size=10)
-        self.health_pub = rospy.Publisher('/node_health', NodeHealth, queue_size=10)
+        self.health_pub = rospy.Publisher('/mission_manager/node_health', NodeHealth, queue_size=10)
         
-        # Subscribers
+        # Subscribers - FIXED: using correct message types
         self.command_sub = rospy.Subscriber('/drone_control/command', Command, self._command_callback)
-        self.safety_sub = rospy.Subscriber('/safety_status', String, self._safety_callback)
-        self.target_sub = rospy.Subscriber('/tracked_targets', String, self._target_callback)
+        self.safety_sub = rospy.Subscriber('/safety_status', SafetyStatus, self._safety_callback)
+        self.target_sub = rospy.Subscriber('/tracked_targets', TrackedTargets, self._target_callback)
         
         # Setup state machine
         self._setup_transitions()
         
         # State timer
         self.state_timer = rospy.Timer(rospy.Duration(0.1), self._update)
+        
+        # Health timer
+        self.health_timer = rospy.Timer(rospy.Duration(1.0), self._publish_health)
         
         rospy.loginfo("Mission Manager initialized")
         self._set_state(MissionState.IDLE)
@@ -187,17 +191,17 @@ class MissionManager:
                 action=self._on_complete
             ),
             
-            # Any state -> EMERGENCY (highest priority)
+            # NONE state -> EMERGENCY (highest priority)
             Transition(
-                MissionState.ANY, MissionState.EMERGENCY,
+                MissionState.NONE, MissionState.EMERGENCY,
                 MissionEvent.EMERGENCY,
                 priority=100,
                 action=self._on_emergency
             ),
             
-            # Any state -> PAUSED
+            # NONE state -> PAUSED
             Transition(
-                MissionState.ANY, MissionState.PAUSED,
+                MissionState.NONE, MissionState.PAUSED,
                 MissionEvent.PAUSE,
                 priority=50,
                 action=self._on_pause
@@ -234,7 +238,7 @@ class MissionManager:
         if event in [MissionEvent.EMERGENCY, MissionEvent.SAFETY_VIOLATION]:
             for transition in self.transitions:
                 if transition.event == event and transition.priority >= 50:
-                    if transition.from_state == MissionState.ANY or transition.from_state == self.current_state:
+                    if transition.from_state == MissionState.NONE or transition.from_state == self.current_state:
                         if not transition.condition or transition.condition(data):
                             self._set_state(transition.to_state)
                             if transition.action:
@@ -244,7 +248,7 @@ class MissionManager:
         # Process normal events
         for transition in self.transitions:
             if transition.event == event:
-                if transition.from_state == MissionState.ANY or transition.from_state == self.current_state:
+                if transition.from_state == MissionState.NONE or transition.from_state == self.current_state:
                     if not transition.condition or transition.condition(data):
                         self._set_state(transition.to_state)
                         if transition.action:
@@ -265,9 +269,6 @@ class MissionManager:
         if self.current_state == MissionState.TRACKING and elapsed > self.config.get('timeout', 300):
             self._process_event(MissionEvent.ERROR, {"message": "Tracking timeout"})
             
-        # Publish health
-        self._publish_health()
-        
     def _publish_status(self):
         """Publish current mission status"""
         status_msg = MissionStatus()
@@ -280,13 +281,19 @@ class MissionManager:
         status_msg.target_count = 1 if self.target_data else 0
         self.status_pub.publish(status_msg)
         
-    def _publish_health(self):
+    def _publish_health(self, event=None):
         """Publish node health"""
         health_msg = NodeHealth()
         health_msg.node_name = 'mission_manager'
         health_msg.status = self.current_state.value
         health_msg.timestamp = rospy.Time.now()
         health_msg.is_healthy = self.current_state != MissionState.EMERGENCY
+
+          # Add CPU and memory usage
+        import psutil
+        health_msg.cpu_usage = psutil.cpu_percent()
+        health_msg.memory_usage = psutil.virtual_memory().percent
+
         self.health_pub.publish(health_msg)
         
     # ============================================
@@ -366,7 +373,7 @@ class MissionManager:
         return self.target_data.get('distance', 100) < rospy.get_param('/tracking/attack_distance', 2.0) * 0.5
         
     # ============================================
-    # CALLBACKS
+    # CALLBACKS - FIXED with correct message types
     # ============================================
     
     def _command_callback(self, msg):
@@ -384,25 +391,41 @@ class MissionManager:
         
         event = command_map.get(msg.command.lower())
         if event:
-            self._process_event(event, msg.data if hasattr(msg, 'data') else {})
+            self._process_event(event, {})
             
     def _safety_callback(self, msg):
-        """Handle safety events"""
-        if 'emergency' in msg.data.lower():
-            self._process_event(MissionEvent.EMERGENCY, {'message': msg.data})
-        elif 'violation' in msg.data.lower():
-            self._process_event(MissionEvent.SAFETY_VIOLATION, {'message': msg.data})
+        """Handle safety events - FIXED for SafetyStatus message"""
+        # Check if emergency is active
+        if msg.emergency_active:
+            self._process_event(MissionEvent.EMERGENCY, {'message': msg.emergency_reason or 'Emergency active'})
+        # Check for safety violations
+        elif msg.violations and len(msg.violations) > 0:
+            self._process_event(MissionEvent.SAFETY_VIOLATION, {'message': ', '.join(msg.violations)})
+        # Check if not safe
+        elif not msg.is_safe:
+            self._process_event(MissionEvent.SAFETY_VIOLATION, {'message': 'Safety status unsafe'})
             
     def _target_callback(self, msg):
-        """Handle target updates"""
-        try:
-            data = json.loads(msg.data) if isinstance(msg.data, str) else {}
-            if data:
-                self.target_data = data
-                if self.current_state == MissionState.SEARCHING:
-                    self._process_event(MissionEvent.TARGET_DETECTED, {'target': data})
-        except Exception as e:
-            rospy.logdebug(f"Target update error: {e}")
+        """Handle target updates - FIXED for TrackedTargets message"""
+        if msg.targets and len(msg.targets) > 0:
+            # Convert to dict for internal use
+            target = msg.targets[0]
+            self.target_data = {
+                'id': target.id,
+                'confidence': target.confidence,
+                'distance': target.distance,
+                'position': [target.position.x, target.position.y, target.position.z],
+                'velocity': [target.velocity.x, target.velocity.y, target.velocity.z],
+                'state': target.state
+            }
+            
+            # Trigger events based on current state
+            if self.current_state == MissionState.SEARCHING:
+                self._process_event(MissionEvent.TARGET_DETECTED, {'target': self.target_data})
+            elif self.current_state == MissionState.TRACKING:
+                # Check if within engagement distance
+                if self._is_within_engagement_distance():
+                    self._process_event(MissionEvent.TARGET_ENGAGED, {'target': self.target_data})
 
 if __name__ == '__main__':
     try:

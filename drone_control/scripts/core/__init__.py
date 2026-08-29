@@ -3,10 +3,10 @@
 
 from .camera_calibration import CameraCalibration
 from .sensor_fusion import SensorFusion
-from .collision_avoidance import CollisionAvoidance
+from .obstacle_avoidance_lib import CollisionAvoidance as ObstacleAvoidance
 
 __all__ = [
     'CameraCalibration',
     'SensorFusion',
-    'CollisionAvoidance'
+    'ObstacleAvoidance',
 ]

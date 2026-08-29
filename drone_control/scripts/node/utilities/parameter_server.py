@@ -37,7 +37,7 @@ class ParameterServer:
         rospy.Service('/parameter/reload', ReloadConfig, self._reload)
         
         # Publisher
-        self.health_pub = rospy.Publisher('/node_health', NodeHealth, queue_size=10)
+        self.health_pub = rospy.Publisher('/parameter_server/node_health', NodeHealth, queue_size=10)
         
         # Timer
         self.health_timer = rospy.Timer(rospy.Duration(1.0), self._publish_health)

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- ============================================ -->
+  <!-- MINIMAL TEST LAUNCH - FOR QUICK VALIDATION   -->
+  <!-- ============================================ -->
+  
+  <arg name="mode" default="production" doc="Use production to avoid missing test scripts"/>
+  <arg name="simulation" default="true" doc="Use simulation or real hardware"/>
+  <arg name="gui" default="false" doc="Enable GUI (requires rviz/image_view)"/>
+  
+  <!-- Load minimal parameters -->
+  <rosparam file="$(find drone_control)/config/target_params.yaml" command="load"/>
+  <rosparam file="$(find drone_control)/config/camera_calib.yaml" command="load"/>
+  <rosparam file="$(find drone_control)/config/flight_control.yaml" command="load"/>
+  <rosparam file="$(find drone_control)/config/system_params.yaml" command="load"/>
+  
+  <!-- Launch only core nodes (no test nodes) -->
+  <include file="$(find drone_control)/launch/kamikaze.launch">
+    <arg name="mode" value="$(arg mode)"/>
+    <arg name="simulation" value="$(arg simulation)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="enable_safety" value="true"/>
+    <arg name="enable_diagnostics" value="false"/>
+    <arg name="validate_params" value="true"/>
+  </include>
+  
+</launch>

@@ -1,134 +1,165 @@
-# Dockerfile - Optimized for M1 Mac (ARM64) and AMD64 compatibility
-FROM --platform=linux/amd64 ros:noetic-ros-base
+# syntax=docker/dockerfile:1.4
+
+# ============================================================
+# Application Build Stage
+# ============================================================
+FROM localhost:5000/kamikaze-drone-base:latest AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV ROS_DISTRO=noetic
 
 # ------------------------------------------------------------
-# System dependencies
+# Install build dependencies
 # ------------------------------------------------------------
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-rosdep \
+    python3-catkin-tools \
     python3-pip \
-    python3-opencv \
-    python3-numpy \
-    ros-noetic-mavros \
-    ros-noetic-mavros-extras \
-    ros-noetic-rqt-image-view \
-    ros-noetic-cv-bridge \
-    ros-noetic-image-transport \
-    geographiclib-tools \
-    xvfb \
-    fluxbox \
-    x11vnc \
-    websockify \
-    novnc \
-    x11-utils \
-    net-tools \
     wget \
-    ca-certificates \
     git \
-    gazebo11 \
-    libgazebo11-dev \
-    ros-noetic-gazebo-ros-pkgs \
-    ros-noetic-gazebo-ros-control \
-    ros-noetic-gazebo-plugins \
-    protobuf-compiler \
-    libprotobuf-dev \
-    libprotoc-dev \
-    libeigen3-dev \
-    libopencv-dev \
-    libxml2-utils \
-    libxml2-dev \
-    libssl-dev \
-    libyaml-cpp-dev \
-    libgstreamer1.0-dev \
-    libgstreamer-plugins-base1.0-dev \
-    libgstreamer-plugins-good1.0-dev \
-    gstreamer1.0-plugins-bad \
-    gstreamer1.0-plugins-good \
-    gstreamer1.0-plugins-ugly \
-    gstreamer1.0-libav \
-    libimage-exiftool-perl \
-    sudo \
-    vim \
-    && update-ca-certificates \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------------------------------------
-# GeographicLib geoid data
+# Install Python dependencies
+# IMPORTANT:
+#   cpuinfo -> WRONG
+#   py-cpuinfo -> CORRECT
 # ------------------------------------------------------------
-RUN mkdir -p /usr/share/GeographicLib/geoids && \
-    python3 - <<'PY'
-import struct
-
-width = 1440
-height = 721
-output = "/usr/share/GeographicLib/geoids/egm96-5.pgm"
-
-with open(output, "wb") as f:
-    f.write(b"P5\n")
-    f.write(b"# Offset -107\n")
-    f.write(b"# Scale 0.003\n")
-    f.write(f"{width} {height}\n".encode())
-    f.write(b"65535\n")
-
-    for _ in range(width * height):
-        f.write(struct.pack(">H", 32768))
-
-print(f"Created GeographicLib geoid data: {output}")
-PY
-
-# ------------------------------------------------------------
-# Upgrade pip
-# ------------------------------------------------------------
-RUN python3 -m pip install --no-cache-dir --upgrade pip
-
-# ------------------------------------------------------------
-# Install PyTorch CPU-only
-# ------------------------------------------------------------
-RUN python3 -m pip install \
-    --no-cache-dir \
-    --default-timeout=1000 \
-    --retries=5 \
-    --index-url https://download.pytorch.org/whl/cpu \
-    torch==2.0.1 \
-    torchvision==0.15.2
-
-# ------------------------------------------------------------
-# Python dependencies
-# ------------------------------------------------------------
-RUN python3 -m pip install \
-    --no-cache-dir \
-    --default-timeout=1000 \
-    --retries=5 \
-    ultralytics \
-    filterpy \
-    scipy \
-    kconfiglib \
-    jsonschema \
-    jinja2 \
-    pyros-genmsg \
-    toml \
-    packaging \
-    future \
-    numpy \
-    opencv-python \
-    pyyaml \
+RUN pip3 install --no-cache-dir \
     psutil \
-    matplotlib
+    py-cpuinfo
+
+# ------------------------------------------------------------
+# Initialize rosdep
+# ------------------------------------------------------------
+RUN if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then \
+        rosdep init; \
+    fi && \
+    rosdep update
 
 # ------------------------------------------------------------
 # Create catkin workspace
 # ------------------------------------------------------------
 RUN mkdir -p /root/catkin_ws/src
 
+# ------------------------------------------------------------
+# Copy drone_control package
+# ------------------------------------------------------------
+COPY drone_control/ /root/catkin_ws/src/drone_control/
+
+# ------------------------------------------------------------
+# Make Python scripts executable
+# ------------------------------------------------------------
+RUN if [ -d /root/catkin_ws/src/drone_control/scripts ]; then \
+        find /root/catkin_ws/src/drone_control/scripts \
+        -type f -name "*.py" -exec chmod +x {} \; ; \
+    fi && \
+    find /root/catkin_ws/src/drone_control \
+        -type f -name "*.py" -exec chmod +x {} \;
+
+# ------------------------------------------------------------
+# Install ROS package dependencies
+# ------------------------------------------------------------
 WORKDIR /root/catkin_ws
 
+RUN /bin/bash -c "\
+    source /opt/ros/noetic/setup.bash && \
+    rosdep install \
+        --from-paths src \
+        --ignore-src \
+        --rosdistro noetic \
+        -r -y \
+    "
+
 # ------------------------------------------------------------
-# ROS environment
+# Build catkin workspace
+# ------------------------------------------------------------
+RUN /bin/bash -c "\
+    source /opt/ros/noetic/setup.bash && \
+    cd /root/catkin_ws && \
+    catkin_make -j$(nproc) \
+    "
+
+
+# ============================================================
+# Runtime Stage
+# ============================================================
+FROM localhost:5000/kamikaze-drone-base:latest
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV ROS_DISTRO=noetic
+
+# ------------------------------------------------------------
+# Install runtime dependencies
+# ------------------------------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ros-noetic-mavros \
+    ros-noetic-mavros-extras \
+    ros-noetic-mavros-msgs \
+    python3-pip \
+    wget \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# ------------------------------------------------------------
+# Python runtime dependencies
+# ------------------------------------------------------------
+RUN pip3 install --no-cache-dir \
+    psutil \
+    py-cpuinfo
+
+# ------------------------------------------------------------
+# Install MAVROS GeographicLib datasets
+# ------------------------------------------------------------
+RUN wget -O /tmp/install_geographiclib_datasets.sh \
+    https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh \
+    && chmod +x /tmp/install_geographiclib_datasets.sh \
+    && /tmp/install_geographiclib_datasets.sh \
+    && rm -f /tmp/install_geographiclib_datasets.sh
+
+# ------------------------------------------------------------
+# Copy compiled catkin workspace
+# ------------------------------------------------------------
+COPY --from=builder \
+    /root/catkin_ws \
+    /root/catkin_ws
+
+# ------------------------------------------------------------
+# Create PX4 directory
+# ------------------------------------------------------------
+RUN mkdir -p /PX4-Autopilot
+
+# ------------------------------------------------------------
+# Copy YOLO model if you have one
+# Uncomment if yolov8s.pt exists in build context
+# ------------------------------------------------------------
+COPY data/models/yolov8s.pt /PX4-Autopilot/yolov8s.pt
+
+# Verify model exists inside image
+RUN ls -lh /PX4-Autopilot/yolov8s.pt
+
+# ------------------------------------------------------------
+# Copy configuration
+# ------------------------------------------------------------
+COPY drone_control/config /app/config
+
+# ------------------------------------------------------------
+# Configure ROS environment
 # ------------------------------------------------------------
 RUN echo "source /opt/ros/noetic/setup.bash" >> /root/.bashrc && \
-    echo "source /root/catkin_ws/devel/setup.bash 2>/dev/null || true" >> /root/.bashrc && \
-    echo "export ROS_HOSTNAME=localhost" >> /root/.bashrc && \
-    echo "export ROS_IP=127.0.0.1" >> /root/.bashrc && \
-    echo "export ROS_MASTER_URI=http://localhost:11311" >> /root/.bashrc
+    echo "source /root/catkin_ws/devel/setup.bash" >> /root/.bashrc
 
-# Default shell
-CMD ["/bin/bash"]
+# ------------------------------------------------------------
+# Copy entrypoint
+# ------------------------------------------------------------
+COPY entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
+
+# ------------------------------------------------------------
+# Runtime environment
+# ------------------------------------------------------------
+WORKDIR /root/catkin_ws
+
+ENTRYPOINT ["/entrypoint.sh"]

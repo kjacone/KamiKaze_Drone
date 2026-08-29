@@ -1,0 +1,132 @@
+# syntax=docker/dockerfile:1.4
+FROM ros:noetic-ros-base
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive \
+    ROS_DISTRO=noetic \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
+
+# Install system dependencies in a single layer with cleanup
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Python and pip
+    python3-pip \
+    python3-dev \
+    # ROS core tools
+    ros-noetic-mavros \
+    ros-noetic-mavros-extras \
+    ros-noetic-rqt-image-view \
+    ros-noetic-cv-bridge \
+    ros-noetic-image-transport \
+    ros-noetic-gazebo-ros-pkgs \
+    ros-noetic-gazebo-ros-control \
+    ros-noetic-gazebo-plugins \
+    # Geographic libraries
+    geographiclib-tools \
+    # GUI / remote desktop
+    xvfb \
+    fluxbox \
+    x11vnc \
+    websockify \
+    novnc \
+    x11-utils \
+    # Utilities
+    net-tools \
+    wget \
+    ca-certificates \
+    git \
+    sudo \
+    vim \
+    curl \
+    jq \
+    bc \
+    htop \
+    procps \
+    # Gazebo
+    gazebo11 \
+    libgazebo11-dev \
+    # Protobuf
+    protobuf-compiler \
+    libprotobuf-dev \
+    libprotoc-dev \
+    # Eigen / OpenCV
+    libeigen3-dev \
+    libopencv-dev \
+    # XML / SSL / YAML
+    libxml2-utils \
+    libxml2-dev \
+    libssl-dev \
+    libyaml-cpp-dev \
+    # GStreamer
+    libgstreamer1.0-dev \
+    libgstreamer-plugins-base1.0-dev \
+    libgstreamer-plugins-good1.0-dev \
+    gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-good \
+    gstreamer1.0-plugins-ugly \
+    gstreamer1.0-libav \
+    # Exif tool
+    libimage-exiftool-perl \
+    # Monitoring / debugging
+    sysstat \
+    iotop \
+    nethogs \
+    dstat \
+    && update-ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip (now that it's installed)
+RUN python3 -m pip install --no-cache-dir --upgrade pip
+
+# Install Python monitoring tools (small, stable layer)
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install --no-cache-dir \
+    prometheus-client \
+    influxdb-client \
+    psutil \
+    python-json-logger \
+    py-cpuinfo
+
+# PyTorch CPU-only (large, separate layer to cache independently)
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install --no-cache-dir \
+    --default-timeout=1000 \
+    --retries=5 \
+    --index-url https://download.pytorch.org/whl/cpu \
+    torch==2.0.1 \
+    torchvision==0.15.2
+
+# Install other Python dependencies
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install --no-cache-dir \
+    --default-timeout=1000 \
+    --retries=5 \
+    ultralytics \
+    filterpy \
+    scipy \
+    kconfiglib \
+    jsonschema \
+    jinja2 \
+    toml \
+    packaging \
+    future \
+    numpy \
+    opencv-python \
+    pyyaml \
+    matplotlib
+
+# Optional: pyros-genmsg (non-critical)
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install --no-cache-dir pyros-genmsg || true
+
+# Create Catkin workspace
+RUN mkdir -p /root/catkin_ws/src
+WORKDIR /root/catkin_ws
+
+# Set up ROS environment in .bashrc
+RUN echo "source /opt/ros/noetic/setup.bash" >> /root/.bashrc && \
+    echo "source /root/catkin_ws/devel/setup.bash 2>/dev/null || true" >> /root/.bashrc && \
+    echo "export ROS_HOSTNAME=localhost" >> /root/.bashrc && \
+    echo "export ROS_IP=127.0.0.1" >> /root/.bashrc && \
+    echo "export ROS_MASTER_URI=http://localhost:11311" >> /root/.bashrc && \
+    echo "export PYTHONPATH=/root/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages:\$PYTHONPATH" >> /root/.bashrc

@@ -13,10 +13,36 @@ from mavros_msgs.srv import SetMode, CommandBool
 from nav_msgs.msg import Odometry
 from drone_control.msg import DetectedObjects, TrackedTargets, TrackedTarget
 from drone_control.msg import NodeHealth, Command, CommandResponse, MissionStatus
-from filterpy.kalman import KalmanFilter
+import psutil
 import sys
 import os
 
+try:
+    from filterpy.kalman import KalmanFilter
+except ImportError:
+    # Fallback simple Kalman filter
+    class KalmanFilter:
+        def __init__(self, dim_x, dim_z):
+            self.dim_x = dim_x
+            self.dim_z = dim_z
+            self.x = np.zeros(dim_x)
+            self.P = np.eye(dim_x)
+            self.F = np.eye(dim_x)
+            self.H = np.eye(dim_z, dim_x)
+            self.R = np.eye(dim_z)
+            self.Q = np.eye(dim_x)
+            
+        def predict(self):
+            self.x = self.F @ self.x
+            self.P = self.F @ self.P @ self.F.T + self.Q
+            
+        def update(self, z):
+            y = z - self.H @ self.x
+            S = self.H @ self.P @ self.H.T + self.R
+            K = self.P @ self.H.T @ np.linalg.inv(S)
+            self.x = self.x + K @ y
+            self.P = (np.eye(self.dim_x) - K @ self.H) @ self.P
+            
 sys.path.append(os.path.join(os.path.dirname(__file__), 'utils'))
 try:
     from error_handler import ErrorHandler
@@ -41,6 +67,8 @@ class TargetTrackingController:
         self.previous_state = None
         self.state_start_time = time.time()
         
+        self.error_count = 0
+        
         # Get parameters
         self.engagement_distance = rospy.get_param('tracking/engagement_distance', 10.0)
         self.attack_distance = rospy.get_param('tracking/attack_distance', 2.0)
@@ -61,13 +89,25 @@ class TargetTrackingController:
         self.target_pub = rospy.Publisher('/tracked_targets', TrackedTargets, queue_size=10)
         self.cmd_pub = rospy.Publisher('/mavros/setpoint_velocity/cmd_vel_unstamped', Twist, queue_size=10)
         self.position_target_pub = rospy.Publisher('/mavros/setpoint_raw/local', PositionTarget, queue_size=10)
-        self.health_pub = rospy.Publisher('/node_health', NodeHealth, queue_size=10)
+        self.health_pub = rospy.Publisher('/target_tracking_controller/node_health', NodeHealth, queue_size=10)
         
-        # Services
-        rospy.wait_for_service('/mavros/set_mode')
-        rospy.wait_for_service('/mavros/cmd/arming')
-        self.set_mode_srv = rospy.ServiceProxy('/mavros/set_mode', SetMode)
-        self.arm_srv = rospy.ServiceProxy('/mavros/cmd/arming', CommandBool)
+        # Service proxies (may be None if unavailable) – non‑blocking wait
+        self.set_mode_srv = None
+        self.arm_srv = None
+
+        try:
+            rospy.wait_for_service('/mavros/set_mode', timeout=2.0)
+            self.set_mode_srv = rospy.ServiceProxy('/mavros/set_mode', SetMode)
+            rospy.loginfo("MAVROS set_mode service available")
+        except rospy.ROSException as e:
+            rospy.logwarn("MAVROS set_mode service not available: %s", e)
+
+        try:
+            rospy.wait_for_service('/mavros/cmd/arming', timeout=2.0)
+            self.arm_srv = rospy.ServiceProxy('/mavros/cmd/arming', CommandBool)
+            rospy.loginfo("MAVROS arming service available")
+        except rospy.ROSException as e:
+            rospy.logwarn("MAVROS arming service not available: %s", e)
         
         # State variables
         self.drone_pose = None
@@ -381,19 +421,20 @@ class TargetTrackingController:
         """Switch to OFFBOARD mode and arm"""
         if self.mavros_state is None:
             return False
-            
+
         if self.mavros_state.mode == "OFFBOARD" and self.mavros_state.armed:
             self.offboard_enabled = True
             return True
-            
+
+        if self.set_mode_srv is None or self.arm_srv is None:
+            rospy.logwarn("MAVROS services not available, cannot enable OFFBOARD")
+            return False
+
         try:
-            # Set OFFBOARD mode
             mode_resp = self.set_mode_srv(0, "OFFBOARD")
             if mode_resp.mode_sent:
                 rospy.loginfo("OFFBOARD mode enabled")
                 self.offboard_enabled = True
-                
-                # Arm drone
                 arm_resp = self.arm_srv(True)
                 if arm_resp.success:
                     rospy.loginfo("Drone armed")
@@ -401,7 +442,6 @@ class TargetTrackingController:
             else:
                 rospy.logwarn("Failed to enable OFFBOARD mode")
                 return False
-                
         except rospy.ServiceException as e:
             self.error_handler.handle_error(e, "OFFBOARD mode failed")
             return False
@@ -438,13 +478,48 @@ class TargetTrackingController:
         # Publish to mission manager
         
     def _publish_health(self, event):
-        """Publish node health"""
-        health_msg = NodeHealth()
-        health_msg.node_name = 'target_tracking_controller'
-        health_msg.status = self.state
-        health_msg.timestamp = rospy.Time.now()
-        health_msg.is_healthy = self.state != "EMERGENCY"
-        self.health_pub.publish(health_msg)
+        """Publish node health with all required fields"""
+        try:
+            health_msg = NodeHealth()
+            health_msg.node_name = 'target_tracking_controller'
+            health_msg.status = self.state
+            health_msg.timestamp = rospy.Time.now()
+            
+            # Determine health status
+            is_healthy = True
+            
+            # Check for emergency state
+            if self.state == "EMERGENCY":
+                is_healthy = False
+                rospy.logwarn_throttle(5.0, "Node in EMERGENCY state")
+                
+            # Check if Kalman filter is initialized when tracking
+            if self.state in ["TRACKING", "ENGAGING", "ATTACK"]:
+                if self.target_kf is None:
+                    is_healthy = False
+                    rospy.logwarn_throttle(5.0, "Kalman filter not initialized")
+                elif self.drone_pose is None:
+                    is_healthy = False
+                    rospy.logwarn_throttle(5.0, "No drone pose available")
+                    
+            # Check for MAVROS connection
+            if self.mavros_state is not None and not self.mavros_state.connected:
+                is_healthy = False
+                rospy.logwarn_throttle(5.0, "MAVROS disconnected")
+                
+            health_msg.is_healthy = is_healthy
+            
+            # ALL REQUIRED FIELDS
+            health_msg.detection_count = len(self.tracked_targets) if hasattr(self, 'tracked_targets') else 0
+            health_msg.error_count = getattr(self, 'error_count', 0)
+            health_msg.fps = 20.0  # Control loop runs at 20Hz
+            health_msg.cpu_usage = psutil.cpu_percent()
+            health_msg.memory_usage = psutil.virtual_memory().percent
+            
+            self.health_pub.publish(health_msg)
+            
+        except Exception as e:
+            rospy.logwarn(f"Error publishing health: {e}")
 
 if __name__ == '__main__':
     tracker = TargetTrackingController()

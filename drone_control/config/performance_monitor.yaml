@@ -1,0 +1,77 @@
+# Performance Monitor Configuration
+# Monitoring intervals
+monitoring:
+  system_interval: 1.0  # seconds
+  ros_interval: 0.1  # seconds
+  node_interval: 0.5  # seconds
+  topic_interval: 0.5  # seconds
+  service_interval: 1.0  # seconds
+  
+# Benchmark settings
+benchmark:
+  enabled: true
+  benchmark_interval: 60.0  # seconds
+  benchmark_duration: 10.0  # seconds
+  benchmark_nodes:
+    - "yolo_detector"
+    - "target_tracking_controller"
+    - "trajectory_planner"
+    - "predictive_controller"
+    - "collision_avoidance"
+  
+  benchmark_metrics:
+    - "cpu_usage"
+    - "memory_usage"
+    - "latency"
+    - "throughput"
+    - "error_rate"
+  
+# Alert thresholds
+alerts:
+  # CPU thresholds
+  cpu_threshold:
+    warning: 70.0  # percent
+    critical: 85.0
+  
+  # Memory thresholds
+  memory_threshold:
+    warning: 75.0  # percent
+    critical: 90.0
+  
+  # Disk thresholds
+  disk_threshold:
+    warning: 80.0  # percent
+    critical: 95.0
+  
+  # Network thresholds
+  network_threshold:
+    bandwidth_warning: 50.0  # MB/s
+    bandwidth_critical: 80.0
+    latency_warning: 50.0  # ms
+    latency_critical: 100.0
+  
+  # ROS-specific thresholds
+  ros_threshold:
+    topic_latency_warning: 0.1  # seconds
+    topic_latency_critical: 0.5
+    service_timeout_warning: 1.0  # seconds
+    service_timeout_critical: 3.0
+    node_restart_warning: 1  # restarts per hour
+    node_restart_critical: 3
+  
+# Metrics export
+export:
+  enabled: true
+  export_interval: 10.0  # seconds
+  prometheus_port: 9090
+  influxdb_enabled: true
+  influxdb_database: "drone_metrics"
+  influxdb_measurement: "performance"
+  
+# Logging
+logging:
+  enabled: true
+  log_level: "info"  # debug, info, warning, error
+  log_file: "/var/log/performance/performance.log"
+  log_rotation: "daily"
+  log_retention_days: 30

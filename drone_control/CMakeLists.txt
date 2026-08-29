@@ -62,7 +62,7 @@ catkin_install_python(PROGRAMS
   # Core nodes
   scripts/core/camera_calibration.py
   scripts/core/sensor_fusion.py
-  scripts/core/collision_avoidance.py
+  scripts/core/obstacle_avoidance_lib.py
   
   # Detectors
   scripts/detectors/yolo_detector.py

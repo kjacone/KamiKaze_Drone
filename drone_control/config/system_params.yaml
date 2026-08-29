@@ -1,23 +1,14 @@
 # drone_control/config/system_params.yaml
 # System-wide configuration
 
-# ============================================
-# ROS NODE CONFIGURATION
-# ============================================
 ros:
-  # Master configuration
   master:
     uri: "http://localhost:11311"
-    timeout: 5.0  # seconds
-    
-  # Node configuration
+    timeout: 5.0
   node:
     name: "drone_control"
     namespace: "/"
-    
-  # Topic configuration
   topics:
-    # Input topics
     camera_image: "/camera/color/image_raw"
     camera_info: "/camera/color/camera_info"
     vehicle_state: "/mavros/state"
@@ -25,121 +16,79 @@ ros:
     vehicle_velocity: "/mavros/local_position/velocity"
     vehicle_attitude: "/mavros/attitude"
     battery_status: "/mavros/battery"
-    
-    # Output topics
     detection_output: "/target_detections"
     tracked_targets: "/tracked_targets"
     control_command: "/mavros/setpoint_raw/local"
     safety_status: "/safety_status"
     diagnostic_status: "/diagnostics"
-    
-    # Internal topics
     debug_info: "/drone_control/debug"
     performance_metrics: "/drone_control/performance"
     test_results: "/drone_control/test/results"
     test_status: "/drone_control/test/status"
 
-# ============================================
-# LOGGING CONFIGURATION
-# ============================================
 logging:
-  # Log levels: 'debug', 'info', 'warning', 'error', 'fatal'
   level: "info"
-  
-  # Log outputs
   outputs:
     console: true
     file: true
     rosout: true
-    
-  # File logging
   file:
     directory: "/var/log/drone_control"
-    max_size: 100  # MB
+    max_size: 100
     max_files: 5
     format: "%Y-%m-%d_%H-%M-%S.log"
-    
-  # Performance logging
   performance:
     enabled: true
-    interval: 1.0  # seconds
+    interval: 1.0
     metrics: ["cpu", "memory", "latency", "fps"]
     output_file: "performance_metrics.csv"
 
-# ============================================
-# SAFETY PARAMETERS
-# ============================================
 safety:
-  # Geofence
   geofence:
     enabled: true
-    shape: "cylinder"  # 'cylinder', 'box', 'sphere'
-    radius: 100.0  # meters
-    height: 50.0  # meters
-    
-  # Emergency procedures
+    shape: "cylinder"
+    radius: 100.0
+    height: 50.0
   emergency:
-    action: "land"  # 'land', 'hover', 'return_home'
-    altitude_min: 2.0  # meters
-    altitude_max: 50.0  # meters
-    
-  # Fail-safe triggers
+    action: "land"
+    altitude_min: 2.0
+    altitude_max: 50.0
   failsafe:
-    battery_critical: 15.0  # percent
-    lost_connection: 5.0  # seconds
+    battery_critical: 15.0
+    lost_connection: 5.0
     gps_failure: true
     sensor_failure: true
     exceeded_geofence: true
-    
-  # Health monitoring
   health:
-    check_interval: 1.0  # seconds
+    check_interval: 1.0
     restart_on_failure: true
     max_restarts: 3
-    restart_delay: 5.0  # seconds
-    
-# ============================================
-# PERFORMANCE TUNING
-# ============================================
+    restart_delay: 5.0
+
 performance:
-  # Threading
   threads:
     detection_pool: 4
     control_pool: 2
-    
-  # Queues
   queues:
     input_queue_size: 10
     output_queue_size: 10
-    
-  # Memory management
   memory:
     cache_images: true
     max_cache_size: 100
     max_cached_messages: 1000
-    
-  # Timing
   timing:
     use_sim_time: false
-    publish_rate: 50  # Hz
-    control_rate: 50  # Hz
-    
-# ============================================
-# NETWORK PARAMETERS
-# ============================================
+    publish_rate: 50
+    control_rate: 50
+
 network:
-  # PX4 communication
   px4:
     udp_port: 14540
     tcp_port: 14550
-    heartbeat_rate: 1.0  # Hz
-    
-  # MAVROS
+    heartbeat_rate: 1.0
   mavros:
     fcu_url: "udp://:14540@127.0.0.1:14557"
     gcs_url: "udp://@127.0.0.1:14550"
-    
-  # Networking
   timeout: 10.0
   reconnect_attempts: 3
   reconnect_delay: 5.0

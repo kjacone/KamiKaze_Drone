@@ -115,7 +115,7 @@ class FlightController:
         # Publishers
         self.target_pub = rospy.Publisher('/mavros/setpoint_raw/local', PositionTarget, queue_size=10)
         self.vel_pub = rospy.Publisher('/mavros/setpoint_velocity/cmd_vel_unstamped', Twist, queue_size=10)
-        self.health_pub = rospy.Publisher('/node_health', NodeHealth, queue_size=10)
+        self.health_pub = rospy.Publisher('/flight_controller/node_health', NodeHealth, queue_size=10)
         
         # Services
         rospy.wait_for_service('/mavros/set_mode')
@@ -262,6 +262,11 @@ class FlightController:
         health_msg.status = 'running'
         health_msg.timestamp = rospy.Time.now()
         health_msg.is_healthy = self.mavros_state is not None and self.mavros_state.connected
+          # Add CPU and memory usage
+        import psutil
+        health_msg.cpu_usage = psutil.cpu_percent()
+        health_msg.memory_usage = psutil.virtual_memory().percent
+
         self.health_pub.publish(health_msg)
 
 if __name__ == '__main__':

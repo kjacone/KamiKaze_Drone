@@ -9,9 +9,10 @@ import json
 import time
 from typing import Dict, Any, Tuple, Optional
 from enum import Enum
-from drone_control.msg import Command, CommandResponse
+from drone_control.msg import Command, CommandResponse, NodeHealth 
 import sys
 import os
+import psutil
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -57,8 +58,22 @@ class CommandInterpreter:
         
         # Publishers
         self.response_pub = rospy.Publisher('/drone_control/command_response', CommandResponse, queue_size=10)
-        
+
+        self.health_pub = rospy.Publisher('/command_interpreter/node_health', NodeHealth, queue_size=10)
+        rospy.Timer(rospy.Duration(1.0), self._publish_health)
+
         rospy.loginfo("Command Interpreter initialized")
+
+    def _publish_health(self, event):
+        msg = NodeHealth()
+        msg.node_name = 'command_interpreter'
+        msg.status = 'running'
+        msg.timestamp = rospy.Time.now()
+        msg.is_healthy = True
+        msg.cpu_usage = psutil.cpu_percent()
+        msg.memory_usage = psutil.virtual_memory().percent
+
+        self.health_pub.publish(msg)
         
     def _register_handlers(self):
         """Register all command handlers"""

@@ -1,0 +1,45 @@
+# Trajectory Planner Configuration
+# A* algorithm parameters
+astar:
+  grid_resolution: 0.5  # meters per grid cell
+  heuristic_weight: 1.2  # > 1 for faster path, < 1 for optimal path
+  max_iterations: 10000
+  allow_diagonal: true
+  diagonal_cost: 1.414  # sqrt(2)
+  node_expansion_limit: 5000
+
+# Obstacle avoidance settings
+obstacle_avoidance:
+  dynamic_obstacle_enabled: true
+  static_obstacle_enabled: true
+  obstacle_clearance: 1.0  # meters
+  obstacle_inflation: 0.3  # meters
+  min_distance_to_obstacle: 0.5  # meters
+  replan_interval: 0.5  # seconds
+  max_replan_attempts: 5
+  prediction_horizon: 2.0  # seconds for dynamic obstacles
+
+# Planning horizon configuration
+planning:
+  planning_horizon: 10.0  # meters ahead
+  min_planning_horizon: 5.0  # minimum planning distance
+  max_planning_horizon: 20.0  # maximum planning distance
+  path_smoothing_enabled: true
+  smoothing_iterations: 100
+  smoothing_weight: 0.5
+  curvature_constraint: 0.5  # max curvature (1/m)
+  
+# Waypoint navigation
+waypoint_navigation:
+  waypoint_tolerance: 0.3  # meters
+  yaw_tolerance: 0.1  # radians
+  lookahead_distance: 2.0  # meters
+  approach_speed: 2.0  # m/s
+  departure_speed: 3.0  # m/s
+  
+# Performance settings
+performance:
+  planning_threads: 4
+  cache_size: 1000  # number of paths to cache
+  publish_rate: 10  # Hz
+  debug_mode: false

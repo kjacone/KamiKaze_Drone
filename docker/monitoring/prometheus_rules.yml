@@ -1,0 +1,29 @@
+groups:
+  - name: drone_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total{container="kamikaze_drone"}[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is above 80% for 5 minutes"
+
+      - alert: HighMemoryUsage
+        expr: (container_memory_working_set_bytes{container="kamikaze_drone"} / container_memory_usage_bytes{container="kamikaze_drone"}) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 90% for 5 minutes"
+
+      - alert: DroneNodeFailure
+        expr: up{job="ros-metrics"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Drone control node is down"
+          description: "The drone control node has been unreachable for 30 seconds"

@@ -1,8 +1,7 @@
-# drone_control/msg/MissionStatus.msg
-# Mission status message
+
 
 string mission_id           # Unique mission identifier
-string state                # Current mission state (idle, searching, tracking, etc.)
+string state                # Current mission state (idle, searching)
 string previous_state       # Previous state
 float32 elapsed_time        # Time in current state (seconds)
 int32 current_waypoint      # Current waypoint index

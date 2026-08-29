@@ -1,0 +1,49 @@
+# # Dockerfile.trajectory - Trajectory Planning Container
+# FROM ros:noetic-ros-base
+
+# # Install dependencies
+# RUN apt-get update && apt-get install -y \
+#     python3-pip \
+#     python3-numpy \
+#     python3-scipy \
+#     && rm -rf /var/lib/apt/lists/*
+
+# # Install Python packages
+# RUN pip3 install --no-cache-dir \
+#     numpy==1.24.3 \
+#     scipy==1.10.1
+
+# WORKDIR /root
+
+# # Health check
+# HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+#     CMD rosnode list | grep -q trajectory_planner || exit 1
+
+# CMD ["/bin/bash"]
+
+
+
+# Trajectory Planner Service
+FROM kamikaze-drone:latest AS base
+
+# Install trajectory planning dependencies
+RUN python3 -m pip install \
+    --no-cache-dir \
+    shapely \
+    rtree \
+    scipy \
+    numpy \
+    matplotlib \
+    networkx \
+    pyastar \
+    pathfinding
+
+# Copy trajectory planner
+COPY drone_control/scripts/planners/trajectory_planner.py /opt/trajectory_planner.py
+RUN chmod +x /opt/trajectory_planner.py
+
+# Create trajectory cache
+RUN mkdir -p /var/cache/trajectories
+VOLUME /var/cache/trajectories
+
+CMD ["/bin/bash", "-c", "source /opt/ros/noetic/setup.bash && source /root/catkin_ws/devel/setup.bash && python3 /opt/trajectory_planner.py"]

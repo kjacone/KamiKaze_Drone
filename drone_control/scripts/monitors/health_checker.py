@@ -32,7 +32,8 @@ class HealthChecker:
             'target_tracking_controller',
             'vehicle_state_monitor',
             'mission_manager',
-            'safety_monitor'
+            'safety_monitor',
+            'command_interpreter'
         ])
         
         # State tracking
@@ -58,6 +59,7 @@ class HealthChecker:
         
     def _health_callback(self, msg, node_name):
         """Handle health messages from nodes"""
+        rospy.logdebug(f"Health received from {node_name}: healthy={msg.is_healthy}, status={msg.status}")
         self.node_health[node_name] = msg
         self.last_health_time[node_name] = time.time()
         

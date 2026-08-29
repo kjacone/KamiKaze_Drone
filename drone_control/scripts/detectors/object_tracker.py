@@ -110,7 +110,7 @@ class ObjectTracker:
         
         # Publishers
         self.tracks_pub = rospy.Publisher('/tracked_targets', TrackedTargets, queue_size=10)
-        self.health_pub = rospy.Publisher('/node_health', NodeHealth, queue_size=10)
+        self.health_pub = rospy.Publisher('/object_tracker/node_health', NodeHealth, queue_size=10)
         
         # Timer
         self.update_timer = rospy.Timer(rospy.Duration(0.1), self._update)
@@ -229,6 +229,11 @@ class ObjectTracker:
         health_msg.timestamp = rospy.Time.now()
         health_msg.detection_count = len(self.tracks)
         health_msg.is_healthy = True
+          # Add CPU and memory usage
+        import psutil
+        health_msg.cpu_usage = psutil.cpu_percent()
+        health_msg.memory_usage = psutil.virtual_memory().percent
+
         self.health_pub.publish(health_msg)
 
 if __name__ == '__main__':
