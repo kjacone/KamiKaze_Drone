@@ -1,0 +1,27 @@
+[rospy.client][INFO] 2026-08-30 02:32:40,100: init_node, name[/target_tracking_controller], pid[113]
+[xmlrpc][INFO] 2026-08-30 02:32:40,106: XML-RPC server binding to 127.0.0.1:0
+[xmlrpc][INFO] 2026-08-30 02:32:40,113: Started XML-RPC server [http://localhost:39597/]
+[rospy.impl.masterslave][INFO] 2026-08-30 02:32:40,114: _ready: http://localhost:39597/
+[rospy.init][INFO] 2026-08-30 02:32:40,114: ROS Slave URI: [http://localhost:39597/]
+[rospy.registration][INFO] 2026-08-30 02:32:40,116: Registering with master node http://localhost:11311
+[xmlrpc][INFO] 2026-08-30 02:32:40,117: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 02:32:40,217: registered with master
+[rospy.rosout][INFO] 2026-08-30 02:32:40,218: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 02:32:40,247: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 02:32:40,249: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rospy.internal][INFO] 2026-08-30 02:32:40,292: topic[/mission_status] adding connection to [http://localhost:43293/], count 0
+[rospy.internal][INFO] 2026-08-30 02:32:40,367: topic[/tracked_targets] adding connection to [/mission_manager], count 0
+[rospy.internal][INFO] 2026-08-30 02:32:40,369: topic[/target_tracking_controller/node_health] adding connection to [/health_checker], count 0
+[rospy.internal][INFO] 2026-08-30 02:32:40,459: topic[/rosout] adding connection to [/rosout], count 0
+[rosout][WARNING] 2026-08-30 02:32:42,439: MAVROS set_mode service not available: timeout exceeded while waiting for service /mavros/set_mode
+[rospy.internal][INFO] 2026-08-30 02:32:42,697: topic[/detected_objects] adding connection to [http://localhost:43587/], count 0
+[rosout][WARNING] 2026-08-30 02:32:44,613: MAVROS arming service not available: timeout exceeded while waiting for service /mavros/cmd/arming
+[rosout][INFO] 2026-08-30 02:32:44,622: Target Tracking Controller started in SEARCHING mode
+[rospy.core][INFO] 2026-08-30 03:07:09,449: signal_shutdown [signal-2]
+[rospy.internal][INFO] 2026-08-30 03:07:09,738: topic[/detected_objects] removing connection to http://localhost:43587/
+[rospy.internal][INFO] 2026-08-30 03:07:09,744: topic[/rosout] removing connection to /rosout
+[rospy.internal][INFO] 2026-08-30 03:07:09,755: topic[/mission_status] removing connection to http://localhost:43293/
+[rospy.internal][INFO] 2026-08-30 03:07:09,758: topic[/tracked_targets] removing connection to /mission_manager
+[rospy.internal][INFO] 2026-08-30 03:07:09,759: topic[/target_tracking_controller/node_health] removing connection to /health_checker
+[rospy.impl.masterslave][INFO] 2026-08-30 03:07:09,759: signal-2
+[rospy.core][INFO] 2026-08-30 03:07:10,067: signal_shutdown [atexit]

@@ -1,0 +1,26 @@
+[rospy.client][INFO] 2026-08-30 00:03:49,094: init_node, name[/yolo_detector], pid[111]
+[xmlrpc][INFO] 2026-08-30 00:03:49,098: XML-RPC server binding to 127.0.0.1:0
+[xmlrpc][INFO] 2026-08-30 00:03:49,100: Started XML-RPC server [http://localhost:41029/]
+[rospy.init][INFO] 2026-08-30 00:03:49,100: ROS Slave URI: [http://localhost:41029/]
+[rospy.impl.masterslave][INFO] 2026-08-30 00:03:49,100: _ready: http://localhost:41029/
+[rospy.registration][INFO] 2026-08-30 00:03:49,102: Registering with master node http://localhost:11311
+[xmlrpc][INFO] 2026-08-30 00:03:49,102: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 00:03:49,201: registered with master
+[rospy.rosout][INFO] 2026-08-30 00:03:49,202: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 00:03:49,209: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 00:03:49,211: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rosout][INFO] 2026-08-30 00:03:49,230: Loading YOLO model from: /PX4-Autopilot/yolov8s.pt
+[rospy.internal][INFO] 2026-08-30 00:03:49,241: topic[/mission_status] adding connection to [http://localhost:38193/], count 0
+[rospy.internal][INFO] 2026-08-30 00:03:49,269: topic[/yolo_detector/node_health] adding connection to [/health_checker], count 0
+[rosout][INFO] 2026-08-30 00:03:49,415: YOLO model loaded successfully!
+[rosout][INFO] 2026-08-30 00:03:49,423: YOLO Detector initialized in production mode
+[rosout][INFO] 2026-08-30 00:03:49,426: Vehicle classes: [2, 3, 5, 6, 7]
+[rospy.internal][INFO] 2026-08-30 00:03:49,443: topic[/rosout] adding connection to [/rosout], count 0
+[rospy.internal][INFO] 2026-08-30 00:03:49,450: topic[/detected_objects] adding connection to [/target_tracking_controller], count 0
+[rospy.core][INFO] 2026-08-30 00:17:18,376: signal_shutdown [signal-2]
+[rospy.internal][INFO] 2026-08-30 00:17:18,434: topic[/rosout] removing connection to /rosout
+[rospy.internal][INFO] 2026-08-30 00:17:18,435: topic[/yolo_detector/node_health] removing connection to /health_checker
+[rospy.internal][INFO] 2026-08-30 00:17:18,436: topic[/detected_objects] removing connection to /target_tracking_controller
+[rospy.internal][INFO] 2026-08-30 00:17:18,436: topic[/mission_status] removing connection to http://localhost:38193/
+[rospy.impl.masterslave][INFO] 2026-08-30 00:17:18,441: signal-2
+[rospy.core][INFO] 2026-08-30 00:17:19,133: signal_shutdown [atexit]

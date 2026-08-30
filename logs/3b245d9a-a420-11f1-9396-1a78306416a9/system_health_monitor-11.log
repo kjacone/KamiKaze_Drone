@@ -1,0 +1,13 @@
+[rospy.client][INFO] 2026-08-30 03:09:43,893: init_node, name[/system_health_monitor], pid[98]
+[xmlrpc][INFO] 2026-08-30 03:09:43,898: XML-RPC server binding to 127.0.0.1:0
+[xmlrpc][INFO] 2026-08-30 03:09:43,902: Started XML-RPC server [http://localhost:37097/]
+[rospy.init][INFO] 2026-08-30 03:09:43,903: ROS Slave URI: [http://localhost:37097/]
+[rospy.impl.masterslave][INFO] 2026-08-30 03:09:43,903: _ready: http://localhost:37097/
+[rospy.registration][INFO] 2026-08-30 03:09:43,905: Registering with master node http://localhost:11311
+[xmlrpc][INFO] 2026-08-30 03:09:43,908: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 03:09:44,004: registered with master
+[rospy.rosout][INFO] 2026-08-30 03:09:44,005: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 03:09:44,111: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 03:09:44,113: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rosout][INFO] 2026-08-30 03:09:44,288: System Health Monitor initialized
+[rospy.internal][INFO] 2026-08-30 03:09:44,513: topic[/rosout] adding connection to [/rosout], count 0

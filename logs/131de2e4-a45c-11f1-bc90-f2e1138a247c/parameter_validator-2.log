@@ -1,0 +1,14 @@
+[rospy.client][INFO] 2026-08-30 10:18:05,325: init_node, name[/parameter_validator], pid[106]
+[xmlrpc][INFO] 2026-08-30 10:18:05,341: XML-RPC server binding to 0.0.0.0:0
+[xmlrpc][INFO] 2026-08-30 10:18:05,351: Started XML-RPC server [http://kamikaze:37645/]
+[rospy.impl.masterslave][INFO] 2026-08-30 10:18:05,352: _ready: http://kamikaze:37645/
+[rospy.init][INFO] 2026-08-30 10:18:05,352: ROS Slave URI: [http://kamikaze:37645/]
+[rospy.registration][INFO] 2026-08-30 10:18:05,356: Registering with master node http://kamikaze:11311
+[xmlrpc][INFO] 2026-08-30 10:18:05,357: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 10:18:05,456: registered with master
+[rospy.rosout][INFO] 2026-08-30 10:18:05,457: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 10:18:05,562: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 10:18:05,567: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rosout][INFO] 2026-08-30 10:18:05,829: All parameters validated successfully
+[rosout][INFO] 2026-08-30 10:18:05,836: Parameter validator initialized successfully
+[rospy.internal][INFO] 2026-08-30 10:18:05,924: topic[/rosout] adding connection to [/rosout], count 0

@@ -1,31 +1,182 @@
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
+
   external_labels:
-    monitor: 'drone-control'
+    monitor: "drone-control"
 
 rule_files:
-  - "prometheus_rules.yml"
+  - "/etc/prometheus/rules.yml"
 
 scrape_configs:
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['localhost:9090']
 
-  - job_name: 'node-exporter'
-    static_configs:
-      - targets: ['localhost:9100']
+  # ============================================================
+  # Prometheus Self-Monitoring
+  # ============================================================
 
-  - job_name: 'cadvisor'
+  - job_name: "prometheus"
     static_configs:
-      - targets: ['localhost:8081']
+      - targets:
+          - "prometheus:9090"  # Changed from localhost to container name
 
-  - job_name: 'ros-metrics'
-    static_configs:
-      - targets: ['localhost:9090']
-    metrics_path: '/metrics'
+  # ============================================================
+  # Node Exporter - Host Metrics
+  # ============================================================
 
-  - job_name: 'performance-monitor'
+  - job_name: "node-exporter"
     static_configs:
-      - targets: ['localhost:9090']
-    metrics_path: '/metrics/performance'
+      - targets:
+          - "node-exporter:9100"  # Changed from localhost to container name
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+  # ============================================================
+  # cAdvisor - Container Metrics
+  # ============================================================
+
+  - job_name: "cadvisor"
+    static_configs:
+      - targets:
+          - "cadvisor:8080"  # Changed from localhost to container name
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    metrics_path: "/metrics"
+
+  # ============================================================
+  # ROS Metrics - From Kamikaze Drone
+  # ============================================================
+
+  - job_name: "ros-metrics"
+    static_configs:
+      - targets:
+          - "kamikaze:8001"  # ROS metrics exporter port
+          - "kamikaze:11311"  # ROS master (if it exposes metrics)
+    metrics_path: "/metrics"
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    params:
+      collect[]:
+        - "ros"
+        - "gazebo"
+        - "drone"
+
+  # ============================================================
+  # Kamikaze Drone Application Metrics
+  # ============================================================
+
+  - job_name: "kamikaze-drone"
+    static_configs:
+      - targets:
+          - "kamikaze:8001"  # Main drone metrics
+    metrics_path: "/metrics"
+    scrape_interval: 5s
+    scrape_timeout: 3s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: "kamikaze_drone"
+
+  # ============================================================
+  # Predictive Controller Metrics
+  # ============================================================
+
+  - job_name: "predictive-controller"
+    static_configs:
+      - targets:
+          - "predictive:8002"  # Predictive controller metrics port
+    metrics_path: "/metrics"
+    scrape_interval: 5s
+    scrape_timeout: 3s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: "predictive_controller"
+
+  # ============================================================
+  # Trajectory Planner Metrics
+  # ============================================================
+
+  - job_name: "trajectory-planner"
+    static_configs:
+      - targets:
+          - "trajectory:8003"  # Trajectory planner metrics port
+    metrics_path: "/metrics"
+    scrape_interval: 5s
+    scrape_timeout: 3s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: "trajectory_planner"
+
+  # ============================================================
+  # Performance Monitor
+  # ============================================================
+
+  - job_name: "performance-monitor"
+    static_configs:
+      - targets:
+          - "performance:8000"  # Performance monitor port
+    metrics_path: "/metrics"
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # ============================================================
+  # Docker Container Metrics (via cAdvisor alternative)
+  # ============================================================
+
+  - job_name: "docker-containers"
+    static_configs:
+      - targets:
+          - "cadvisor:8080"
+    metrics_path: "/metrics"
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    relabel_configs:
+      - source_labels: [__meta_docker_container_name]
+        regex: "/(.*)"
+        target_label: container
+      - source_labels: [__meta_docker_container_label_com_docker_compose_service]
+        target_label: service
+
+  # ============================================================
+  # ROS Topics Metrics (if exposed via HTTP)
+  # ============================================================
+
+  - job_name: "ros-topics"
+    static_configs:
+      - targets:
+          - "kamikaze:8001"  # Same as ROS metrics
+    metrics_path: "/metrics/topics"
+    scrape_interval: 5s
+    scrape_timeout: 3s
+    params:
+      topic[]:
+        - "/drone/state"
+        - "/drone/odometry"
+        - "/drone/imu"
+        - "/drone/gps"
+        - "/drone/cmd_vel"
+
+  # ============================================================
+  # ROS Service Metrics
+  # ============================================================
+
+  - job_name: "ros-services"
+    static_configs:
+      - targets:
+          - "kamikaze:8001"
+    metrics_path: "/metrics/services"
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # ============================================================
+  # System Metrics (alternative to node-exporter)
+  # ============================================================
+
+  - job_name: "system-metrics"
+    static_configs:
+      - targets:
+          - "node-exporter:9100"
+    metrics_path: "/metrics"
+    scrape_interval: 30s
+    scrape_timeout: 15s

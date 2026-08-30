@@ -1,0 +1,19 @@
+[rospy.client][INFO] 2026-08-30 02:32:38,540: init_node, name[/vehicle_state_monitor], pid[114]
+[xmlrpc][INFO] 2026-08-30 02:32:38,551: XML-RPC server binding to 127.0.0.1:0
+[xmlrpc][INFO] 2026-08-30 02:32:38,567: Started XML-RPC server [http://localhost:35865/]
+[rospy.init][INFO] 2026-08-30 02:32:38,568: ROS Slave URI: [http://localhost:35865/]
+[rospy.impl.masterslave][INFO] 2026-08-30 02:32:38,569: _ready: http://localhost:35865/
+[rospy.registration][INFO] 2026-08-30 02:32:38,576: Registering with master node http://localhost:11311
+[xmlrpc][INFO] 2026-08-30 02:32:38,577: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 02:32:38,670: registered with master
+[rospy.rosout][INFO] 2026-08-30 02:32:38,671: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 02:32:38,704: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 02:32:38,707: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rosout][INFO] 2026-08-30 02:32:38,750: Vehicle State Monitor started
+[rospy.internal][INFO] 2026-08-30 02:32:38,868: topic[/vehicle_state_monitor/node_health] adding connection to [/health_checker], count 0
+[rospy.internal][INFO] 2026-08-30 02:32:38,956: topic[/rosout] adding connection to [/rosout], count 0
+[rospy.core][INFO] 2026-08-30 03:07:09,448: signal_shutdown [signal-2]
+[rospy.internal][INFO] 2026-08-30 03:07:09,625: topic[/rosout] removing connection to /rosout
+[rospy.internal][INFO] 2026-08-30 03:07:09,626: topic[/vehicle_state_monitor/node_health] removing connection to /health_checker
+[rospy.impl.masterslave][INFO] 2026-08-30 03:07:09,626: signal-2
+[rospy.core][INFO] 2026-08-30 03:07:10,063: signal_shutdown [atexit]

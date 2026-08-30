@@ -1,0 +1,16 @@
+[rospy.client][INFO] 2026-08-30 10:18:07,002: init_node, name[/safety_monitor], pid[117]
+[xmlrpc][INFO] 2026-08-30 10:18:07,014: XML-RPC server binding to 0.0.0.0:0
+[xmlrpc][INFO] 2026-08-30 10:18:07,027: Started XML-RPC server [http://kamikaze:36531/]
+[rospy.init][INFO] 2026-08-30 10:18:07,027: ROS Slave URI: [http://kamikaze:36531/]
+[rospy.impl.masterslave][INFO] 2026-08-30 10:18:07,029: _ready: http://kamikaze:36531/
+[rospy.registration][INFO] 2026-08-30 10:18:07,038: Registering with master node http://kamikaze:11311
+[xmlrpc][INFO] 2026-08-30 10:18:07,052: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 10:18:07,131: registered with master
+[rospy.rosout][INFO] 2026-08-30 10:18:07,137: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 10:18:07,198: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 10:18:07,207: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rosout][INFO] 2026-08-30 10:18:07,465: Safety Monitor initialized
+[rosout][INFO] 2026-08-30 10:18:07,587: Health publisher: /safety_monitor/node_health
+[rospy.internal][INFO] 2026-08-30 10:18:07,583: topic[/rosout] adding connection to [/rosout], count 0
+[rospy.internal][INFO] 2026-08-30 10:18:07,611: topic[/safety_status] adding connection to [/mission_manager], count 0
+[rospy.internal][INFO] 2026-08-30 10:18:07,623: topic[/safety_monitor/node_health] adding connection to [/health_checker], count 0

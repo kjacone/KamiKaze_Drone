@@ -1,0 +1,191 @@
+# syntax=docker/dockerfile:1.4
+
+# ============================================================
+# Shared Python Dependencies
+# ============================================================
+
+FROM kamikaze-drone:latest
+
+# Set platform to match your system
+ARG TARGETPLATFORM=linux/amd64
+ARG BUILDPLATFORM=linux/amd64
+
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# ------------------------------------------------------------
+# Shared Python dependencies
+# ------------------------------------------------------------
+# These are installed ONCE and shared by all services.
+#
+# Build this image only when dependencies change:
+#
+# docker build -f Dockerfile.python-deps \
+#   -t kamikaze-drone-python:latest .
+# ------------------------------------------------------------
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install \
+        --no-cache-dir \
+        --default-timeout=1000 \
+        --retries=5 \
+        prometheus-client \
+        psutil \
+        numpy \
+        scipy \
+        matplotlib \
+        networkx \
+        shapely \
+        rtree \
+        filterpy \
+        kconfiglib \
+        jsonschema \
+        jinja2 \
+        toml \
+        packaging \
+        future \
+        pyyaml \
+        opencv-python
+
+# ------------------------------------------------------------
+# Performance monitoring dependencies
+# ------------------------------------------------------------
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install \
+        --no-cache-dir \
+        prometheus-flask-exporter \
+        gpustat \
+        nvidia-ml-py3 \
+        influxdb-client \
+        python-json-logger \
+        py-cpuinfo
+
+# ------------------------------------------------------------
+# Trajectory planning
+# ------------------------------------------------------------
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install \
+        --no-cache-dir \
+        pyastar \
+        pathfinding
+
+# ------------------------------------------------------------
+# Create shared service user
+# ------------------------------------------------------------
+
+RUN useradd \
+        --create-home \
+        --shell /bin/bash \
+        perfmon \
+    && mkdir -p /var/log/performance \
+    && chown -R perfmon:perfmon /var/log/performance
+
+# ------------------------------------------------------------
+# Prepare shared directories
+# ------------------------------------------------------------
+
+RUN mkdir -p \
+        /var/cache/trajectories \
+        /root/models/predictive
+
+# ------------------------------------------------------------
+# ROS environment
+# ------------------------------------------------------------
+
+
+# ------------------------------------------------------------
+# Install build dependencies
+# ------------------------------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-rosdep \
+    python3-catkin-tools \
+    python3-pip \
+    wget \
+    git \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# ------------------------------------------------------------
+# Install Python dependencies
+# IMPORTANT:
+#   cpuinfo -> WRONG
+#   py-cpuinfo -> CORRECT
+# ------------------------------------------------------------
+RUN pip3 install --no-cache-dir \
+    psutil \
+    py-cpuinfo
+
+# ------------------------------------------------------------
+# Initialize rosdep
+# ------------------------------------------------------------
+RUN if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then \
+        rosdep init; \
+    fi && \
+    rosdep update
+
+# ------------------------------------------------------------
+# Create catkin workspace
+# ------------------------------------------------------------
+RUN mkdir -p /root/catkin_ws/src
+
+# ------------------------------------------------------------
+# Copy drone_control package
+# ------------------------------------------------------------
+COPY drone_control/ /root/catkin_ws/src/drone_control/
+
+# ------------------------------------------------------------
+# Make Python scripts executable
+# ------------------------------------------------------------
+RUN if [ -d /root/catkin_ws/src/drone_control/scripts ]; then \
+        find /root/catkin_ws/src/drone_control/scripts \
+        -type f -name "*.py" -exec chmod +x {} \; ; \
+    fi && \
+    find /root/catkin_ws/src/drone_control \
+        -type f -name "*.py" -exec chmod +x {} \;
+
+# ------------------------------------------------------------
+# Install ROS package dependencies
+# ------------------------------------------------------------
+WORKDIR /root/catkin_ws
+
+RUN /bin/bash -c "\
+    source /opt/ros/noetic/setup.bash && \
+    rosdep install \
+        --from-paths src \
+        --ignore-src \
+        --rosdistro noetic \
+        -r -y \
+    "
+
+# ------------------------------------------------------------
+# Build catkin workspace
+# ------------------------------------------------------------
+RUN /bin/bash -c "\
+    source /opt/ros/noetic/setup.bash && \
+    cd /root/catkin_ws && \
+    catkin_make -j$(nproc) \
+    "
+
+
+
+    
+RUN printf '%s\n' \
+        '#!/bin/bash' \
+        'source /opt/ros/noetic/setup.bash' \
+        'source /root/catkin_ws/devel/setup.bash 2>/dev/null || true' \
+        'export PYTHONPATH=/root/catkin_ws/devel/lib/python3/dist-packages:$PYTHONPATH' \
+        'exec "$@"' \
+    > /usr/local/bin/ros-entrypoint.sh \
+    && chmod +x /usr/local/bin/ros-entrypoint.sh
+
+# ------------------------------------------------------------
+# Make ROS workspace readable
+#
+# This is done ONCE instead of in every service image.
+# ------------------------------------------------------------
+
+RUN chmod -R a+rX /root/catkin_ws /opt/ros \
+    && chmod a+rx /root

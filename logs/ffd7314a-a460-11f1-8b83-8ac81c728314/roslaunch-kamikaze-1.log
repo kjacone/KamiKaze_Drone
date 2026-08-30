@@ -1,0 +1,327 @@
+[roslaunch][INFO] 2026-08-30 10:53:14,206: Checking log directory for disk usage. This may take a while.
+Press Ctrl-C to interrupt
+[roslaunch][INFO] 2026-08-30 10:53:14,279: Done checking log file disk usage. Usage is <1GB.
+[roslaunch][INFO] 2026-08-30 10:53:14,281: roslaunch starting with args ['/opt/ros/noetic/bin/roslaunch', 'drone_control', 'kamikaze.launch', 'mode:=production']
+[roslaunch][INFO] 2026-08-30 10:53:14,282: roslaunch env is environ({'ROS_VERSION': '1', 'PYTHONUNBUFFERED': '1', 'ENABLE_METRICS': 'true', 'PKG_CONFIG_PATH': '/root/catkin_ws/devel/lib/pkgconfig:/opt/ros/noetic/lib/pkgconfig', 'ROS_PYTHON_VERSION': '3', 'HOSTNAME': 'kamikaze', 'ROS_PACKAGE_PATH': '/root/catkin_ws/src:/opt/ros/noetic/share', 'ROSLISP_PACKAGE_DIRECTORIES': '/root/catkin_ws/devel/share/common-lisp', 'PWD': '/root/catkin_ws', 'METRICS_PORT': '8001', 'ENABLE_SIMULATION': 'false', 'ROS_IP': 'kamikaze', 'HOME': '/root', 'LANG': 'C.UTF-8', 'ROS_ETC_DIR': '/opt/ros/noetic/etc/ros', 'CMAKE_PREFIX_PATH': '/root/catkin_ws/devel:/opt/ros/noetic', 'PYTHONPATH': '/root/catkin_ws/devel/lib/python3/dist-packages:/root/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages', 'DISPLAY': ':0', 'SHLVL': '0', 'ROS_MASTER_URI': 'http://kamikaze:11311', 'ROS_HOSTNAME': 'kamikaze', 'LD_LIBRARY_PATH': '/root/catkin_ws/devel/lib:/opt/ros/noetic/lib', 'ENABLE_PERFORMANCE_MONITORING': 'true', 'LC_ALL': 'C.UTF-8', 'PATH': '/opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'DEBIAN_FRONTEND': 'noninteractive', 'ROS_ROOT': '/opt/ros/noetic/share/ros', 'ROS_DISTRO': 'noetic', 'QT_X11_NO_MITSHM': '1', 'ENABLE_GUI': 'false', 'ROS_LOG_FILENAME': '/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/roslaunch-kamikaze-1.log'})
+[roslaunch][INFO] 2026-08-30 10:53:14,283: starting in server mode
+[roslaunch.parent][INFO] 2026-08-30 10:53:14,283: starting roslaunch parent run
+[roslaunch][INFO] 2026-08-30 10:53:14,284: loading roscore config file /opt/ros/noetic/etc/ros/roscore.xml
+[roslaunch][INFO] 2026-08-30 10:53:15,116: Added core node of type [rosout/rosout] in namespace [/]
+[roslaunch.config][INFO] 2026-08-30 10:53:15,117: loading config file /root/catkin_ws/src/drone_control/launch/kamikaze.launch
+[roslaunch][INFO] 2026-08-30 10:53:15,311: Added node of type [drone_control/parameter_validator.py] in namespace [/]
+[roslaunch][INFO] 2026-08-30 10:53:15,313: Added node of type [drone_control/command_interpreter.py] in namespace [/]
+[roslaunch][INFO] 2026-08-30 10:53:15,315: Added node of type [drone_control/mission_manager.py] in namespace [/]
+[roslaunch][INFO] 2026-08-30 10:53:15,316: Added node of type [drone_control/camera_calibration.py] in namespace [/]
+[roslaunch][INFO] 2026-08-30 10:53:15,317: Added node of type [drone_control/yolo_detector.py] in namespace [/]
+[roslaunch][INFO] 2026-08-30 10:53:15,319: Added node of type [drone_control/sensor_fusion.py] in namespace [/]
+[roslaunch][INFO] 2026-08-30 10:53:15,320: Added node of type [drone_control/target_tracking_controller.py] in namespace [/]
+[roslaunch][INFO] 2026-08-30 10:53:15,322: Added node of type [drone_control/vehicle_state_monitor.py] in namespace [/]
+[roslaunch][INFO] 2026-08-30 10:53:15,324: Added node of type [drone_control/safety_monitor.py] in namespace [/]
+[roslaunch][INFO] 2026-08-30 10:53:15,326: Added node of type [drone_control/system_health_monitor.py] in namespace [/]
+[roslaunch][INFO] 2026-08-30 10:53:15,328: Added node of type [drone_control/health_checker.py] in namespace [/]
+[roslaunch][INFO] 2026-08-30 10:53:15,329: ... selected machine [] for node of type [drone_control/parameter_validator.py]
+[roslaunch][INFO] 2026-08-30 10:53:15,329: ... selected machine [] for node of type [drone_control/command_interpreter.py]
+[roslaunch][INFO] 2026-08-30 10:53:15,330: ... selected machine [] for node of type [drone_control/mission_manager.py]
+[roslaunch][INFO] 2026-08-30 10:53:15,330: ... selected machine [] for node of type [drone_control/camera_calibration.py]
+[roslaunch][INFO] 2026-08-30 10:53:15,330: ... selected machine [] for node of type [drone_control/yolo_detector.py]
+[roslaunch][INFO] 2026-08-30 10:53:15,331: ... selected machine [] for node of type [drone_control/sensor_fusion.py]
+[roslaunch][INFO] 2026-08-30 10:53:15,331: ... selected machine [] for node of type [drone_control/target_tracking_controller.py]
+[roslaunch][INFO] 2026-08-30 10:53:15,331: ... selected machine [] for node of type [drone_control/vehicle_state_monitor.py]
+[roslaunch][INFO] 2026-08-30 10:53:15,331: ... selected machine [] for node of type [drone_control/safety_monitor.py]
+[roslaunch][INFO] 2026-08-30 10:53:15,331: ... selected machine [] for node of type [drone_control/system_health_monitor.py]
+[roslaunch][INFO] 2026-08-30 10:53:15,332: ... selected machine [] for node of type [drone_control/health_checker.py]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:15,343: start_process_monitor: creating ProcessMonitor
+[roslaunch.pmon][INFO] 2026-08-30 10:53:15,344: created process monitor <ProcessMonitor(ProcessMonitor-1, initial daemon)>
+[roslaunch.pmon][INFO] 2026-08-30 10:53:15,349: start_process_monitor: ProcessMonitor started
+[roslaunch.parent][INFO] 2026-08-30 10:53:15,350: starting parent XML-RPC server
+[roslaunch.server][INFO] 2026-08-30 10:53:15,351: starting roslaunch XML-RPC server
+[roslaunch.server][INFO] 2026-08-30 10:53:15,351: waiting for roslaunch XML-RPC server to initialize
+[xmlrpc][INFO] 2026-08-30 10:53:15,352: XML-RPC server binding to 0.0.0.0:0
+[xmlrpc][INFO] 2026-08-30 10:53:15,354: Started XML-RPC server [http://kamikaze:38823/]
+[xmlrpc][INFO] 2026-08-30 10:53:15,354: xml rpc node: starting XML-RPC server
+[roslaunch][INFO] 2026-08-30 10:53:15,376: started roslaunch server http://kamikaze:38823/
+[roslaunch.parent][INFO] 2026-08-30 10:53:15,377: ... parent XML-RPC server started
+[roslaunch][INFO] 2026-08-30 10:53:15,383: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:15,388: auto-starting new master
+[roslaunch][INFO] 2026-08-30 10:53:15,389: create_master_process: rosmaster, /opt/ros/noetic/share/ros, 11311, 3, None, False
+[roslaunch][INFO] 2026-08-30 10:53:15,389: process[master]: launching with args [['rosmaster', '--core', '-p', '11311', '-w', '3']]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:15,390: ProcessMonitor.register[master]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:15,390: ProcessMonitor.register[master] complete
+[roslaunch][INFO] 2026-08-30 10:53:15,390: process[master]: starting os process
+[roslaunch][INFO] 2026-08-30 10:53:15,391: process[master]: start w/ args [['rosmaster', '--core', '-p', '11311', '-w', '3', '__log:=/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/master.log']]
+[roslaunch][INFO] 2026-08-30 10:53:15,391: process[master]: cwd will be [/root/.ros]
+[roslaunch][INFO] 2026-08-30 10:53:15,406: process[master]: started with pid [59]
+[roslaunch][INFO] 2026-08-30 10:53:15,408: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:15,511: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:15,620: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:15,723: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:15,831: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:15,937: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:16,039: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:16,143: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:16,245: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:16,347: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:16,448: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:16,550: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:16,711: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:16,814: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:16,916: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:16,929: master.is_running[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:16,936: ROS_MASTER_URI=http://kamikaze:11311
+[roslaunch][INFO] 2026-08-30 10:53:16,939: setting /run_id to ffd7314a-a460-11f1-8b83-8ac81c728314
+[roslaunch][INFO] 2026-08-30 10:53:16,944: setting /roslaunch/uris/host_kamikaze__38823' to http://kamikaze:38823/
+[roslaunch][INFO] 2026-08-30 10:53:16,950: ... preparing to launch node of type [rosout/rosout]
+[roslaunch][INFO] 2026-08-30 10:53:16,950: create_node_process: package[rosout] type[rosout] machine[Machine(name[] env_loader[None] address[localhost] ssh_port[22] user[None] assignable[True] timeout[10.0])] master_uri[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:16,951: process[rosout-1]: env[{'ROS_VERSION': '1', 'PYTHONUNBUFFERED': '1', 'ENABLE_METRICS': 'true', 'PKG_CONFIG_PATH': '/root/catkin_ws/devel/lib/pkgconfig:/opt/ros/noetic/lib/pkgconfig', 'ROS_PYTHON_VERSION': '3', 'HOSTNAME': 'kamikaze', 'ROS_PACKAGE_PATH': '/root/catkin_ws/src:/opt/ros/noetic/share', 'ROSLISP_PACKAGE_DIRECTORIES': '/root/catkin_ws/devel/share/common-lisp', 'PWD': '/root/catkin_ws', 'METRICS_PORT': '8001', 'ENABLE_SIMULATION': 'false', 'ROS_IP': 'kamikaze', 'HOME': '/root', 'LANG': 'C.UTF-8', 'ROS_ETC_DIR': '/opt/ros/noetic/etc/ros', 'CMAKE_PREFIX_PATH': '/root/catkin_ws/devel:/opt/ros/noetic', 'PYTHONPATH': '/root/catkin_ws/devel/lib/python3/dist-packages:/root/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages', 'DISPLAY': ':0', 'SHLVL': '0', 'ROS_MASTER_URI': 'http://kamikaze:11311', 'ROS_HOSTNAME': 'kamikaze', 'LD_LIBRARY_PATH': '/root/catkin_ws/devel/lib:/opt/ros/noetic/lib', 'ENABLE_PERFORMANCE_MONITORING': 'true', 'LC_ALL': 'C.UTF-8', 'PATH': '/opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'DEBIAN_FRONTEND': 'noninteractive', 'ROS_ROOT': '/opt/ros/noetic/share/ros', 'ROS_DISTRO': 'noetic', 'QT_X11_NO_MITSHM': '1', 'ENABLE_GUI': 'false', 'ROS_LOG_FILENAME': '/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/roslaunch-kamikaze-1.log'}]
+[roslaunch][INFO] 2026-08-30 10:53:17,052: process[rosout-1]: args[['/opt/ros/noetic/lib/rosout/rosout', '__name:=rosout']]
+[roslaunch][INFO] 2026-08-30 10:53:17,052: ... created process [rosout-1]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,053: ProcessMonitor.register[rosout-1]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,053: ProcessMonitor.register[rosout-1] complete
+[roslaunch][INFO] 2026-08-30 10:53:17,054: ... registered process [rosout-1]
+[roslaunch][INFO] 2026-08-30 10:53:17,055: process[rosout-1]: starting os process
+[roslaunch][INFO] 2026-08-30 10:53:17,065: process[rosout-1]: start w/ args [['/opt/ros/noetic/lib/rosout/rosout', '__name:=rosout', '__log:=/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/rosout-1.log']]
+[roslaunch][INFO] 2026-08-30 10:53:17,066: process[rosout-1]: cwd will be [/root/.ros]
+[roslaunch][INFO] 2026-08-30 10:53:17,079: process[rosout-1]: started with pid [95]
+[roslaunch][INFO] 2026-08-30 10:53:17,080: ... successfully launched [rosout-1]
+[roslaunch][INFO] 2026-08-30 10:53:17,081: load_parameters starting ...
+[roslaunch][INFO] 2026-08-30 10:53:17,314: ... load_parameters complete
+[roslaunch][INFO] 2026-08-30 10:53:17,315: launch_nodes: launching local nodes ...
+[roslaunch][INFO] 2026-08-30 10:53:17,317: ... preparing to launch node of type [drone_control/parameter_validator.py]
+[roslaunch][INFO] 2026-08-30 10:53:17,318: create_node_process: package[drone_control] type[parameter_validator.py] machine[Machine(name[] env_loader[None] address[localhost] ssh_port[22] user[None] assignable[True] timeout[10.0])] master_uri[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:17,318: process[parameter_validator-2]: env[{'ROS_VERSION': '1', 'PYTHONUNBUFFERED': '1', 'ENABLE_METRICS': 'true', 'PKG_CONFIG_PATH': '/root/catkin_ws/devel/lib/pkgconfig:/opt/ros/noetic/lib/pkgconfig', 'ROS_PYTHON_VERSION': '3', 'HOSTNAME': 'kamikaze', 'ROS_PACKAGE_PATH': '/root/catkin_ws/src:/opt/ros/noetic/share', 'ROSLISP_PACKAGE_DIRECTORIES': '/root/catkin_ws/devel/share/common-lisp', 'PWD': '/root/catkin_ws', 'METRICS_PORT': '8001', 'ENABLE_SIMULATION': 'false', 'ROS_IP': 'kamikaze', 'HOME': '/root', 'LANG': 'C.UTF-8', 'ROS_ETC_DIR': '/opt/ros/noetic/etc/ros', 'CMAKE_PREFIX_PATH': '/root/catkin_ws/devel:/opt/ros/noetic', 'PYTHONPATH': '/root/catkin_ws/devel/lib/python3/dist-packages:/root/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages', 'DISPLAY': ':0', 'SHLVL': '0', 'ROS_MASTER_URI': 'http://kamikaze:11311', 'ROS_HOSTNAME': 'kamikaze', 'LD_LIBRARY_PATH': '/root/catkin_ws/devel/lib:/opt/ros/noetic/lib', 'ENABLE_PERFORMANCE_MONITORING': 'true', 'LC_ALL': 'C.UTF-8', 'PATH': '/opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'DEBIAN_FRONTEND': 'noninteractive', 'ROS_ROOT': '/opt/ros/noetic/share/ros', 'ROS_DISTRO': 'noetic', 'QT_X11_NO_MITSHM': '1', 'ENABLE_GUI': 'false', 'ROS_LOG_FILENAME': '/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/roslaunch-kamikaze-1.log'}]
+[roslaunch][INFO] 2026-08-30 10:53:17,323: process[parameter_validator-2]: args[['/root/catkin_ws/devel/lib/drone_control/parameter_validator.py', '__name:=parameter_validator']]
+[roslaunch][INFO] 2026-08-30 10:53:17,324: ... created process [parameter_validator-2]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,324: ProcessMonitor.register[parameter_validator-2]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,324: ProcessMonitor.register[parameter_validator-2] complete
+[roslaunch][INFO] 2026-08-30 10:53:17,324: ... registered process [parameter_validator-2]
+[roslaunch][INFO] 2026-08-30 10:53:17,324: process[parameter_validator-2]: starting os process
+[roslaunch][INFO] 2026-08-30 10:53:17,325: process[parameter_validator-2]: start w/ args [['/root/catkin_ws/devel/lib/drone_control/parameter_validator.py', '__name:=parameter_validator', '__log:=/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/parameter_validator-2.log']]
+[roslaunch][INFO] 2026-08-30 10:53:17,326: process[parameter_validator-2]: cwd will be [/root/.ros]
+[roslaunch][INFO] 2026-08-30 10:53:17,335: process[parameter_validator-2]: started with pid [103]
+[roslaunch][INFO] 2026-08-30 10:53:17,337: ... successfully launched [parameter_validator-2]
+[roslaunch][INFO] 2026-08-30 10:53:17,337: ... preparing to launch node of type [drone_control/command_interpreter.py]
+[roslaunch][INFO] 2026-08-30 10:53:17,338: create_node_process: package[drone_control] type[command_interpreter.py] machine[Machine(name[] env_loader[None] address[localhost] ssh_port[22] user[None] assignable[True] timeout[10.0])] master_uri[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:17,338: process[command_interpreter-3]: env[{'ROS_VERSION': '1', 'PYTHONUNBUFFERED': '1', 'ENABLE_METRICS': 'true', 'PKG_CONFIG_PATH': '/root/catkin_ws/devel/lib/pkgconfig:/opt/ros/noetic/lib/pkgconfig', 'ROS_PYTHON_VERSION': '3', 'HOSTNAME': 'kamikaze', 'ROS_PACKAGE_PATH': '/root/catkin_ws/src:/opt/ros/noetic/share', 'ROSLISP_PACKAGE_DIRECTORIES': '/root/catkin_ws/devel/share/common-lisp', 'PWD': '/root/catkin_ws', 'METRICS_PORT': '8001', 'ENABLE_SIMULATION': 'false', 'ROS_IP': 'kamikaze', 'HOME': '/root', 'LANG': 'C.UTF-8', 'ROS_ETC_DIR': '/opt/ros/noetic/etc/ros', 'CMAKE_PREFIX_PATH': '/root/catkin_ws/devel:/opt/ros/noetic', 'PYTHONPATH': '/root/catkin_ws/devel/lib/python3/dist-packages:/root/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages', 'DISPLAY': ':0', 'SHLVL': '0', 'ROS_MASTER_URI': 'http://kamikaze:11311', 'ROS_HOSTNAME': 'kamikaze', 'LD_LIBRARY_PATH': '/root/catkin_ws/devel/lib:/opt/ros/noetic/lib', 'ENABLE_PERFORMANCE_MONITORING': 'true', 'LC_ALL': 'C.UTF-8', 'PATH': '/opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'DEBIAN_FRONTEND': 'noninteractive', 'ROS_ROOT': '/opt/ros/noetic/share/ros', 'ROS_DISTRO': 'noetic', 'QT_X11_NO_MITSHM': '1', 'ENABLE_GUI': 'false', 'ROS_LOG_FILENAME': '/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/roslaunch-kamikaze-1.log'}]
+[roslaunch][INFO] 2026-08-30 10:53:17,344: process[command_interpreter-3]: args[['/root/catkin_ws/devel/lib/drone_control/command_interpreter.py', '__name:=command_interpreter']]
+[roslaunch][INFO] 2026-08-30 10:53:17,345: ... created process [command_interpreter-3]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,345: ProcessMonitor.register[command_interpreter-3]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,345: ProcessMonitor.register[command_interpreter-3] complete
+[roslaunch][INFO] 2026-08-30 10:53:17,345: ... registered process [command_interpreter-3]
+[roslaunch][INFO] 2026-08-30 10:53:17,345: process[command_interpreter-3]: starting os process
+[roslaunch][INFO] 2026-08-30 10:53:17,346: process[command_interpreter-3]: start w/ args [['/root/catkin_ws/devel/lib/drone_control/command_interpreter.py', '__name:=command_interpreter', '__log:=/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/command_interpreter-3.log']]
+[roslaunch][INFO] 2026-08-30 10:53:17,346: process[command_interpreter-3]: cwd will be [/root/.ros]
+[roslaunch][INFO] 2026-08-30 10:53:17,356: process[command_interpreter-3]: started with pid [104]
+[roslaunch][INFO] 2026-08-30 10:53:17,359: ... successfully launched [command_interpreter-3]
+[roslaunch][INFO] 2026-08-30 10:53:17,359: ... preparing to launch node of type [drone_control/mission_manager.py]
+[roslaunch][INFO] 2026-08-30 10:53:17,360: create_node_process: package[drone_control] type[mission_manager.py] machine[Machine(name[] env_loader[None] address[localhost] ssh_port[22] user[None] assignable[True] timeout[10.0])] master_uri[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:17,360: process[mission_manager-4]: env[{'ROS_VERSION': '1', 'PYTHONUNBUFFERED': '1', 'ENABLE_METRICS': 'true', 'PKG_CONFIG_PATH': '/root/catkin_ws/devel/lib/pkgconfig:/opt/ros/noetic/lib/pkgconfig', 'ROS_PYTHON_VERSION': '3', 'HOSTNAME': 'kamikaze', 'ROS_PACKAGE_PATH': '/root/catkin_ws/src:/opt/ros/noetic/share', 'ROSLISP_PACKAGE_DIRECTORIES': '/root/catkin_ws/devel/share/common-lisp', 'PWD': '/root/catkin_ws', 'METRICS_PORT': '8001', 'ENABLE_SIMULATION': 'false', 'ROS_IP': 'kamikaze', 'HOME': '/root', 'LANG': 'C.UTF-8', 'ROS_ETC_DIR': '/opt/ros/noetic/etc/ros', 'CMAKE_PREFIX_PATH': '/root/catkin_ws/devel:/opt/ros/noetic', 'PYTHONPATH': '/root/catkin_ws/devel/lib/python3/dist-packages:/root/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages', 'DISPLAY': ':0', 'SHLVL': '0', 'ROS_MASTER_URI': 'http://kamikaze:11311', 'ROS_HOSTNAME': 'kamikaze', 'LD_LIBRARY_PATH': '/root/catkin_ws/devel/lib:/opt/ros/noetic/lib', 'ENABLE_PERFORMANCE_MONITORING': 'true', 'LC_ALL': 'C.UTF-8', 'PATH': '/opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'DEBIAN_FRONTEND': 'noninteractive', 'ROS_ROOT': '/opt/ros/noetic/share/ros', 'ROS_DISTRO': 'noetic', 'QT_X11_NO_MITSHM': '1', 'ENABLE_GUI': 'false', 'ROS_LOG_FILENAME': '/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/roslaunch-kamikaze-1.log'}]
+[roslaunch][INFO] 2026-08-30 10:53:17,364: process[mission_manager-4]: args[['/root/catkin_ws/devel/lib/drone_control/mission_manager.py', '__name:=mission_manager']]
+[roslaunch][INFO] 2026-08-30 10:53:17,364: ... created process [mission_manager-4]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,365: ProcessMonitor.register[mission_manager-4]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,365: ProcessMonitor.register[mission_manager-4] complete
+[roslaunch][INFO] 2026-08-30 10:53:17,365: ... registered process [mission_manager-4]
+[roslaunch][INFO] 2026-08-30 10:53:17,366: process[mission_manager-4]: starting os process
+[roslaunch][INFO] 2026-08-30 10:53:17,366: process[mission_manager-4]: start w/ args [['/root/catkin_ws/devel/lib/drone_control/mission_manager.py', '__name:=mission_manager', '__log:=/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/mission_manager-4.log']]
+[roslaunch][INFO] 2026-08-30 10:53:17,366: process[mission_manager-4]: cwd will be [/root/.ros]
+[roslaunch][INFO] 2026-08-30 10:53:17,376: process[mission_manager-4]: started with pid [105]
+[roslaunch][INFO] 2026-08-30 10:53:17,378: ... successfully launched [mission_manager-4]
+[roslaunch][INFO] 2026-08-30 10:53:17,378: ... preparing to launch node of type [drone_control/camera_calibration.py]
+[roslaunch][INFO] 2026-08-30 10:53:17,379: create_node_process: package[drone_control] type[camera_calibration.py] machine[Machine(name[] env_loader[None] address[localhost] ssh_port[22] user[None] assignable[True] timeout[10.0])] master_uri[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:17,380: process[camera_calibration-5]: env[{'ROS_VERSION': '1', 'PYTHONUNBUFFERED': '1', 'ENABLE_METRICS': 'true', 'PKG_CONFIG_PATH': '/root/catkin_ws/devel/lib/pkgconfig:/opt/ros/noetic/lib/pkgconfig', 'ROS_PYTHON_VERSION': '3', 'HOSTNAME': 'kamikaze', 'ROS_PACKAGE_PATH': '/root/catkin_ws/src:/opt/ros/noetic/share', 'ROSLISP_PACKAGE_DIRECTORIES': '/root/catkin_ws/devel/share/common-lisp', 'PWD': '/root/catkin_ws', 'METRICS_PORT': '8001', 'ENABLE_SIMULATION': 'false', 'ROS_IP': 'kamikaze', 'HOME': '/root', 'LANG': 'C.UTF-8', 'ROS_ETC_DIR': '/opt/ros/noetic/etc/ros', 'CMAKE_PREFIX_PATH': '/root/catkin_ws/devel:/opt/ros/noetic', 'PYTHONPATH': '/root/catkin_ws/devel/lib/python3/dist-packages:/root/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages', 'DISPLAY': ':0', 'SHLVL': '0', 'ROS_MASTER_URI': 'http://kamikaze:11311', 'ROS_HOSTNAME': 'kamikaze', 'LD_LIBRARY_PATH': '/root/catkin_ws/devel/lib:/opt/ros/noetic/lib', 'ENABLE_PERFORMANCE_MONITORING': 'true', 'LC_ALL': 'C.UTF-8', 'PATH': '/opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'DEBIAN_FRONTEND': 'noninteractive', 'ROS_ROOT': '/opt/ros/noetic/share/ros', 'ROS_DISTRO': 'noetic', 'QT_X11_NO_MITSHM': '1', 'ENABLE_GUI': 'false', 'ROS_LOG_FILENAME': '/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/roslaunch-kamikaze-1.log'}]
+[roslaunch][INFO] 2026-08-30 10:53:17,387: process[camera_calibration-5]: args[['/root/catkin_ws/devel/lib/drone_control/camera_calibration.py', '__name:=camera_calibration']]
+[roslaunch][INFO] 2026-08-30 10:53:17,387: ... created process [camera_calibration-5]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,388: ProcessMonitor.register[camera_calibration-5]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,388: ProcessMonitor.register[camera_calibration-5] complete
+[roslaunch][INFO] 2026-08-30 10:53:17,389: ... registered process [camera_calibration-5]
+[roslaunch][INFO] 2026-08-30 10:53:17,389: process[camera_calibration-5]: starting os process
+[roslaunch][INFO] 2026-08-30 10:53:17,389: process[camera_calibration-5]: start w/ args [['/root/catkin_ws/devel/lib/drone_control/camera_calibration.py', '__name:=camera_calibration', '__log:=/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/camera_calibration-5.log']]
+[roslaunch][INFO] 2026-08-30 10:53:17,389: process[camera_calibration-5]: cwd will be [/root/.ros]
+[roslaunch][INFO] 2026-08-30 10:53:17,400: process[camera_calibration-5]: started with pid [106]
+[roslaunch][INFO] 2026-08-30 10:53:17,401: ... successfully launched [camera_calibration-5]
+[roslaunch][INFO] 2026-08-30 10:53:17,401: ... preparing to launch node of type [drone_control/yolo_detector.py]
+[roslaunch][INFO] 2026-08-30 10:53:17,402: create_node_process: package[drone_control] type[yolo_detector.py] machine[Machine(name[] env_loader[None] address[localhost] ssh_port[22] user[None] assignable[True] timeout[10.0])] master_uri[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:17,402: process[yolo_detector-6]: env[{'ROS_VERSION': '1', 'PYTHONUNBUFFERED': '1', 'ENABLE_METRICS': 'true', 'PKG_CONFIG_PATH': '/root/catkin_ws/devel/lib/pkgconfig:/opt/ros/noetic/lib/pkgconfig', 'ROS_PYTHON_VERSION': '3', 'HOSTNAME': 'kamikaze', 'ROS_PACKAGE_PATH': '/root/catkin_ws/src:/opt/ros/noetic/share', 'ROSLISP_PACKAGE_DIRECTORIES': '/root/catkin_ws/devel/share/common-lisp', 'PWD': '/root/catkin_ws', 'METRICS_PORT': '8001', 'ENABLE_SIMULATION': 'false', 'ROS_IP': 'kamikaze', 'HOME': '/root', 'LANG': 'C.UTF-8', 'ROS_ETC_DIR': '/opt/ros/noetic/etc/ros', 'CMAKE_PREFIX_PATH': '/root/catkin_ws/devel:/opt/ros/noetic', 'PYTHONPATH': '/root/catkin_ws/devel/lib/python3/dist-packages:/root/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages', 'DISPLAY': ':0', 'SHLVL': '0', 'ROS_MASTER_URI': 'http://kamikaze:11311', 'ROS_HOSTNAME': 'kamikaze', 'LD_LIBRARY_PATH': '/root/catkin_ws/devel/lib:/opt/ros/noetic/lib', 'ENABLE_PERFORMANCE_MONITORING': 'true', 'LC_ALL': 'C.UTF-8', 'PATH': '/opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'DEBIAN_FRONTEND': 'noninteractive', 'ROS_ROOT': '/opt/ros/noetic/share/ros', 'ROS_DISTRO': 'noetic', 'QT_X11_NO_MITSHM': '1', 'ENABLE_GUI': 'false', 'ROS_LOG_FILENAME': '/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/roslaunch-kamikaze-1.log'}]
+[roslaunch][INFO] 2026-08-30 10:53:17,411: process[yolo_detector-6]: args[['/root/catkin_ws/devel/lib/drone_control/yolo_detector.py', '__name:=yolo_detector']]
+[roslaunch][INFO] 2026-08-30 10:53:17,412: ... created process [yolo_detector-6]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,412: ProcessMonitor.register[yolo_detector-6]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,412: ProcessMonitor.register[yolo_detector-6] complete
+[roslaunch][INFO] 2026-08-30 10:53:17,412: ... registered process [yolo_detector-6]
+[roslaunch][INFO] 2026-08-30 10:53:17,412: process[yolo_detector-6]: starting os process
+[roslaunch][INFO] 2026-08-30 10:53:17,413: process[yolo_detector-6]: start w/ args [['/root/catkin_ws/devel/lib/drone_control/yolo_detector.py', '__name:=yolo_detector', '__log:=/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/yolo_detector-6.log']]
+[roslaunch][INFO] 2026-08-30 10:53:17,413: process[yolo_detector-6]: cwd will be [/root/.ros]
+[roslaunch][INFO] 2026-08-30 10:53:17,424: process[yolo_detector-6]: started with pid [107]
+[roslaunch][INFO] 2026-08-30 10:53:17,426: ... successfully launched [yolo_detector-6]
+[roslaunch][INFO] 2026-08-30 10:53:17,426: ... preparing to launch node of type [drone_control/sensor_fusion.py]
+[roslaunch][INFO] 2026-08-30 10:53:17,426: create_node_process: package[drone_control] type[sensor_fusion.py] machine[Machine(name[] env_loader[None] address[localhost] ssh_port[22] user[None] assignable[True] timeout[10.0])] master_uri[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:17,427: process[sensor_fusion-7]: env[{'ROS_VERSION': '1', 'PYTHONUNBUFFERED': '1', 'ENABLE_METRICS': 'true', 'PKG_CONFIG_PATH': '/root/catkin_ws/devel/lib/pkgconfig:/opt/ros/noetic/lib/pkgconfig', 'ROS_PYTHON_VERSION': '3', 'HOSTNAME': 'kamikaze', 'ROS_PACKAGE_PATH': '/root/catkin_ws/src:/opt/ros/noetic/share', 'ROSLISP_PACKAGE_DIRECTORIES': '/root/catkin_ws/devel/share/common-lisp', 'PWD': '/root/catkin_ws', 'METRICS_PORT': '8001', 'ENABLE_SIMULATION': 'false', 'ROS_IP': 'kamikaze', 'HOME': '/root', 'LANG': 'C.UTF-8', 'ROS_ETC_DIR': '/opt/ros/noetic/etc/ros', 'CMAKE_PREFIX_PATH': '/root/catkin_ws/devel:/opt/ros/noetic', 'PYTHONPATH': '/root/catkin_ws/devel/lib/python3/dist-packages:/root/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages', 'DISPLAY': ':0', 'SHLVL': '0', 'ROS_MASTER_URI': 'http://kamikaze:11311', 'ROS_HOSTNAME': 'kamikaze', 'LD_LIBRARY_PATH': '/root/catkin_ws/devel/lib:/opt/ros/noetic/lib', 'ENABLE_PERFORMANCE_MONITORING': 'true', 'LC_ALL': 'C.UTF-8', 'PATH': '/opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'DEBIAN_FRONTEND': 'noninteractive', 'ROS_ROOT': '/opt/ros/noetic/share/ros', 'ROS_DISTRO': 'noetic', 'QT_X11_NO_MITSHM': '1', 'ENABLE_GUI': 'false', 'ROS_LOG_FILENAME': '/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/roslaunch-kamikaze-1.log'}]
+[roslaunch][INFO] 2026-08-30 10:53:17,434: process[sensor_fusion-7]: args[['/root/catkin_ws/devel/lib/drone_control/sensor_fusion.py', '__name:=sensor_fusion']]
+[roslaunch][INFO] 2026-08-30 10:53:17,434: ... created process [sensor_fusion-7]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,435: ProcessMonitor.register[sensor_fusion-7]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,435: ProcessMonitor.register[sensor_fusion-7] complete
+[roslaunch][INFO] 2026-08-30 10:53:17,435: ... registered process [sensor_fusion-7]
+[roslaunch][INFO] 2026-08-30 10:53:17,435: process[sensor_fusion-7]: starting os process
+[roslaunch][INFO] 2026-08-30 10:53:17,436: process[sensor_fusion-7]: start w/ args [['/root/catkin_ws/devel/lib/drone_control/sensor_fusion.py', '__name:=sensor_fusion', '__log:=/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/sensor_fusion-7.log']]
+[roslaunch][INFO] 2026-08-30 10:53:17,437: process[sensor_fusion-7]: cwd will be [/root/.ros]
+[roslaunch][INFO] 2026-08-30 10:53:17,451: process[sensor_fusion-7]: started with pid [108]
+[roslaunch][INFO] 2026-08-30 10:53:17,452: ... successfully launched [sensor_fusion-7]
+[roslaunch][INFO] 2026-08-30 10:53:17,452: ... preparing to launch node of type [drone_control/target_tracking_controller.py]
+[roslaunch][INFO] 2026-08-30 10:53:17,452: create_node_process: package[drone_control] type[target_tracking_controller.py] machine[Machine(name[] env_loader[None] address[localhost] ssh_port[22] user[None] assignable[True] timeout[10.0])] master_uri[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:17,453: process[target_tracking_controller-8]: env[{'ROS_VERSION': '1', 'PYTHONUNBUFFERED': '1', 'ENABLE_METRICS': 'true', 'PKG_CONFIG_PATH': '/root/catkin_ws/devel/lib/pkgconfig:/opt/ros/noetic/lib/pkgconfig', 'ROS_PYTHON_VERSION': '3', 'HOSTNAME': 'kamikaze', 'ROS_PACKAGE_PATH': '/root/catkin_ws/src:/opt/ros/noetic/share', 'ROSLISP_PACKAGE_DIRECTORIES': '/root/catkin_ws/devel/share/common-lisp', 'PWD': '/root/catkin_ws', 'METRICS_PORT': '8001', 'ENABLE_SIMULATION': 'false', 'ROS_IP': 'kamikaze', 'HOME': '/root', 'LANG': 'C.UTF-8', 'ROS_ETC_DIR': '/opt/ros/noetic/etc/ros', 'CMAKE_PREFIX_PATH': '/root/catkin_ws/devel:/opt/ros/noetic', 'PYTHONPATH': '/root/catkin_ws/devel/lib/python3/dist-packages:/root/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages', 'DISPLAY': ':0', 'SHLVL': '0', 'ROS_MASTER_URI': 'http://kamikaze:11311', 'ROS_HOSTNAME': 'kamikaze', 'LD_LIBRARY_PATH': '/root/catkin_ws/devel/lib:/opt/ros/noetic/lib', 'ENABLE_PERFORMANCE_MONITORING': 'true', 'LC_ALL': 'C.UTF-8', 'PATH': '/opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'DEBIAN_FRONTEND': 'noninteractive', 'ROS_ROOT': '/opt/ros/noetic/share/ros', 'ROS_DISTRO': 'noetic', 'QT_X11_NO_MITSHM': '1', 'ENABLE_GUI': 'false', 'ROS_LOG_FILENAME': '/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/roslaunch-kamikaze-1.log'}]
+[roslaunch][INFO] 2026-08-30 10:53:17,458: process[target_tracking_controller-8]: args[['/root/catkin_ws/devel/lib/drone_control/target_tracking_controller.py', '__name:=target_tracking_controller']]
+[roslaunch][INFO] 2026-08-30 10:53:17,462: ... created process [target_tracking_controller-8]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,462: ProcessMonitor.register[target_tracking_controller-8]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,462: ProcessMonitor.register[target_tracking_controller-8] complete
+[roslaunch][INFO] 2026-08-30 10:53:17,462: ... registered process [target_tracking_controller-8]
+[roslaunch][INFO] 2026-08-30 10:53:17,463: process[target_tracking_controller-8]: starting os process
+[roslaunch][INFO] 2026-08-30 10:53:17,504: process[target_tracking_controller-8]: start w/ args [['/root/catkin_ws/devel/lib/drone_control/target_tracking_controller.py', '__name:=target_tracking_controller', '__log:=/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/target_tracking_controller-8.log']]
+[roslaunch][INFO] 2026-08-30 10:53:17,505: process[target_tracking_controller-8]: cwd will be [/root/.ros]
+[roslaunch][INFO] 2026-08-30 10:53:17,530: process[target_tracking_controller-8]: started with pid [114]
+[roslaunch][INFO] 2026-08-30 10:53:17,531: ... successfully launched [target_tracking_controller-8]
+[roslaunch][INFO] 2026-08-30 10:53:17,531: ... preparing to launch node of type [drone_control/vehicle_state_monitor.py]
+[roslaunch][INFO] 2026-08-30 10:53:17,532: create_node_process: package[drone_control] type[vehicle_state_monitor.py] machine[Machine(name[] env_loader[None] address[localhost] ssh_port[22] user[None] assignable[True] timeout[10.0])] master_uri[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:17,532: process[vehicle_state_monitor-9]: env[{'ROS_VERSION': '1', 'PYTHONUNBUFFERED': '1', 'ENABLE_METRICS': 'true', 'PKG_CONFIG_PATH': '/root/catkin_ws/devel/lib/pkgconfig:/opt/ros/noetic/lib/pkgconfig', 'ROS_PYTHON_VERSION': '3', 'HOSTNAME': 'kamikaze', 'ROS_PACKAGE_PATH': '/root/catkin_ws/src:/opt/ros/noetic/share', 'ROSLISP_PACKAGE_DIRECTORIES': '/root/catkin_ws/devel/share/common-lisp', 'PWD': '/root/catkin_ws', 'METRICS_PORT': '8001', 'ENABLE_SIMULATION': 'false', 'ROS_IP': 'kamikaze', 'HOME': '/root', 'LANG': 'C.UTF-8', 'ROS_ETC_DIR': '/opt/ros/noetic/etc/ros', 'CMAKE_PREFIX_PATH': '/root/catkin_ws/devel:/opt/ros/noetic', 'PYTHONPATH': '/root/catkin_ws/devel/lib/python3/dist-packages:/root/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages', 'DISPLAY': ':0', 'SHLVL': '0', 'ROS_MASTER_URI': 'http://kamikaze:11311', 'ROS_HOSTNAME': 'kamikaze', 'LD_LIBRARY_PATH': '/root/catkin_ws/devel/lib:/opt/ros/noetic/lib', 'ENABLE_PERFORMANCE_MONITORING': 'true', 'LC_ALL': 'C.UTF-8', 'PATH': '/opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'DEBIAN_FRONTEND': 'noninteractive', 'ROS_ROOT': '/opt/ros/noetic/share/ros', 'ROS_DISTRO': 'noetic', 'QT_X11_NO_MITSHM': '1', 'ENABLE_GUI': 'false', 'ROS_LOG_FILENAME': '/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/roslaunch-kamikaze-1.log'}]
+[roslaunch][INFO] 2026-08-30 10:53:17,538: process[vehicle_state_monitor-9]: args[['/root/catkin_ws/devel/lib/drone_control/vehicle_state_monitor.py', '__name:=vehicle_state_monitor']]
+[roslaunch][INFO] 2026-08-30 10:53:17,538: ... created process [vehicle_state_monitor-9]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,538: ProcessMonitor.register[vehicle_state_monitor-9]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,538: ProcessMonitor.register[vehicle_state_monitor-9] complete
+[roslaunch][INFO] 2026-08-30 10:53:17,538: ... registered process [vehicle_state_monitor-9]
+[roslaunch][INFO] 2026-08-30 10:53:17,539: process[vehicle_state_monitor-9]: starting os process
+[roslaunch][INFO] 2026-08-30 10:53:17,539: process[vehicle_state_monitor-9]: start w/ args [['/root/catkin_ws/devel/lib/drone_control/vehicle_state_monitor.py', '__name:=vehicle_state_monitor', '__log:=/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/vehicle_state_monitor-9.log']]
+[roslaunch][INFO] 2026-08-30 10:53:17,539: process[vehicle_state_monitor-9]: cwd will be [/root/.ros]
+[roslaunch][INFO] 2026-08-30 10:53:17,558: process[vehicle_state_monitor-9]: started with pid [115]
+[roslaunch][INFO] 2026-08-30 10:53:17,558: ... successfully launched [vehicle_state_monitor-9]
+[roslaunch][INFO] 2026-08-30 10:53:17,559: ... preparing to launch node of type [drone_control/safety_monitor.py]
+[roslaunch][INFO] 2026-08-30 10:53:17,559: create_node_process: package[drone_control] type[safety_monitor.py] machine[Machine(name[] env_loader[None] address[localhost] ssh_port[22] user[None] assignable[True] timeout[10.0])] master_uri[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:17,560: process[safety_monitor-10]: env[{'ROS_VERSION': '1', 'PYTHONUNBUFFERED': '1', 'ENABLE_METRICS': 'true', 'PKG_CONFIG_PATH': '/root/catkin_ws/devel/lib/pkgconfig:/opt/ros/noetic/lib/pkgconfig', 'ROS_PYTHON_VERSION': '3', 'HOSTNAME': 'kamikaze', 'ROS_PACKAGE_PATH': '/root/catkin_ws/src:/opt/ros/noetic/share', 'ROSLISP_PACKAGE_DIRECTORIES': '/root/catkin_ws/devel/share/common-lisp', 'PWD': '/root/catkin_ws', 'METRICS_PORT': '8001', 'ENABLE_SIMULATION': 'false', 'ROS_IP': 'kamikaze', 'HOME': '/root', 'LANG': 'C.UTF-8', 'ROS_ETC_DIR': '/opt/ros/noetic/etc/ros', 'CMAKE_PREFIX_PATH': '/root/catkin_ws/devel:/opt/ros/noetic', 'PYTHONPATH': '/root/catkin_ws/devel/lib/python3/dist-packages:/root/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages', 'DISPLAY': ':0', 'SHLVL': '0', 'ROS_MASTER_URI': 'http://kamikaze:11311', 'ROS_HOSTNAME': 'kamikaze', 'LD_LIBRARY_PATH': '/root/catkin_ws/devel/lib:/opt/ros/noetic/lib', 'ENABLE_PERFORMANCE_MONITORING': 'true', 'LC_ALL': 'C.UTF-8', 'PATH': '/opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'DEBIAN_FRONTEND': 'noninteractive', 'ROS_ROOT': '/opt/ros/noetic/share/ros', 'ROS_DISTRO': 'noetic', 'QT_X11_NO_MITSHM': '1', 'ENABLE_GUI': 'false', 'ROS_LOG_FILENAME': '/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/roslaunch-kamikaze-1.log'}]
+[roslaunch][INFO] 2026-08-30 10:53:17,624: process[safety_monitor-10]: args[['/root/catkin_ws/devel/lib/drone_control/safety_monitor.py', '__name:=safety_monitor']]
+[roslaunch][INFO] 2026-08-30 10:53:17,625: ... created process [safety_monitor-10]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,625: ProcessMonitor.register[safety_monitor-10]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,625: ProcessMonitor.register[safety_monitor-10] complete
+[roslaunch][INFO] 2026-08-30 10:53:17,625: ... registered process [safety_monitor-10]
+[roslaunch][INFO] 2026-08-30 10:53:17,626: process[safety_monitor-10]: starting os process
+[roslaunch][INFO] 2026-08-30 10:53:17,626: process[safety_monitor-10]: start w/ args [['/root/catkin_ws/devel/lib/drone_control/safety_monitor.py', '__name:=safety_monitor', '__log:=/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/safety_monitor-10.log']]
+[roslaunch][INFO] 2026-08-30 10:53:17,629: process[safety_monitor-10]: cwd will be [/root/.ros]
+[roslaunch][INFO] 2026-08-30 10:53:17,656: process[safety_monitor-10]: started with pid [116]
+[roslaunch][INFO] 2026-08-30 10:53:17,716: ... successfully launched [safety_monitor-10]
+[roslaunch][INFO] 2026-08-30 10:53:17,716: ... preparing to launch node of type [drone_control/system_health_monitor.py]
+[roslaunch][INFO] 2026-08-30 10:53:17,717: create_node_process: package[drone_control] type[system_health_monitor.py] machine[Machine(name[] env_loader[None] address[localhost] ssh_port[22] user[None] assignable[True] timeout[10.0])] master_uri[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:17,717: process[system_health_monitor-11]: env[{'ROS_VERSION': '1', 'PYTHONUNBUFFERED': '1', 'ENABLE_METRICS': 'true', 'PKG_CONFIG_PATH': '/root/catkin_ws/devel/lib/pkgconfig:/opt/ros/noetic/lib/pkgconfig', 'ROS_PYTHON_VERSION': '3', 'HOSTNAME': 'kamikaze', 'ROS_PACKAGE_PATH': '/root/catkin_ws/src:/opt/ros/noetic/share', 'ROSLISP_PACKAGE_DIRECTORIES': '/root/catkin_ws/devel/share/common-lisp', 'PWD': '/root/catkin_ws', 'METRICS_PORT': '8001', 'ENABLE_SIMULATION': 'false', 'ROS_IP': 'kamikaze', 'HOME': '/root', 'LANG': 'C.UTF-8', 'ROS_ETC_DIR': '/opt/ros/noetic/etc/ros', 'CMAKE_PREFIX_PATH': '/root/catkin_ws/devel:/opt/ros/noetic', 'PYTHONPATH': '/root/catkin_ws/devel/lib/python3/dist-packages:/root/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages', 'DISPLAY': ':0', 'SHLVL': '0', 'ROS_MASTER_URI': 'http://kamikaze:11311', 'ROS_HOSTNAME': 'kamikaze', 'LD_LIBRARY_PATH': '/root/catkin_ws/devel/lib:/opt/ros/noetic/lib', 'ENABLE_PERFORMANCE_MONITORING': 'true', 'LC_ALL': 'C.UTF-8', 'PATH': '/opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'DEBIAN_FRONTEND': 'noninteractive', 'ROS_ROOT': '/opt/ros/noetic/share/ros', 'ROS_DISTRO': 'noetic', 'QT_X11_NO_MITSHM': '1', 'ENABLE_GUI': 'false', 'ROS_LOG_FILENAME': '/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/roslaunch-kamikaze-1.log'}]
+[roslaunch][INFO] 2026-08-30 10:53:17,724: process[system_health_monitor-11]: args[['/root/catkin_ws/devel/lib/drone_control/system_health_monitor.py', '__name:=system_health_monitor']]
+[roslaunch][INFO] 2026-08-30 10:53:17,724: ... created process [system_health_monitor-11]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,725: ProcessMonitor.register[system_health_monitor-11]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,725: ProcessMonitor.register[system_health_monitor-11] complete
+[roslaunch][INFO] 2026-08-30 10:53:17,725: ... registered process [system_health_monitor-11]
+[roslaunch][INFO] 2026-08-30 10:53:17,729: process[system_health_monitor-11]: starting os process
+[roslaunch][INFO] 2026-08-30 10:53:17,729: process[system_health_monitor-11]: start w/ args [['/root/catkin_ws/devel/lib/drone_control/system_health_monitor.py', '__name:=system_health_monitor', '__log:=/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/system_health_monitor-11.log']]
+[roslaunch][INFO] 2026-08-30 10:53:17,730: process[system_health_monitor-11]: cwd will be [/root/.ros]
+[roslaunch][INFO] 2026-08-30 10:53:17,745: process[system_health_monitor-11]: started with pid [117]
+[roslaunch][INFO] 2026-08-30 10:53:17,746: ... successfully launched [system_health_monitor-11]
+[roslaunch][INFO] 2026-08-30 10:53:17,746: ... preparing to launch node of type [drone_control/health_checker.py]
+[roslaunch][INFO] 2026-08-30 10:53:17,746: create_node_process: package[drone_control] type[health_checker.py] machine[Machine(name[] env_loader[None] address[localhost] ssh_port[22] user[None] assignable[True] timeout[10.0])] master_uri[http://kamikaze:11311]
+[roslaunch][INFO] 2026-08-30 10:53:17,746: process[health_checker-12]: env[{'ROS_VERSION': '1', 'PYTHONUNBUFFERED': '1', 'ENABLE_METRICS': 'true', 'PKG_CONFIG_PATH': '/root/catkin_ws/devel/lib/pkgconfig:/opt/ros/noetic/lib/pkgconfig', 'ROS_PYTHON_VERSION': '3', 'HOSTNAME': 'kamikaze', 'ROS_PACKAGE_PATH': '/root/catkin_ws/src:/opt/ros/noetic/share', 'ROSLISP_PACKAGE_DIRECTORIES': '/root/catkin_ws/devel/share/common-lisp', 'PWD': '/root/catkin_ws', 'METRICS_PORT': '8001', 'ENABLE_SIMULATION': 'false', 'ROS_IP': 'kamikaze', 'HOME': '/root', 'LANG': 'C.UTF-8', 'ROS_ETC_DIR': '/opt/ros/noetic/etc/ros', 'CMAKE_PREFIX_PATH': '/root/catkin_ws/devel:/opt/ros/noetic', 'PYTHONPATH': '/root/catkin_ws/devel/lib/python3/dist-packages:/root/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages', 'DISPLAY': ':0', 'SHLVL': '0', 'ROS_MASTER_URI': 'http://kamikaze:11311', 'ROS_HOSTNAME': 'kamikaze', 'LD_LIBRARY_PATH': '/root/catkin_ws/devel/lib:/opt/ros/noetic/lib', 'ENABLE_PERFORMANCE_MONITORING': 'true', 'LC_ALL': 'C.UTF-8', 'PATH': '/opt/ros/noetic/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin', 'DEBIAN_FRONTEND': 'noninteractive', 'ROS_ROOT': '/opt/ros/noetic/share/ros', 'ROS_DISTRO': 'noetic', 'QT_X11_NO_MITSHM': '1', 'ENABLE_GUI': 'false', 'ROS_LOG_FILENAME': '/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/roslaunch-kamikaze-1.log'}]
+[roslaunch][INFO] 2026-08-30 10:53:17,750: process[health_checker-12]: args[['/root/catkin_ws/devel/lib/drone_control/health_checker.py', '__name:=health_checker']]
+[roslaunch][INFO] 2026-08-30 10:53:17,750: ... created process [health_checker-12]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,750: ProcessMonitor.register[health_checker-12]
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,750: ProcessMonitor.register[health_checker-12] complete
+[roslaunch][INFO] 2026-08-30 10:53:17,750: ... registered process [health_checker-12]
+[roslaunch][INFO] 2026-08-30 10:53:17,751: process[health_checker-12]: starting os process
+[roslaunch][INFO] 2026-08-30 10:53:17,751: process[health_checker-12]: start w/ args [['/root/catkin_ws/devel/lib/drone_control/health_checker.py', '__name:=health_checker', '__log:=/root/.ros/log/ffd7314a-a460-11f1-8b83-8ac81c728314/health_checker-12.log']]
+[roslaunch][INFO] 2026-08-30 10:53:17,751: process[health_checker-12]: cwd will be [/root/.ros]
+[roslaunch][INFO] 2026-08-30 10:53:17,833: process[health_checker-12]: started with pid [118]
+[roslaunch][INFO] 2026-08-30 10:53:17,834: ... successfully launched [health_checker-12]
+[roslaunch][INFO] 2026-08-30 10:53:17,834: ... launch_nodes complete
+[roslaunch.pmon][INFO] 2026-08-30 10:53:17,834: registrations completed <ProcessMonitor(ProcessMonitor-1, started daemon 140737361721088)>
+[roslaunch.parent][INFO] 2026-08-30 10:53:17,834: ... roslaunch parent running, waiting for process exit
+[roslaunch][INFO] 2026-08-30 10:53:17,834: spin
+[roslaunch.pmon][INFO] 2026-08-30 17:02:55,973: ProcessMonitor.shutdown <ProcessMonitor(ProcessMonitor-1, started daemon 140737361721088)>
+[roslaunch.pmon][INFO] 2026-08-30 17:02:56,004: ProcessMonitor._post_run <ProcessMonitor(ProcessMonitor-1, started daemon 140737361721088)>
+[roslaunch.pmon][INFO] 2026-08-30 17:02:56,005: ProcessMonitor._post_run <ProcessMonitor(ProcessMonitor-1, started daemon 140737361721088)>: remaining procs are [<roslaunch.nodeprocess.LocalProcess object at 0x7ffffb72be80>, <roslaunch.nodeprocess.LocalProcess object at 0x7ffffb72bca0>, <roslaunch.nodeprocess.LocalProcess object at 0x7fffe9768040>, <roslaunch.nodeprocess.LocalProcess object at 0x7ffffb72bfd0>, <roslaunch.nodeprocess.LocalProcess object at 0x7ffffb72b130>, <roslaunch.nodeprocess.LocalProcess object at 0x7ffffb72bd30>, <roslaunch.nodeprocess.LocalProcess object at 0x7ffffb6cd820>, <roslaunch.nodeprocess.LocalProcess object at 0x7ffffb6cdc40>, <roslaunch.nodeprocess.LocalProcess object at 0x7ffffb6cddc0>, <roslaunch.nodeprocess.LocalProcess object at 0x7ffffb6cd790>, <roslaunch.nodeprocess.LocalProcess object at 0x7ffffb6cd8e0>, <roslaunch.nodeprocess.LocalProcess object at 0x7ffffb6cde80>, <roslaunch.nodeprocess.LocalProcess object at 0x7ffffb6cdca0>]
+[roslaunch.pmon][INFO] 2026-08-30 17:02:56,007: ProcessMonitor exit: killing health_checker-12
+[roslaunch][INFO] 2026-08-30 17:02:56,008: [health_checker-12] killing on exit
+[roslaunch.pmon][INFO] 2026-08-30 17:02:56,008: ProcessMonitor exit: killing system_health_monitor-11
+[roslaunch][INFO] 2026-08-30 17:02:56,010: process[health_checker-12]: killing os process with pid[118] pgid[118]
+[roslaunch.pmon][INFO] 2026-08-30 17:02:56,011: ProcessMonitor exit: killing safety_monitor-10
+[roslaunch][INFO] 2026-08-30 17:02:56,011: [system_health_monitor-11] killing on exit
+[roslaunch.pmon][INFO] 2026-08-30 17:02:56,012: ProcessMonitor exit: killing vehicle_state_monitor-9
+[roslaunch][INFO] 2026-08-30 17:02:56,013: [vehicle_state_monitor-9] killing on exit
+[roslaunch][INFO] 2026-08-30 17:02:56,011: [health_checker-12] sending SIGINT to pgid [118]
+[roslaunch][INFO] 2026-08-30 17:02:56,012: [safety_monitor-10] killing on exit
+[roslaunch.pmon][INFO] 2026-08-30 17:02:56,013: ProcessMonitor exit: killing sensor_fusion-7
+[roslaunch][INFO] 2026-08-30 17:02:56,020: [sensor_fusion-7] killing on exit
+[roslaunch][INFO] 2026-08-30 17:02:56,021: process[sensor_fusion-7]: killing os process with pid[108] pgid[108]
+[roslaunch.pmon][INFO] 2026-08-30 17:02:56,012: ProcessMonitor exit: killing target_tracking_controller-8
+[roslaunch.pmon][INFO] 2026-08-30 17:02:56,014: ProcessMonitor exit: killing yolo_detector-6
+[roslaunch][INFO] 2026-08-30 17:02:56,015: [health_checker-12] sent SIGINT to pgid [118]
+[roslaunch][INFO] 2026-08-30 17:02:56,019: process[safety_monitor-10]: killing os process with pid[116] pgid[116]
+[roslaunch][INFO] 2026-08-30 17:02:56,023: [safety_monitor-10] sending SIGINT to pgid [116]
+[roslaunch][INFO] 2026-08-30 17:02:56,023: [safety_monitor-10] sent SIGINT to pgid [116]
+[roslaunch][INFO] 2026-08-30 17:02:56,013: process[system_health_monitor-11]: killing os process with pid[117] pgid[117]
+[roslaunch][INFO] 2026-08-30 17:02:56,014: process[vehicle_state_monitor-9]: killing os process with pid[115] pgid[115]
+[roslaunch][INFO] 2026-08-30 17:02:56,026: [vehicle_state_monitor-9] sending SIGINT to pgid [115]
+[roslaunch][INFO] 2026-08-30 17:02:56,026: [vehicle_state_monitor-9] sent SIGINT to pgid [115]
+[roslaunch][INFO] 2026-08-30 17:02:56,022: [sensor_fusion-7] sending SIGINT to pgid [108]
+[roslaunch][INFO] 2026-08-30 17:02:56,022: [yolo_detector-6] killing on exit
+[roslaunch.pmon][INFO] 2026-08-30 17:02:56,019: ProcessMonitor exit: killing camera_calibration-5
+[roslaunch.pmon][INFO] 2026-08-30 17:02:56,019: ProcessMonitor exit: killing mission_manager-4
+[roslaunch][INFO] 2026-08-30 17:02:56,025: [system_health_monitor-11] sending SIGINT to pgid [117]
+[roslaunch][INFO] 2026-08-30 17:02:56,033: [system_health_monitor-11] sent SIGINT to pgid [117]
+[roslaunch.pmon][INFO] 2026-08-30 17:02:56,021: ProcessMonitor exit: killing command_interpreter-3
+[roslaunch][INFO] 2026-08-30 17:02:56,022: [target_tracking_controller-8] killing on exit
+[roslaunch][INFO] 2026-08-30 17:02:56,032: process[yolo_detector-6]: killing os process with pid[107] pgid[107]
+[roslaunch][INFO] 2026-08-30 17:02:56,034: [yolo_detector-6] sending SIGINT to pgid [107]
+[roslaunch][INFO] 2026-08-30 17:02:56,032: [camera_calibration-5] killing on exit
+[roslaunch][INFO] 2026-08-30 17:02:56,033: [command_interpreter-3] killing on exit
+[roslaunch][INFO] 2026-08-30 17:02:56,036: process[command_interpreter-3]: killing os process with pid[104] pgid[104]
+[roslaunch][INFO] 2026-08-30 17:02:56,037: [command_interpreter-3] sending SIGINT to pgid [104]
+[roslaunch][INFO] 2026-08-30 17:02:56,034: [yolo_detector-6] sent SIGINT to pgid [107]
+[roslaunch][INFO] 2026-08-30 17:02:56,034: process[target_tracking_controller-8]: killing os process with pid[114] pgid[114]
+[roslaunch][INFO] 2026-08-30 17:02:56,027: [sensor_fusion-7] sent SIGINT to pgid [108]
+[roslaunch][INFO] 2026-08-30 17:02:56,038: [target_tracking_controller-8] sending SIGINT to pgid [114]
+[roslaunch][INFO] 2026-08-30 17:02:56,037: [command_interpreter-3] sent SIGINT to pgid [104]
+[roslaunch][INFO] 2026-08-30 17:02:56,032: [mission_manager-4] killing on exit
+[roslaunch][INFO] 2026-08-30 17:02:56,041: process[mission_manager-4]: killing os process with pid[105] pgid[105]
+[roslaunch][INFO] 2026-08-30 17:02:56,037: process[camera_calibration-5]: killing os process with pid[106] pgid[106]
+[roslaunch][INFO] 2026-08-30 17:02:56,042: [camera_calibration-5] sending SIGINT to pgid [106]
+[roslaunch][INFO] 2026-08-30 17:02:56,042: [camera_calibration-5] sent SIGINT to pgid [106]
+[roslaunch][INFO] 2026-08-30 17:02:56,038: [target_tracking_controller-8] sent SIGINT to pgid [114]
+[roslaunch][INFO] 2026-08-30 17:02:56,042: [mission_manager-4] sending SIGINT to pgid [105]
+[roslaunch][INFO] 2026-08-30 17:02:56,044: [mission_manager-4] sent SIGINT to pgid [105]
+[roslaunch][INFO] 2026-08-30 17:02:56,981: process[sensor_fusion-7]: SIGINT killed with return value 0
+[roslaunch.pmon][INFO] 2026-08-30 17:02:56,982: ProcessMonitor exit: killing parameter_validator-2
+[roslaunch][INFO] 2026-08-30 17:02:56,982: [parameter_validator-2] killing on exit
+[roslaunch][INFO] 2026-08-30 17:02:56,982: process[parameter_validator-2]: killing os process with pid[103] pgid[103]
+[roslaunch][INFO] 2026-08-30 17:02:56,983: [parameter_validator-2] sending SIGINT to pgid [103]
+[roslaunch][INFO] 2026-08-30 17:02:56,984: [parameter_validator-2] sent SIGINT to pgid [103]
+[roslaunch][INFO] 2026-08-30 17:02:57,082: process[mission_manager-4]: SIGINT killed with return value 0
+[roslaunch][INFO] 2026-08-30 17:02:57,082: process[health_checker-12]: SIGINT killed with return value 0
+[roslaunch][INFO] 2026-08-30 17:02:57,083: process[system_health_monitor-11]: SIGINT killed with return value 0
+[roslaunch][INFO] 2026-08-30 17:02:57,084: process[camera_calibration-5]: SIGINT killed with return value 0
+[roslaunch][INFO] 2026-08-30 17:02:57,188: process[command_interpreter-3]: SIGINT killed with return value 0
+[roslaunch][INFO] 2026-08-30 17:02:57,188: process[safety_monitor-10]: SIGINT killed with return value 0
+[roslaunch][INFO] 2026-08-30 17:02:57,189: process[vehicle_state_monitor-9]: SIGINT killed with return value 0
+[roslaunch][INFO] 2026-08-30 17:02:57,395: process[target_tracking_controller-8]: SIGINT killed with return value 0
+[roslaunch][INFO] 2026-08-30 17:02:57,704: process[parameter_validator-2]: SIGINT killed with return value 0
+[roslaunch][INFO] 2026-08-30 17:02:58,958: process[yolo_detector-6]: SIGINT killed with return value 0
+[roslaunch.pmon][INFO] 2026-08-30 17:02:58,958: ProcessMonitor exit: killing rosout-1
+[roslaunch][INFO] 2026-08-30 17:02:58,959: [rosout-1] killing on exit
+[roslaunch][INFO] 2026-08-30 17:02:58,959: process[rosout-1]: killing os process with pid[95] pgid[95]
+[roslaunch][INFO] 2026-08-30 17:02:58,959: [rosout-1] sending SIGINT to pgid [95]
+[roslaunch][INFO] 2026-08-30 17:02:58,959: [rosout-1] sent SIGINT to pgid [95]
+[roslaunch][INFO] 2026-08-30 17:02:59,267: process[rosout-1]: SIGINT killed with return value 0
+[roslaunch.pmon][INFO] 2026-08-30 17:02:59,267: ProcessMonitor exit: killing master
+[roslaunch][INFO] 2026-08-30 17:02:59,267: [master] killing on exit
+[roslaunch][INFO] 2026-08-30 17:02:59,267: process[master]: killing os process with pid[59] pgid[59]
+[roslaunch][INFO] 2026-08-30 17:02:59,267: [master] sending SIGINT to pgid [59]
+[roslaunch][INFO] 2026-08-30 17:02:59,268: [master] sent SIGINT to pgid [59]
+[roslaunch][INFO] 2026-08-30 17:02:59,473: process[master]: SIGINT killed with return value 0
+[roslaunch.pmon][INFO] 2026-08-30 17:02:59,473: ProcessMonitor exit: cleaning up data structures and signals
+[roslaunch.pmon][INFO] 2026-08-30 17:02:59,474: ProcessMonitor exit: pmon has shutdown
+[roslaunch][INFO] 2026-08-30 17:02:59,474: process monitor is done spinning, initiating full shutdown
+[roslaunch][INFO] 2026-08-30 17:02:59,474: runner.stop()
+[roslaunch][INFO] 2026-08-30 17:02:59,475: shutting down processing monitor...
+[roslaunch][INFO] 2026-08-30 17:02:59,475: shutting down processing monitor <ProcessMonitor(ProcessMonitor-1, stopped daemon 140737361721088)>
+[roslaunch.pmon][INFO] 2026-08-30 17:02:59,475: ProcessMonitor.shutdown <ProcessMonitor(ProcessMonitor-1, stopped daemon 140737361721088)>
+[roslaunch][INFO] 2026-08-30 17:02:59,475: ... shutting down processing monitor complete
+[roslaunch][INFO] 2026-08-30 17:02:59,475: done
+[roslaunch.pmon][INFO] 2026-08-30 17:02:59,475: ProcessMonitor.shutdown <ProcessMonitor(ProcessMonitor-1, stopped daemon 140737361721088)>
+[rospy.core][INFO] 2026-08-30 17:02:59,477: signal_shutdown [atexit]

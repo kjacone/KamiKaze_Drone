@@ -1,0 +1,20 @@
+[rospy.client][INFO] 2026-08-30 09:56:53,951: init_node, name[/target_tracking_controller], pid[102]
+[xmlrpc][INFO] 2026-08-30 09:56:53,960: XML-RPC server binding to 0.0.0.0:0
+[xmlrpc][INFO] 2026-08-30 09:56:53,965: Started XML-RPC server [http://kamikaze:45445/]
+[rospy.init][INFO] 2026-08-30 09:56:53,965: ROS Slave URI: [http://kamikaze:45445/]
+[rospy.impl.masterslave][INFO] 2026-08-30 09:56:53,966: _ready: http://kamikaze:45445/
+[rospy.registration][INFO] 2026-08-30 09:56:53,970: Registering with master node http://kamikaze:11311
+[xmlrpc][INFO] 2026-08-30 09:56:53,971: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 09:56:54,067: registered with master
+[rospy.rosout][INFO] 2026-08-30 09:56:54,069: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 09:56:54,113: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 09:56:54,137: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rospy.internal][INFO] 2026-08-30 09:56:54,196: topic[/mission_status] adding connection to [http://kamikaze:33505/], count 0
+[rospy.internal][INFO] 2026-08-30 09:56:54,249: topic[/tracked_targets] adding connection to [/mission_manager], count 0
+[rospy.internal][INFO] 2026-08-30 09:56:54,261: topic[/target_tracking_controller/node_health] adding connection to [/health_checker], count 0
+[rospy.internal][INFO] 2026-08-30 09:56:54,349: topic[/rosout] adding connection to [/rosout], count 0
+[rosout][WARNING] 2026-08-30 09:56:56,343: MAVROS set_mode service not available: timeout exceeded while waiting for service /mavros/set_mode
+[rosout][WARNING] 2026-08-30 09:56:58,472: MAVROS arming service not available: timeout exceeded while waiting for service /mavros/cmd/arming
+[rosout][INFO] 2026-08-30 09:56:58,478: Target Tracking Controller started in SEARCHING mode
+[rospy.internal][INFO] 2026-08-30 09:56:58,913: topic[/tracked_targets] adding connection to [/trajectory_planner], count 1
+[rospy.internal][INFO] 2026-08-30 09:56:59,506: topic[/detected_objects] adding connection to [http://kamikaze:35479/], count 0

@@ -1,0 +1,26 @@
+[rospy.client][INFO] 2026-08-30 10:53:29,422: init_node, name[/yolo_detector], pid[107]
+[xmlrpc][INFO] 2026-08-30 10:53:29,427: XML-RPC server binding to 0.0.0.0:0
+[xmlrpc][INFO] 2026-08-30 10:53:29,429: Started XML-RPC server [http://kamikaze:34589/]
+[rospy.impl.masterslave][INFO] 2026-08-30 10:53:29,430: _ready: http://kamikaze:34589/
+[rospy.init][INFO] 2026-08-30 10:53:29,429: ROS Slave URI: [http://kamikaze:34589/]
+[rospy.registration][INFO] 2026-08-30 10:53:29,431: Registering with master node http://kamikaze:11311
+[xmlrpc][INFO] 2026-08-30 10:53:29,432: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 10:53:29,532: registered with master
+[rospy.rosout][INFO] 2026-08-30 10:53:29,532: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 10:53:29,538: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 10:53:29,539: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rosout][INFO] 2026-08-30 10:53:29,557: Loading YOLO model from: /PX4-Autopilot/yolov8s.pt
+[rospy.internal][INFO] 2026-08-30 10:53:29,570: topic[/mission_status] adding connection to [http://kamikaze:39519/], count 0
+[rospy.internal][INFO] 2026-08-30 10:53:29,589: topic[/yolo_detector/node_health] adding connection to [/health_checker], count 0
+[rosout][INFO] 2026-08-30 10:53:29,767: YOLO model loaded successfully!
+[rospy.internal][INFO] 2026-08-30 10:53:29,771: topic[/rosout] adding connection to [/rosout], count 0
+[rosout][INFO] 2026-08-30 10:53:29,777: YOLO Detector initialized in production mode
+[rosout][INFO] 2026-08-30 10:53:29,780: Vehicle classes: [2, 3, 5, 6, 7]
+[rospy.internal][INFO] 2026-08-30 10:53:29,794: topic[/detected_objects] adding connection to [/target_tracking_controller], count 0
+[rospy.core][INFO] 2026-08-30 17:02:56,036: signal_shutdown [signal-2]
+[rospy.internal][INFO] 2026-08-30 17:02:56,093: topic[/rosout] removing connection to /rosout
+[rospy.internal][INFO] 2026-08-30 17:02:56,094: topic[/yolo_detector/node_health] removing connection to /health_checker
+[rospy.internal][INFO] 2026-08-30 17:02:56,094: topic[/detected_objects] removing connection to /target_tracking_controller
+[rospy.internal][INFO] 2026-08-30 17:02:56,095: topic[/mission_status] removing connection to http://kamikaze:39519/
+[rospy.impl.masterslave][INFO] 2026-08-30 17:02:56,095: signal-2
+[rospy.core][INFO] 2026-08-30 17:02:56,879: signal_shutdown [atexit]

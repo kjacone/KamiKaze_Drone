@@ -1,0 +1,19 @@
+[rospy.client][INFO] 2026-08-30 03:18:07,261: init_node, name[/yolo_detector], pid[93]
+[xmlrpc][INFO] 2026-08-30 03:18:07,264: XML-RPC server binding to 127.0.0.1:0
+[xmlrpc][INFO] 2026-08-30 03:18:07,265: Started XML-RPC server [http://localhost:44061/]
+[rospy.impl.masterslave][INFO] 2026-08-30 03:18:07,265: _ready: http://localhost:44061/
+[rospy.registration][INFO] 2026-08-30 03:18:07,266: Registering with master node http://localhost:11311
+[xmlrpc][INFO] 2026-08-30 03:18:07,266: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 03:18:07,266: ROS Slave URI: [http://localhost:44061/]
+[rospy.init][INFO] 2026-08-30 03:18:07,267: registered with master
+[rospy.rosout][INFO] 2026-08-30 03:18:07,267: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 03:18:07,272: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 03:18:07,274: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rosout][INFO] 2026-08-30 03:18:07,304: Loading YOLO model from: /PX4-Autopilot/yolov8s.pt
+[rospy.internal][INFO] 2026-08-30 03:18:07,313: topic[/mission_status] adding connection to [http://localhost:35417/], count 0
+[rospy.internal][INFO] 2026-08-30 03:18:07,351: topic[/yolo_detector/node_health] adding connection to [/health_checker], count 0
+[rospy.internal][INFO] 2026-08-30 03:18:07,557: topic[/rosout] adding connection to [/rosout], count 0
+[rosout][INFO] 2026-08-30 03:18:07,603: YOLO model loaded successfully!
+[rosout][INFO] 2026-08-30 03:18:07,609: YOLO Detector initialized in production mode
+[rosout][INFO] 2026-08-30 03:18:07,611: Vehicle classes: [2, 3, 5, 6, 7]
+[rospy.internal][INFO] 2026-08-30 03:18:07,659: topic[/detected_objects] adding connection to [/target_tracking_controller], count 0

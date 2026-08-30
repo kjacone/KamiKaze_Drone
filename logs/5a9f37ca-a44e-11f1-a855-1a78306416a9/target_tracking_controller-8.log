@@ -1,0 +1,37 @@
+[rospy.client][INFO] 2026-08-30 08:39:54,128: init_node, name[/target_tracking_controller], pid[95]
+[xmlrpc][INFO] 2026-08-30 08:39:54,133: XML-RPC server binding to 127.0.0.1:0
+[xmlrpc][INFO] 2026-08-30 08:39:54,136: Started XML-RPC server [http://localhost:35073/]
+[rospy.init][INFO] 2026-08-30 08:39:54,136: ROS Slave URI: [http://localhost:35073/]
+[rospy.impl.masterslave][INFO] 2026-08-30 08:39:54,136: _ready: http://localhost:35073/
+[rospy.registration][INFO] 2026-08-30 08:39:54,138: Registering with master node http://localhost:11311
+[xmlrpc][INFO] 2026-08-30 08:39:54,139: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 08:39:54,237: registered with master
+[rospy.rosout][INFO] 2026-08-30 08:39:54,238: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 08:39:54,260: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 08:39:54,261: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rospy.internal][INFO] 2026-08-30 08:39:54,291: topic[/mission_status] adding connection to [http://localhost:41931/], count 0
+[rospy.internal][INFO] 2026-08-30 08:39:54,312: topic[/tracked_targets] adding connection to [/mission_manager], count 0
+[rospy.internal][INFO] 2026-08-30 08:39:54,313: topic[/target_tracking_controller/node_health] adding connection to [/health_checker], count 0
+[rospy.internal][INFO] 2026-08-30 08:39:54,490: topic[/rosout] adding connection to [/rosout], count 0
+[rosout][WARNING] 2026-08-30 08:39:56,422: MAVROS set_mode service not available: timeout exceeded while waiting for service /mavros/set_mode
+[rospy.internal][INFO] 2026-08-30 08:39:57,343: topic[/detected_objects] adding connection to [http://localhost:36135/], count 0
+[rosout][WARNING] 2026-08-30 08:39:58,554: MAVROS arming service not available: timeout exceeded while waiting for service /mavros/cmd/arming
+[rosout][INFO] 2026-08-30 08:39:58,562: Target Tracking Controller started in SEARCHING mode
+[rospy.internal][INFO] 2026-08-30 08:50:43,663: topic[/tracked_targets] adding connection to [/trajectory_planner], count 1
+[rospy.internal][INFO] 2026-08-30 09:08:54,679: topic[/tracked_targets] removing connection to /trajectory_planner
+[rospy.internal][INFO] 2026-08-30 09:08:58,619: topic[/tracked_targets] adding connection to [/trajectory_planner], count 1
+[rospy.internal][INFO] 2026-08-30 09:12:07,223: topic[/tracked_targets] removing connection to /trajectory_planner
+[rospy.internal][INFO] 2026-08-30 09:12:10,820: topic[/tracked_targets] adding connection to [/trajectory_planner], count 1
+[rospy.internal][INFO] 2026-08-30 09:12:40,828: topic[/tracked_targets] removing connection to /trajectory_planner
+[rospy.internal][INFO] 2026-08-30 09:13:20,465: topic[/tracked_targets] adding connection to [/trajectory_planner], count 1
+[rospy.internal][INFO] 2026-08-30 09:13:36,035: topic[/tracked_targets] removing connection to /trajectory_planner
+[rospy.internal][INFO] 2026-08-30 09:13:40,376: topic[/tracked_targets] adding connection to [/trajectory_planner], count 1
+[rospy.core][INFO] 2026-08-30 09:29:55,530: signal_shutdown [signal-2]
+[rospy.internal][INFO] 2026-08-30 09:29:55,565: topic[/mission_status] removing connection to http://localhost:41931/
+[rospy.internal][INFO] 2026-08-30 09:29:55,575: topic[/detected_objects] removing connection to http://localhost:36135/
+[rospy.internal][INFO] 2026-08-30 09:29:55,590: topic[/rosout] removing connection to /rosout
+[rospy.internal][INFO] 2026-08-30 09:29:55,591: topic[/tracked_targets] removing connection to /mission_manager
+[rospy.internal][INFO] 2026-08-30 09:29:55,591: topic[/tracked_targets] removing connection to /trajectory_planner
+[rospy.internal][INFO] 2026-08-30 09:29:55,591: topic[/target_tracking_controller/node_health] removing connection to /health_checker
+[rospy.impl.masterslave][INFO] 2026-08-30 09:29:55,592: signal-2
+[rospy.core][INFO] 2026-08-30 09:29:56,158: signal_shutdown [atexit]

@@ -1,0 +1,708 @@
+[rosmaster.main][INFO] 2026-08-30 07:39:35,541: initialization complete, waiting for shutdown
+[rosmaster.main][INFO] 2026-08-30 07:39:35,545: Starting ROS Master Node
+[xmlrpc][INFO] 2026-08-30 07:39:35,551: XML-RPC server binding to 127.0.0.1:11311
+[xmlrpc][INFO] 2026-08-30 07:39:35,554: Started XML-RPC server [http://localhost:11311/]
+[rosmaster.master][INFO] 2026-08-30 07:39:35,554: Master initialized: port[11311], uri[http://localhost:11311/]
+[xmlrpc][INFO] 2026-08-30 07:39:35,555: xml rpc node: starting XML-RPC server
+[rosmaster.master][INFO] 2026-08-30 07:39:35,645: +PARAM [/run_id] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,648: +PARAM [/roslaunch/uris/host_localhost__46123] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,748: +PARAM [/rosversion] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,749: +PARAM [/rosdistro] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,749: +PARAM [/target_params/detection/model/path] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,750: +PARAM [/target_params/detection/model/device] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,750: +PARAM [/target_params/detection/model/input_size] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,751: +PARAM [/target_params/detection/model/batch_size] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,751: +PARAM [/target_params/detection/confidence_threshold] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,751: +PARAM [/target_params/detection/nms_threshold] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,751: +PARAM [/target_params/detection/max_detections] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,752: +PARAM [/target_params/detection/vehicle_classes] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,752: +PARAM [/target_params/detection/class_thresholds/class_1] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,752: +PARAM [/target_params/detection/class_thresholds/class_2] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,753: +PARAM [/target_params/detection/class_thresholds/class_3] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,753: +PARAM [/target_params/detection/class_thresholds/class_5] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,753: +PARAM [/target_params/detection/class_thresholds/class_6] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,753: +PARAM [/target_params/detection/class_thresholds/class_7] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,753: +PARAM [/target_params/detection/class_thresholds/class_8] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,754: +PARAM [/target_params/detection/performance/max_fps] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,754: +PARAM [/target_params/detection/performance/frame_skip] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,754: +PARAM [/target_params/detection/performance/parallel_inference] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,754: +PARAM [/target_params/detection/performance/gpu_memory_limit] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,755: +PARAM [/target_params/tracking/engagement_distance] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,755: +PARAM [/target_params/tracking/attack_distance] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,755: +PARAM [/target_params/tracking/disengagement_distance] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,756: +PARAM [/target_params/tracking/max_tracks] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,756: +PARAM [/target_params/tracking/max_lost_frames] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,756: +PARAM [/target_params/tracking/min_track_length] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,756: +PARAM [/target_params/tracking/track_confidence_threshold] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,757: +PARAM [/target_params/tracking/association/iou_threshold] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,757: +PARAM [/target_params/tracking/association/distance_threshold] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,757: +PARAM [/target_params/tracking/association/appearance_weight] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,758: +PARAM [/target_params/tracking/association/motion_weight] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,758: +PARAM [/target_params/tracking/kalman/dt] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,758: +PARAM [/target_params/tracking/kalman/process_noise] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,759: +PARAM [/target_params/tracking/kalman/measurement_noise] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,759: +PARAM [/target_params/tracking/kalman/initial_velocity] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,760: +PARAM [/target_params/tracking/kalman/state_dim] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,760: +PARAM [/target_params/tracking/kalman/measurement_dim] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,760: +PARAM [/target_params/behavior/speed_classes/stationary] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,760: +PARAM [/target_params/behavior/speed_classes/slow] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,760: +PARAM [/target_params/behavior/speed_classes/medium] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,760: +PARAM [/target_params/behavior/speed_classes/fast] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,761: +PARAM [/target_params/behavior/speed_classes/extreme] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,761: +PARAM [/target_params/behavior/models/random_walk/noise_scale] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,761: +PARAM [/target_params/behavior/models/random_walk/persistence] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,762: +PARAM [/target_params/behavior/models/pursuit/max_acceleration] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,762: +PARAM [/target_params/behavior/models/pursuit/max_turn_rate] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,762: +PARAM [/target_params/behavior/models/evasion/max_acceleration] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,763: +PARAM [/target_params/behavior/models/evasion/max_turn_rate] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,763: +PARAM [/target_params/behavior/threat/distance_weights] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,763: +PARAM [/target_params/behavior/threat/speed_thresholds/low] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,763: +PARAM [/target_params/behavior/threat/speed_thresholds/medium] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,764: +PARAM [/target_params/behavior/threat/speed_thresholds/high] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,764: +PARAM [/target_params/behavior/threat/priority_boost] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,765: +PARAM [/target_params/performance/update_rates/detection] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,765: +PARAM [/target_params/performance/update_rates/tracking] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,765: +PARAM [/target_params/performance/update_rates/control] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,765: +PARAM [/target_params/performance/update_rates/state] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,765: +PARAM [/target_params/performance/latency/max_detection] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,766: +PARAM [/target_params/performance/latency/max_tracking] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,766: +PARAM [/target_params/performance/latency/max_control] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,766: +PARAM [/target_params/performance/resources/max_memory_mb] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,766: +PARAM [/target_params/performance/resources/max_cpu_percent] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,766: +PARAM [/target_params/performance/resources/max_gpu_memory_mb] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,767: +PARAM [/target_params/camera/fx] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,767: +PARAM [/target_params/camera/fy] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,767: +PARAM [/target_params/camera/cx] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,767: +PARAM [/target_params/camera/cy] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,767: +PARAM [/target_params/camera/width] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,767: +PARAM [/target_params/camera/height] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,767: +PARAM [/target_params/camera/fov] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,768: +PARAM [/camera_calib/camera/id] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,768: +PARAM [/camera_calib/camera/model] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,768: +PARAM [/camera_calib/camera/width] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,768: +PARAM [/camera_calib/camera/height] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,769: +PARAM [/camera_calib/camera/intrinsic/fx] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,769: +PARAM [/camera_calib/camera/intrinsic/fy] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,770: +PARAM [/camera_calib/camera/intrinsic/cx] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,770: +PARAM [/camera_calib/camera/intrinsic/cy] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,770: +PARAM [/camera_calib/camera/intrinsic/fov] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,770: +PARAM [/camera_calib/camera/distortion/model] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,771: +PARAM [/camera_calib/camera/distortion/coefficients/k1] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,771: +PARAM [/camera_calib/camera/distortion/coefficients/k2] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,771: +PARAM [/camera_calib/camera/distortion/coefficients/p1] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,772: +PARAM [/camera_calib/camera/distortion/coefficients/p2] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,772: +PARAM [/camera_calib/camera/distortion/coefficients/k3] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,772: +PARAM [/camera_calib/camera/projection/P] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,773: +PARAM [/camera_calib/camera/rectification/R] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,773: +PARAM [/camera_calib/camera/extrinsic/translation] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,773: +PARAM [/camera_calib/camera/extrinsic/rotation] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,773: +PARAM [/camera_calib/camera/extrinsic/rotation_matrix] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,773: +PARAM [/camera_calib/camera/calibration/date] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,774: +PARAM [/camera_calib/camera/calibration/method] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,774: +PARAM [/camera_calib/camera/calibration/reprojection_error] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,774: +PARAM [/camera_calib/camera/calibration/status] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,775: +PARAM [/camera_calib/image_processing/preprocessing/resize] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,775: +PARAM [/camera_calib/image_processing/preprocessing/normalize] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,776: +PARAM [/camera_calib/image_processing/preprocessing/mean] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,776: +PARAM [/camera_calib/image_processing/preprocessing/std] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,777: +PARAM [/camera_calib/image_processing/color_space] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,777: +PARAM [/camera_calib/image_processing/roi/enabled] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,777: +PARAM [/camera_calib/image_processing/roi/x] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,777: +PARAM [/camera_calib/image_processing/roi/y] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,777: +PARAM [/camera_calib/image_processing/roi/width] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,778: +PARAM [/camera_calib/image_processing/roi/height] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,778: +PARAM [/camera_calib/image_processing/augmentation/horizontal_flip] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,778: +PARAM [/camera_calib/image_processing/augmentation/rotation] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,778: +PARAM [/camera_calib/image_processing/augmentation/scale] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,778: +PARAM [/camera_calib/image_processing/augmentation/brightness] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,778: +PARAM [/camera_calib/stereo/enabled] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,778: +PARAM [/camera_calib/stereo/baseline] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,779: +PARAM [/camera_calib/stereo/depth/min_distance] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,779: +PARAM [/camera_calib/stereo/depth/max_distance] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,779: +PARAM [/camera_calib/stereo/depth/disparity_range] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,779: +PARAM [/camera_calib/stereo/matching/algorithm] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,779: +PARAM [/camera_calib/stereo/matching/num_disparities] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,780: +PARAM [/camera_calib/stereo/matching/block_size] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,780: +PARAM [/camera_calib/stereo/matching/p1] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,780: +PARAM [/camera_calib/stereo/matching/p2] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,782: +PARAM [/flight_control/pid/position/x/p] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,782: +PARAM [/flight_control/pid/position/x/i] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,782: +PARAM [/flight_control/pid/position/x/d] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,782: +PARAM [/flight_control/pid/position/x/integral_clamp] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,783: +PARAM [/flight_control/pid/position/y/p] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,783: +PARAM [/flight_control/pid/position/y/i] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,783: +PARAM [/flight_control/pid/position/y/d] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,784: +PARAM [/flight_control/pid/position/y/integral_clamp] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,784: +PARAM [/flight_control/pid/position/z/p] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,784: +PARAM [/flight_control/pid/position/z/i] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,784: +PARAM [/flight_control/pid/position/z/d] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,785: +PARAM [/flight_control/pid/position/z/integral_clamp] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,785: +PARAM [/flight_control/pid/velocity/x/p] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,785: +PARAM [/flight_control/pid/velocity/x/i] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,785: +PARAM [/flight_control/pid/velocity/x/d] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,786: +PARAM [/flight_control/pid/velocity/y/p] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,786: +PARAM [/flight_control/pid/velocity/y/i] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,786: +PARAM [/flight_control/pid/velocity/y/d] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,787: +PARAM [/flight_control/pid/velocity/z/p] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,787: +PARAM [/flight_control/pid/velocity/z/i] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,788: +PARAM [/flight_control/pid/velocity/z/d] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,788: +PARAM [/flight_control/pid/attitude/roll/p] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,788: +PARAM [/flight_control/pid/attitude/roll/i] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,788: +PARAM [/flight_control/pid/attitude/roll/d] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,788: +PARAM [/flight_control/pid/attitude/pitch/p] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,789: +PARAM [/flight_control/pid/attitude/pitch/i] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,789: +PARAM [/flight_control/pid/attitude/pitch/d] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,789: +PARAM [/flight_control/pid/attitude/yaw/p] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,789: +PARAM [/flight_control/pid/attitude/yaw/i] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,789: +PARAM [/flight_control/pid/attitude/yaw/d] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,790: +PARAM [/flight_control/pid/rate/roll/p] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,790: +PARAM [/flight_control/pid/rate/roll/i] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,790: +PARAM [/flight_control/pid/rate/roll/d] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,790: +PARAM [/flight_control/pid/rate/pitch/p] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,790: +PARAM [/flight_control/pid/rate/pitch/i] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,791: +PARAM [/flight_control/pid/rate/pitch/d] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,791: +PARAM [/flight_control/pid/rate/yaw/p] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,791: +PARAM [/flight_control/pid/rate/yaw/i] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,791: +PARAM [/flight_control/pid/rate/yaw/d] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,792: +PARAM [/flight_control/dynamics/constraints/max_velocity] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,792: +PARAM [/flight_control/dynamics/constraints/max_acceleration] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,792: +PARAM [/flight_control/dynamics/constraints/max_yaw_rate] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,793: +PARAM [/flight_control/dynamics/safety_margins/min_altitude] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,793: +PARAM [/flight_control/dynamics/safety_margins/max_altitude] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,793: +PARAM [/flight_control/dynamics/safety_margins/max_tilt] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,794: +PARAM [/flight_control/dynamics/safety_margins/max_rotation_rate] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,794: +PARAM [/flight_control/dynamics/vehicle/mass] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,794: +PARAM [/flight_control/dynamics/vehicle/moment_of_inertia] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,794: +PARAM [/flight_control/dynamics/vehicle/thrust_to_weight] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,795: +PARAM [/flight_control/dynamics/vehicle/max_thrust] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,795: +PARAM [/flight_control/mission/search_patterns/type] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,795: +PARAM [/flight_control/mission/search_patterns/params/radius] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,795: +PARAM [/flight_control/mission/search_patterns/params/spacing] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,796: +PARAM [/flight_control/mission/search_patterns/params/altitude] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,797: +PARAM [/flight_control/mission/engagement/mode] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,797: +PARAM [/flight_control/mission/engagement/priority_high] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,798: +PARAM [/flight_control/mission/engagement/priority_low] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,798: +PARAM [/flight_control/mission/collision_avoidance/enable] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,798: +PARAM [/flight_control/mission/collision_avoidance/min_distance] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,798: +PARAM [/flight_control/mission/collision_avoidance/safety_margin] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,799: +PARAM [/flight_control/mission/collision_avoidance/avoidance_method] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,799: +PARAM [/flight_control/mission/waypoints/tolerance] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,800: +PARAM [/flight_control/mission/waypoints/loiter_time] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,800: +PARAM [/flight_control/mission/waypoints/approach_speed] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,800: +PARAM [/flight_control/simulation/physics/enable_gravity] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,801: +PARAM [/flight_control/simulation/physics/enable_wind] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,801: +PARAM [/flight_control/simulation/physics/enable_turbulence] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,801: +PARAM [/flight_control/simulation/environment/wind_speed] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,801: +PARAM [/flight_control/simulation/environment/wind_direction] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,801: +PARAM [/flight_control/simulation/environment/turbulence_intensity] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,802: +PARAM [/flight_control/simulation/noise/sensor_noise] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,802: +PARAM [/flight_control/simulation/noise/actuator_noise] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,802: +PARAM [/flight_control/simulation/noise/time_delay] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,802: +PARAM [/flight_control/simulation/speed/simulation_speed] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,802: +PARAM [/flight_control/simulation/speed/real_time_factor] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,802: +PARAM [/kalman_filter/kalman_filter/type] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,803: +PARAM [/kalman_filter/kalman_filter/state_dim] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,803: +PARAM [/kalman_filter/kalman_filter/measurement_dim] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,803: +PARAM [/kalman_filter/kalman_filter/noise/process/position] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,803: +PARAM [/kalman_filter/kalman_filter/noise/process/velocity] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,803: +PARAM [/kalman_filter/kalman_filter/noise/process/acceleration] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,804: +PARAM [/kalman_filter/kalman_filter/noise/measurement/position] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,804: +PARAM [/kalman_filter/kalman_filter/parameters/dt] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,804: +PARAM [/kalman_filter/kalman_filter/parameters/adaptive/enabled] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,804: +PARAM [/kalman_filter/kalman_filter/parameters/adaptive/update_rate] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,804: +PARAM [/kalman_filter/kalman_filter/parameters/adaptive/innovation_threshold] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,805: +PARAM [/kalman_filter/kalman_filter/parameters/outlier_rejection/enabled] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,806: +PARAM [/kalman_filter/kalman_filter/parameters/outlier_rejection/mahalanobis_threshold] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,806: +PARAM [/kalman_filter/kalman_filter/parameters/outlier_rejection/gating] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,806: +PARAM [/kalman_filter/kalman_filter/parameters/initialization/max_measurements] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,807: +PARAM [/kalman_filter/kalman_filter/parameters/initialization/min_velocity_samples] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,807: +PARAM [/kalman_filter/kalman_filter/parameters/convergence/max_iterations] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,807: +PARAM [/kalman_filter/kalman_filter/parameters/convergence/epsilon] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,808: +PARAM [/kalman_filter/kalman_filter/multi_target/enabled] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,809: +PARAM [/kalman_filter/kalman_filter/multi_target/max_targets] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,809: +PARAM [/kalman_filter/kalman_filter/multi_target/association/method] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,809: +PARAM [/kalman_filter/kalman_filter/multi_target/association/gating/enabled] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,809: +PARAM [/kalman_filter/kalman_filter/multi_target/association/gating/gate_size] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,810: +PARAM [/kalman_filter/kalman_filter/multi_target/association/gating/dynamic_gating] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,810: +PARAM [/kalman_filter/kalman_filter/multi_target/association/track_management/birth_probability] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,810: +PARAM [/kalman_filter/kalman_filter/multi_target/association/track_management/death_threshold] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,810: +PARAM [/kalman_filter/kalman_filter/multi_target/association/track_management/merge_threshold] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,810: +PARAM [/kalman_filter/kalman_filter/multi_target/scoring/position_weight] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,811: +PARAM [/kalman_filter/kalman_filter/multi_target/scoring/velocity_weight] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,811: +PARAM [/kalman_filter/kalman_filter/multi_target/scoring/appearance_weight] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,811: +PARAM [/kalman_filter/kalman_filter/multi_target/scoring/history_length] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,811: +PARAM [/kalman_filter/sensor_fusion/sensors] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,812: +PARAM [/kalman_filter/sensor_fusion/algorithms/type] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,812: +PARAM [/kalman_filter/sensor_fusion/algorithms/centralized/measurement_dim] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,812: +PARAM [/kalman_filter/sensor_fusion/algorithms/track_to_track/covariance_intersection] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,813: +PARAM [/kalman_filter/sensor_fusion/algorithms/track_to_track/gamma] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,813: +PARAM [/system_params/ros/master/uri] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,813: +PARAM [/system_params/ros/master/timeout] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,813: +PARAM [/system_params/ros/node/name] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,814: +PARAM [/system_params/ros/node/namespace] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,814: +PARAM [/system_params/ros/topics/camera_image] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,814: +PARAM [/system_params/ros/topics/camera_info] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,815: +PARAM [/system_params/ros/topics/vehicle_state] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,815: +PARAM [/system_params/ros/topics/vehicle_position] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,815: +PARAM [/system_params/ros/topics/vehicle_velocity] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,815: +PARAM [/system_params/ros/topics/vehicle_attitude] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,816: +PARAM [/system_params/ros/topics/battery_status] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,816: +PARAM [/system_params/ros/topics/detection_output] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,816: +PARAM [/system_params/ros/topics/tracked_targets] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,816: +PARAM [/system_params/ros/topics/control_command] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,816: +PARAM [/system_params/ros/topics/safety_status] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,816: +PARAM [/system_params/ros/topics/diagnostic_status] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,817: +PARAM [/system_params/ros/topics/debug_info] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,817: +PARAM [/system_params/ros/topics/performance_metrics] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,817: +PARAM [/system_params/ros/topics/test_results] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,817: +PARAM [/system_params/ros/topics/test_status] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,818: +PARAM [/system_params/logging/level] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,818: +PARAM [/system_params/logging/outputs/console] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,818: +PARAM [/system_params/logging/outputs/file] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,819: +PARAM [/system_params/logging/outputs/rosout] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,819: +PARAM [/system_params/logging/file/directory] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,819: +PARAM [/system_params/logging/file/max_size] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,819: +PARAM [/system_params/logging/file/max_files] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,819: +PARAM [/system_params/logging/file/format] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,820: +PARAM [/system_params/logging/performance/enabled] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,820: +PARAM [/system_params/logging/performance/interval] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,820: +PARAM [/system_params/logging/performance/metrics] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,820: +PARAM [/system_params/logging/performance/output_file] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,820: +PARAM [/system_params/safety/geofence/enabled] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,821: +PARAM [/system_params/safety/geofence/shape] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,821: +PARAM [/system_params/safety/geofence/radius] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,821: +PARAM [/system_params/safety/geofence/height] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,822: +PARAM [/system_params/safety/emergency/action] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,822: +PARAM [/system_params/safety/emergency/altitude_min] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,822: +PARAM [/system_params/safety/emergency/altitude_max] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,822: +PARAM [/system_params/safety/failsafe/battery_critical] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,822: +PARAM [/system_params/safety/failsafe/lost_connection] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,823: +PARAM [/system_params/safety/failsafe/gps_failure] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,823: +PARAM [/system_params/safety/failsafe/sensor_failure] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,823: +PARAM [/system_params/safety/failsafe/exceeded_geofence] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,823: +PARAM [/system_params/safety/health/check_interval] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,823: +PARAM [/system_params/safety/health/restart_on_failure] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,823: +PARAM [/system_params/safety/health/max_restarts] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,824: +PARAM [/system_params/safety/health/restart_delay] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,824: +PARAM [/system_params/performance/threads/detection_pool] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,824: +PARAM [/system_params/performance/threads/control_pool] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,825: +PARAM [/system_params/performance/queues/input_queue_size] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,825: +PARAM [/system_params/performance/queues/output_queue_size] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,826: +PARAM [/system_params/performance/memory/cache_images] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,826: +PARAM [/system_params/performance/memory/max_cache_size] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,827: +PARAM [/system_params/performance/memory/max_cached_messages] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,827: +PARAM [/system_params/performance/timing/use_sim_time] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,828: +PARAM [/system_params/performance/timing/publish_rate] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,828: +PARAM [/system_params/performance/timing/control_rate] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,829: +PARAM [/system_params/network/px4/udp_port] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,829: +PARAM [/system_params/network/px4/tcp_port] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,829: +PARAM [/system_params/network/px4/heartbeat_rate] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,829: +PARAM [/system_params/network/mavros/fcu_url] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,829: +PARAM [/system_params/network/mavros/gcs_url] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,830: +PARAM [/system_params/network/timeout] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,830: +PARAM [/system_params/network/reconnect_attempts] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,830: +PARAM [/system_params/network/reconnect_delay] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,830: +PARAM [/system_params/performance/publish_rate] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,831: +PARAM [/use_simulation] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,831: +PARAM [/parameter_validator/config_dir] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,831: +PARAM [/parameter_validator/validate_on_startup] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,831: +PARAM [/mission_manager/mission_config] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,832: +PARAM [/camera_calibration/simulation_mode] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,832: +PARAM [/yolo_detector/model_path] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,832: +PARAM [/yolo_detector/device] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,832: +PARAM [/sensor_fusion/publish_rate] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,832: +PARAM [/sensor_fusion/simulation_mode] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,833: +PARAM [/target_tracking_controller/simulation_mode] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,833: +PARAM [/vehicle_state_monitor/simulation_mode] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,833: +PARAM [/safety_monitor/enable_geofence] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,834: +PARAM [/safety_monitor/simulation_mode] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,834: +PARAM [/system_health_monitor/monitoring_interval] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,834: +PARAM [/system_health_monitor/critical_threshold_cpu] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,834: +PARAM [/system_health_monitor/critical_threshold_memory] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,835: +PARAM [/system_health_monitor/warning_threshold_cpu] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,835: +PARAM [/system_health_monitor/warning_threshold_memory] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,835: +PARAM [/system_health_monitor/enable_network_monitoring] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,835: +PARAM [/system_health_monitor/enable_disk_monitoring] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,835: +PARAM [/system_health_monitor/enable_process_monitoring] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,835: +PARAM [/health_checker/monitored_nodes] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,836: +PARAM [/health_checker/check_interval] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,836: +PARAM [/health_checker/timeout_threshold] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,836: +PARAM [/health_checker/restart_on_failure] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,836: +PARAM [/health_checker/max_restarts] by /roslaunch
+[rosmaster.master][INFO] 2026-08-30 07:39:35,932: +SERVICE [/rosout/get_loggers] /rosout http://localhost:42775/
+[rosmaster.master][INFO] 2026-08-30 07:39:35,934: +SERVICE [/rosout/set_logger_level] /rosout http://localhost:42775/
+[rosmaster.master][INFO] 2026-08-30 07:39:35,948: +PUB [/rosout_agg] /rosout http://localhost:42775/
+[rosmaster.master][INFO] 2026-08-30 07:39:35,964: +SUB [/rosout] /rosout http://localhost:42775/
+[rosmaster.master][INFO] 2026-08-30 07:39:39,277: +PUB [/rosout] /parameter_validator http://localhost:41061/
+[rosmaster.master][INFO] 2026-08-30 07:39:39,368: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/']
+[rosmaster.master][INFO] 2026-08-30 07:39:39,396: +SERVICE [/parameter_validator/get_loggers] /parameter_validator http://localhost:41061/
+[rosmaster.master][INFO] 2026-08-30 07:39:39,402: +SERVICE [/parameter_validator/set_logger_level] /parameter_validator http://localhost:41061/
+[rosmaster.master][INFO] 2026-08-30 07:39:39,492: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/']: sec=0.12, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:39:39,666: +CACHEDPARAM [/rosout_disable_topics_generation] by /parameter_validator
+[rosmaster.master][INFO] 2026-08-30 07:39:39,669: +CACHEDPARAM [/rosout_disable_topics_generation] by /parameter_validator
+[rosmaster.master][INFO] 2026-08-30 07:39:39,818: +CACHEDPARAM [/rosout/omit_topics] by /rosout
+[rosmaster.master][INFO] 2026-08-30 07:39:39,995: +PUB [/rosout] /sensor_fusion http://localhost:45387/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,010: +SERVICE [/sensor_fusion/get_loggers] /sensor_fusion http://localhost:45387/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,011: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/']
+[rosmaster.master][INFO] 2026-08-30 07:39:40,013: +SERVICE [/sensor_fusion/set_logger_level] /sensor_fusion http://localhost:45387/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,014: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:39:40,026: +SUB [/mavros/imu/data] /sensor_fusion http://localhost:45387/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,030: +SUB [/mavros/global_position/global] /sensor_fusion http://localhost:45387/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,033: +SUB [/mavros/local_position/pose] /sensor_fusion http://localhost:45387/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,035: +PUB [/sensor_fusion/node_health] /sensor_fusion http://localhost:45387/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,068: +CACHEDPARAM [/rosout_disable_topics_generation] by /sensor_fusion
+[rosmaster.master][INFO] 2026-08-30 07:39:40,117: +PUB [/rosout] /command_interpreter http://localhost:40859/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,123: +PUB [/rosout] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,126: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/']
+[rosmaster.master][INFO] 2026-08-30 07:39:40,170: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/']: sec=0.04, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:39:40,170: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/']
+[rosmaster.master][INFO] 2026-08-30 07:39:40,173: +PUB [/rosout] /mission_manager http://localhost:46107/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,176: +SERVICE [/command_interpreter/get_loggers] /command_interpreter http://localhost:40859/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,180: +SERVICE [/safety_monitor/get_loggers] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,174: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:39:40,182: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/']
+[rosmaster.master][INFO] 2026-08-30 07:39:40,184: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:39:40,184: +SERVICE [/command_interpreter/set_logger_level] /command_interpreter http://localhost:40859/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,186: +SERVICE [/safety_monitor/set_logger_level] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,189: +PUB [/rosout] /camera_calibration http://localhost:33839/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,196: +SERVICE [/mission_manager/get_loggers] /mission_manager http://localhost:46107/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,202: +SUB [/drone_control/command] /command_interpreter http://localhost:40859/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,208: +SERVICE [/mission_manager/set_logger_level] /mission_manager http://localhost:46107/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,209: +SERVICE [/camera_calibration/get_loggers] /camera_calibration http://localhost:33839/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,211: +PUB [/drone_control/command_response] /command_interpreter http://localhost:40859/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,214: +SERVICE [/camera_calibration/set_logger_level] /camera_calibration http://localhost:33839/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,215: +PUB [/command_interpreter/node_health] /command_interpreter http://localhost:40859/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,220: +PUB [/camera/camera_info] /camera_calibration http://localhost:33839/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,224: +CACHEDPARAM [/rosout_disable_topics_generation] by /command_interpreter
+[rosmaster.master][INFO] 2026-08-30 07:39:40,226: +PUB [/tf] /camera_calibration http://localhost:33839/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,230: +SUB [/mavros/local_position/pose] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,233: +PUB [/mission_status] /mission_manager http://localhost:46107/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,233: +CACHEDPARAM [/rosout_disable_topics_generation] by /camera_calibration
+[rosmaster.master][INFO] 2026-08-30 07:39:40,270: +PUB [/mission_manager/node_health] /mission_manager http://localhost:46107/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,275: +SUB [/mavros/local_position/velocity] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,276: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33839/']
+[rosmaster.master][INFO] 2026-08-30 07:39:40,281: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33839/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:39:40,288: +SUB [/mavros/state] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,296: +SUB [/drone_control/command] /mission_manager http://localhost:46107/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,297: +PUB [/safety_status] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,300: +PUB [/safety_monitor/node_health] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,302: +PUB [/emergency_triggered] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,303: +SUB [/safety_status] /mission_manager http://localhost:46107/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,305: +SERVICE [/safety/geofence_enable] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,307: +SERVICE [/safety/geofence_disable] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,311: +SUB [/tracked_targets] /mission_manager http://localhost:46107/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,312: +SERVICE [/safety/check] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,315: +SERVICE [/safety/status] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,320: +CACHEDPARAM [/rosout_disable_topics_generation] by /safety_monitor
+[rosmaster.master][INFO] 2026-08-30 07:39:40,326: +CACHEDPARAM [/rosout_disable_topics_generation] by /safety_monitor
+[rosmaster.master][INFO] 2026-08-30 07:39:40,333: +CACHEDPARAM [/rosout_disable_topics_generation] by /mission_manager
+[rosmaster.master][INFO] 2026-08-30 07:39:40,370: +PUB [/rosout] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,395: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33839/', 'http://localhost:33783/']
+[rosmaster.master][INFO] 2026-08-30 07:39:40,420: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33839/', 'http://localhost:33783/']: sec=0.02, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:39:40,425: +SERVICE [/vehicle_state_monitor/get_loggers] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,431: +SERVICE [/vehicle_state_monitor/set_logger_level] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,467: +SUB [/mavros/state] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,473: +SUB [/mavros/battery] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,480: +SUB [/mavros/local_position/velocity] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,483: +PUB [/drone_status] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,488: +PUB [/diagnostic_status] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,492: +PUB [/vehicle_state_monitor/node_health] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,496: +PUB [/battery_percentage] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,499: +SERVICE [/drone_emergency_stop] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,501: +SERVICE [/drone_arm] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,504: +SERVICE [/drone_disarm] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,506: +SERVICE [/drone_get_status] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,512: +CACHEDPARAM [/rosout_disable_topics_generation] by /vehicle_state_monitor
+[rosmaster.master][INFO] 2026-08-30 07:39:40,523: +PUB [/rosout] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,538: +SERVICE [/health_checker/get_loggers] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,543: +SERVICE [/health_checker/set_logger_level] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,558: +SUB [/yolo_detector/node_health] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,561: +SUB [/target_tracking_controller/node_health] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,564: +SUB [/vehicle_state_monitor/node_health] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,570: +SUB [/mission_manager/node_health] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,575: +SUB [/safety_monitor/node_health] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,581: +SUB [/command_interpreter/node_health] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,591: +PUB [/system_health] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,593: +SERVICE [/health/check_all] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,595: +SERVICE [/health/restart_node] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,600: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33839/', 'http://localhost:33783/', 'http://localhost:32825/']
+[rosmaster.master][INFO] 2026-08-30 07:39:40,602: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33839/', 'http://localhost:33783/', 'http://localhost:32825/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:39:40,603: +CACHEDPARAM [/rosout_disable_topics_generation] by /health_checker
+[rosmaster.master][INFO] 2026-08-30 07:39:40,611: +PUB [/rosout] /system_health_monitor http://localhost:36463/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,622: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33839/', 'http://localhost:33783/', 'http://localhost:32825/', 'http://localhost:36463/']
+[rosmaster.master][INFO] 2026-08-30 07:39:40,623: +SERVICE [/system_health_monitor/get_loggers] /system_health_monitor http://localhost:36463/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,626: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33839/', 'http://localhost:33783/', 'http://localhost:32825/', 'http://localhost:36463/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:39:40,627: +SERVICE [/system_health_monitor/set_logger_level] /system_health_monitor http://localhost:36463/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,639: +SUB [/health/check_all] /system_health_monitor http://localhost:36463/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,641: +PUB [/system_health] /system_health_monitor http://localhost:36463/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,643: +PUB [/diagnostic_status] /system_health_monitor http://localhost:36463/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,644: +PUB [/performance_metrics] /system_health_monitor http://localhost:36463/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,645: +PUB [/system_alert] /system_health_monitor http://localhost:36463/
+[rosmaster.master][INFO] 2026-08-30 07:39:40,648: +CACHEDPARAM [/rosout_disable_topics_generation] by /system_health_monitor
+[rosmaster.master][INFO] 2026-08-30 07:39:42,441: +PUB [/rosout] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:39:42,449: +SERVICE [/target_tracking_controller/get_loggers] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:39:42,450: +SERVICE [/target_tracking_controller/set_logger_level] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:39:42,462: +SUB [/mavros/local_position/odom] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:39:42,465: +SUB [/detected_objects] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:39:42,467: +SUB [/mavros/state] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:39:42,470: +SUB [/mission_status] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:39:42,472: +PUB [/tracked_targets] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:39:42,475: +PUB [/mavros/setpoint_velocity/cmd_vel_unstamped] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:39:42,476: +PUB [/mavros/setpoint_raw/local] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:39:42,478: +PUB [/target_tracking_controller/node_health] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:39:42,489: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33839/', 'http://localhost:33783/', 'http://localhost:32825/', 'http://localhost:36463/', 'http://localhost:34673/']
+[rosmaster.master][INFO] 2026-08-30 07:39:42,492: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33839/', 'http://localhost:33783/', 'http://localhost:32825/', 'http://localhost:36463/', 'http://localhost:34673/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:39:42,492: publisherUpdate[/tracked_targets] -> http://localhost:46107/ ['http://localhost:34673/']
+[rosmaster.master][INFO] 2026-08-30 07:39:42,495: publisherUpdate[/tracked_targets] -> http://localhost:46107/ ['http://localhost:34673/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:39:42,495: publisherUpdate[/target_tracking_controller/node_health] -> http://localhost:32825/ ['http://localhost:34673/']
+[rosmaster.master][INFO] 2026-08-30 07:39:42,498: publisherUpdate[/target_tracking_controller/node_health] -> http://localhost:32825/ ['http://localhost:34673/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:39:44,616: +CACHEDPARAM [/rosout_disable_topics_generation] by /target_tracking_controller
+[rosmaster.master][INFO] 2026-08-30 07:39:45,611: +CACHEDPARAM [/rosout_disable_topics_generation] by /health_checker
+[rosmaster.master][INFO] 2026-08-30 07:39:45,613: +CACHEDPARAM [/rosout_disable_topics_generation] by /health_checker
+[rosmaster.master][INFO] 2026-08-30 07:39:45,614: +CACHEDPARAM [/rosout_disable_topics_generation] by /health_checker
+[rosmaster.master][INFO] 2026-08-30 07:39:46,644: +PUB [/rosout] /yolo_detector http://localhost:41719/
+[rosmaster.master][INFO] 2026-08-30 07:39:46,647: +SERVICE [/yolo_detector/get_loggers] /yolo_detector http://localhost:41719/
+[rosmaster.master][INFO] 2026-08-30 07:39:46,648: +SERVICE [/yolo_detector/set_logger_level] /yolo_detector http://localhost:41719/
+[rosmaster.master][INFO] 2026-08-30 07:39:46,651: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33839/', 'http://localhost:33783/', 'http://localhost:32825/', 'http://localhost:36463/', 'http://localhost:34673/', 'http://localhost:41719/']
+[rosmaster.master][INFO] 2026-08-30 07:39:46,653: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33839/', 'http://localhost:33783/', 'http://localhost:32825/', 'http://localhost:36463/', 'http://localhost:34673/', 'http://localhost:41719/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:39:46,656: +PUB [/yolo_detector/node_health] /yolo_detector http://localhost:41719/
+[rosmaster.master][INFO] 2026-08-30 07:39:46,658: +SUB [/drone_control/command] /yolo_detector http://localhost:41719/
+[rosmaster.master][INFO] 2026-08-30 07:39:46,660: +PUB [/command_response] /yolo_detector http://localhost:41719/
+[rosmaster.master][INFO] 2026-08-30 07:39:46,662: +SUB [/mission_status] /yolo_detector http://localhost:41719/
+[rosmaster.master][INFO] 2026-08-30 07:39:46,664: +CACHEDPARAM [/rosout_disable_topics_generation] by /yolo_detector
+[rosmaster.master][INFO] 2026-08-30 07:39:46,686: publisherUpdate[/yolo_detector/node_health] -> http://localhost:32825/ ['http://localhost:41719/']
+[rosmaster.master][INFO] 2026-08-30 07:39:46,689: publisherUpdate[/yolo_detector/node_health] -> http://localhost:32825/ ['http://localhost:41719/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:39:46,755: +CACHEDPARAM [/rosout_disable_topics_generation] by /target_tracking_controller
+[rosmaster.master][INFO] 2026-08-30 07:39:46,761: +CACHEDPARAM [/rosout_disable_topics_generation] by /target_tracking_controller
+[rosmaster.master][INFO] 2026-08-30 07:39:47,082: +CACHEDPARAM [/rosout_disable_topics_generation] by /yolo_detector
+[rosmaster.master][INFO] 2026-08-30 07:39:47,084: +SUB [/camera/color/image_raw] /yolo_detector http://localhost:41719/
+[rosmaster.master][INFO] 2026-08-30 07:39:47,085: +PUB [/detected_objects] /yolo_detector http://localhost:41719/
+[rosmaster.master][INFO] 2026-08-30 07:39:47,087: +CACHEDPARAM [/rosout_disable_topics_generation] by /yolo_detector
+[rosmaster.master][INFO] 2026-08-30 07:39:47,089: +CACHEDPARAM [/rosout_disable_topics_generation] by /yolo_detector
+[rosmaster.master][INFO] 2026-08-30 07:39:47,099: publisherUpdate[/detected_objects] -> http://localhost:34673/ ['http://localhost:41719/']
+[rosmaster.master][INFO] 2026-08-30 07:39:47,102: publisherUpdate[/detected_objects] -> http://localhost:34673/ ['http://localhost:41719/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:46:12,579: -SUB [/yolo_detector/node_health] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,580: -SUB [/target_tracking_controller/node_health] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,581: -SUB [/vehicle_state_monitor/node_health] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,581: -SUB [/mission_manager/node_health] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,581: -SUB [/safety_monitor/node_health] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,582: -SUB [/command_interpreter/node_health] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,583: -PUB [/rosout] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,584: -PUB [/system_health] /health_checker http://localhost:32825/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,584: -SERVICE [/health_checker/get_loggers] /health_checker rosrpc://localhost:36359
+[rosmaster.master][INFO] 2026-08-30 07:46:12,584: -SERVICE [/health_checker/set_logger_level] /health_checker rosrpc://localhost:36359
+[rosmaster.master][INFO] 2026-08-30 07:46:12,584: -SERVICE [/health/check_all] /health_checker rosrpc://localhost:36359
+[rosmaster.master][INFO] 2026-08-30 07:46:12,584: -SERVICE [/health/restart_node] /health_checker rosrpc://localhost:36359
+[rosmaster.master][INFO] 2026-08-30 07:46:12,588: -SUB [/mavros/local_position/odom] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,590: -SUB [/health/check_all] /system_health_monitor http://localhost:36463/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,590: -PUB [/rosout] /system_health_monitor http://localhost:36463/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,590: -PUB [/system_health] /system_health_monitor http://localhost:36463/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,591: -PUB [/rosout] /camera_calibration http://localhost:33839/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,602: -PUB [/camera/camera_info] /camera_calibration http://localhost:33839/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,603: -PUB [/tf] /camera_calibration http://localhost:33839/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,603: -SERVICE [/camera_calibration/get_loggers] /camera_calibration rosrpc://localhost:37655
+[rosmaster.master][INFO] 2026-08-30 07:46:12,603: -SERVICE [/camera_calibration/set_logger_level] /camera_calibration rosrpc://localhost:37655
+[rosmaster.master][INFO] 2026-08-30 07:46:12,604: -SUB [/drone_control/command] /yolo_detector http://localhost:41719/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,604: -SUB [/mission_status] /yolo_detector http://localhost:41719/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,604: -SUB [/camera/color/image_raw] /yolo_detector http://localhost:41719/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,605: -PUB [/rosout] /yolo_detector http://localhost:41719/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,605: -PUB [/yolo_detector/node_health] /yolo_detector http://localhost:41719/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,605: -PUB [/command_response] /yolo_detector http://localhost:41719/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,605: -PUB [/detected_objects] /yolo_detector http://localhost:41719/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,605: -SERVICE [/yolo_detector/get_loggers] /yolo_detector rosrpc://localhost:34257
+[rosmaster.master][INFO] 2026-08-30 07:46:12,606: -SERVICE [/yolo_detector/set_logger_level] /yolo_detector rosrpc://localhost:34257
+[rosmaster.master][INFO] 2026-08-30 07:46:12,606: -SUB [/detected_objects] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,607: -SUB [/mavros/state] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,607: -SUB [/mission_status] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,607: -PUB [/rosout] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,607: -PUB [/tracked_targets] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,608: -PUB [/mavros/setpoint_velocity/cmd_vel_unstamped] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,608: -PUB [/mavros/setpoint_raw/local] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,608: -PUB [/target_tracking_controller/node_health] /target_tracking_controller http://localhost:34673/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,608: -SERVICE [/target_tracking_controller/get_loggers] /target_tracking_controller rosrpc://localhost:36553
+[rosmaster.master][INFO] 2026-08-30 07:46:12,609: -SERVICE [/target_tracking_controller/set_logger_level] /target_tracking_controller rosrpc://localhost:36553
+[rosmaster.master][INFO] 2026-08-30 07:46:12,609: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33839/', 'http://localhost:33783/', 'http://localhost:36463/', 'http://localhost:34673/', 'http://localhost:41719/']
+[rosmaster.master][INFO] 2026-08-30 07:46:12,609: -PUB [/diagnostic_status] /system_health_monitor http://localhost:36463/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,609: -PUB [/performance_metrics] /system_health_monitor http://localhost:36463/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,610: -PUB [/system_alert] /system_health_monitor http://localhost:36463/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,610: -SERVICE [/system_health_monitor/get_loggers] /system_health_monitor rosrpc://localhost:45031
+[rosmaster.master][INFO] 2026-08-30 07:46:12,610: -SERVICE [/system_health_monitor/set_logger_level] /system_health_monitor rosrpc://localhost:45031
+[rosmaster.master][INFO] 2026-08-30 07:46:12,610: -SUB [/drone_control/command] /command_interpreter http://localhost:40859/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,610: -PUB [/rosout] /command_interpreter http://localhost:40859/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,610: -PUB [/drone_control/command_response] /command_interpreter http://localhost:40859/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,610: -PUB [/command_interpreter/node_health] /command_interpreter http://localhost:40859/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,610: -SERVICE [/command_interpreter/get_loggers] /command_interpreter rosrpc://localhost:38867
+[rosmaster.master][INFO] 2026-08-30 07:46:12,611: -SERVICE [/command_interpreter/set_logger_level] /command_interpreter rosrpc://localhost:38867
+[rosmaster.master][INFO] 2026-08-30 07:46:12,611: -SUB [/mavros/local_position/pose] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,611: -SUB [/mavros/local_position/velocity] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,611: -SUB [/mavros/state] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,611: -PUB [/rosout] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,611: -PUB [/safety_status] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,611: -PUB [/safety_monitor/node_health] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,611: -PUB [/emergency_triggered] /safety_monitor http://localhost:46417/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,611: -SERVICE [/safety_monitor/get_loggers] /safety_monitor rosrpc://localhost:34743
+[rosmaster.master][INFO] 2026-08-30 07:46:12,611: -SERVICE [/safety_monitor/set_logger_level] /safety_monitor rosrpc://localhost:34743
+[rosmaster.master][INFO] 2026-08-30 07:46:12,612: -SERVICE [/safety/geofence_enable] /safety_monitor rosrpc://localhost:34743
+[rosmaster.master][INFO] 2026-08-30 07:46:12,612: -SERVICE [/safety/geofence_disable] /safety_monitor rosrpc://localhost:34743
+[rosmaster.master][INFO] 2026-08-30 07:46:12,612: -SERVICE [/safety/check] /safety_monitor rosrpc://localhost:34743
+[rosmaster.master][INFO] 2026-08-30 07:46:12,612: -SERVICE [/safety/status] /safety_monitor rosrpc://localhost:34743
+[rosmaster.master][INFO] 2026-08-30 07:46:12,612: -SUB [/mavros/imu/data] /sensor_fusion http://localhost:45387/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,612: -SUB [/mavros/global_position/global] /sensor_fusion http://localhost:45387/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,612: -SUB [/mavros/local_position/pose] /sensor_fusion http://localhost:45387/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,613: -PUB [/rosout] /sensor_fusion http://localhost:45387/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,613: -PUB [/sensor_fusion/node_health] /sensor_fusion http://localhost:45387/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,613: -SERVICE [/sensor_fusion/get_loggers] /sensor_fusion rosrpc://localhost:37869
+[rosmaster.master][INFO] 2026-08-30 07:46:12,613: -SERVICE [/sensor_fusion/set_logger_level] /sensor_fusion rosrpc://localhost:37869
+[rosmaster.master][INFO] 2026-08-30 07:46:12,613: -SUB [/mavros/state] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,613: -SUB [/mavros/battery] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,613: -SUB [/mavros/local_position/velocity] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,613: -PUB [/rosout] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,613: -PUB [/drone_status] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,614: -PUB [/diagnostic_status] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,614: -PUB [/vehicle_state_monitor/node_health] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,614: -PUB [/battery_percentage] /vehicle_state_monitor http://localhost:33783/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,614: -SERVICE [/vehicle_state_monitor/get_loggers] /vehicle_state_monitor rosrpc://localhost:34017
+[rosmaster.master][INFO] 2026-08-30 07:46:12,614: -SERVICE [/vehicle_state_monitor/set_logger_level] /vehicle_state_monitor rosrpc://localhost:34017
+[rosmaster.master][INFO] 2026-08-30 07:46:12,614: -SERVICE [/drone_emergency_stop] /vehicle_state_monitor rosrpc://localhost:34017
+[rosmaster.master][INFO] 2026-08-30 07:46:12,614: -SERVICE [/drone_arm] /vehicle_state_monitor rosrpc://localhost:34017
+[rosmaster.master][INFO] 2026-08-30 07:46:12,614: -SERVICE [/drone_disarm] /vehicle_state_monitor rosrpc://localhost:34017
+[rosmaster.master][INFO] 2026-08-30 07:46:12,614: -SERVICE [/drone_get_status] /vehicle_state_monitor rosrpc://localhost:34017
+[rosmaster.master][INFO] 2026-08-30 07:46:12,616: -SUB [/drone_control/command] /mission_manager http://localhost:46107/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,616: -SUB [/safety_status] /mission_manager http://localhost:46107/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,616: -SUB [/tracked_targets] /mission_manager http://localhost:46107/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,616: -PUB [/rosout] /mission_manager http://localhost:46107/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,616: -PUB [/mission_status] /mission_manager http://localhost:46107/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,616: -PUB [/mission_manager/node_health] /mission_manager http://localhost:46107/
+[rosmaster.master][INFO] 2026-08-30 07:46:12,616: -SERVICE [/mission_manager/get_loggers] /mission_manager rosrpc://localhost:44193
+[rosmaster.master][INFO] 2026-08-30 07:46:12,617: -SERVICE [/mission_manager/set_logger_level] /mission_manager rosrpc://localhost:44193
+[rosmaster.master][INFO] 2026-08-30 07:46:12,635: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33839/', 'http://localhost:33783/', 'http://localhost:36463/', 'http://localhost:34673/', 'http://localhost:41719/']: sec=0.03, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:46:12,635: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33839/', 'http://localhost:33783/', 'http://localhost:34673/', 'http://localhost:41719/']
+[rosmaster.master][INFO] 2026-08-30 07:46:12,639: publisherUpdate[/detected_objects] -> http://localhost:34673/ []
+[rosmaster.master][INFO] 2026-08-30 07:46:12,644: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33839/', 'http://localhost:33783/', 'http://localhost:34673/', 'http://localhost:41719/']: sec=0.01, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:46:12,645: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33783/', 'http://localhost:34673/', 'http://localhost:41719/']
+[rosmaster.master][INFO] 2026-08-30 07:46:12,649: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33783/', 'http://localhost:34673/', 'http://localhost:41719/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:46:12,649: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33783/', 'http://localhost:34673/']
+[rosmaster.master][INFO] 2026-08-30 07:46:12,659: publisherUpdate[/detected_objects] -> http://localhost:34673/ []: sec=0.02, exception=[Errno 111] Connection refused
+[rosmaster.master][INFO] 2026-08-30 07:46:12,668: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33783/', 'http://localhost:34673/']: sec=0.02, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:46:12,668: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33783/']
+[rosmaster.master][INFO] 2026-08-30 07:46:12,671: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:40859/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33783/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:46:12,671: publisherUpdate[/tracked_targets] -> http://localhost:46107/ []
+[rosmaster.master][INFO] 2026-08-30 07:46:12,672: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33783/']
+[rosmaster.threadpool][ERROR] 2026-08-30 07:46:12,682: Traceback (most recent call last):
+  File "/opt/ros/noetic/lib/python3/dist-packages/rosmaster/threadpool.py", line 218, in run
+    result = cmd(*args)
+  File "/opt/ros/noetic/lib/python3/dist-packages/rosmaster/master_api.py", line 210, in publisher_update_task
+    ret = xmlrpcapi(api).publisherUpdate('/master', topic, pub_uris)
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1109, in __call__
+    return self.__send(self.__name, args)
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1450, in __request
+    response = self.__transport.request(
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1153, in request
+    return self.single_request(host, handler, request_body, verbose)
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1165, in single_request
+    http_conn = self.send_request(host, handler, request_body, verbose)
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1278, in send_request
+    self.send_content(connection, request_body)
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1308, in send_content
+    connection.endheaders(request_body)
+  File "/usr/lib/python3.8/http/client.py", line 1251, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.8/http/client.py", line 1011, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.8/http/client.py", line 951, in send
+    self.connect()
+  File "/usr/lib/python3.8/http/client.py", line 922, in connect
+    self.sock = self._create_connection(
+  File "/usr/lib/python3.8/socket.py", line 808, in create_connection
+    raise err
+  File "/usr/lib/python3.8/socket.py", line 796, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+[rosmaster.master][INFO] 2026-08-30 07:46:12,686: publisherUpdate[/tracked_targets] -> http://localhost:46107/ []: sec=0.01, exception=[Errno 111] Connection refused
+[rosmaster.threadpool][ERROR] 2026-08-30 07:46:12,687: Traceback (most recent call last):
+  File "/opt/ros/noetic/lib/python3/dist-packages/rosmaster/threadpool.py", line 218, in run
+    result = cmd(*args)
+  File "/opt/ros/noetic/lib/python3/dist-packages/rosmaster/master_api.py", line 210, in publisher_update_task
+    ret = xmlrpcapi(api).publisherUpdate('/master', topic, pub_uris)
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1109, in __call__
+    return self.__send(self.__name, args)
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1450, in __request
+    response = self.__transport.request(
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1153, in request
+    return self.single_request(host, handler, request_body, verbose)
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1165, in single_request
+    http_conn = self.send_request(host, handler, request_body, verbose)
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1278, in send_request
+    self.send_content(connection, request_body)
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1308, in send_content
+    connection.endheaders(request_body)
+  File "/usr/lib/python3.8/http/client.py", line 1251, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.8/http/client.py", line 1011, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.8/http/client.py", line 951, in send
+    self.connect()
+  File "/usr/lib/python3.8/http/client.py", line 922, in connect
+    self.sock = self._create_connection(
+  File "/usr/lib/python3.8/socket.py", line 808, in create_connection
+    raise err
+  File "/usr/lib/python3.8/socket.py", line 796, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+[rosmaster.master][INFO] 2026-08-30 07:46:12,687: publisherUpdate[/safety_status] -> http://localhost:46107/ []
+[rosmaster.master][INFO] 2026-08-30 07:46:12,688: publisherUpdate[/safety_status] -> http://localhost:46107/ []: sec=0.00, exception=[Errno 111] Connection refused
+[rosmaster.threadpool][ERROR] 2026-08-30 07:46:12,689: Traceback (most recent call last):
+  File "/opt/ros/noetic/lib/python3/dist-packages/rosmaster/threadpool.py", line 218, in run
+    result = cmd(*args)
+  File "/opt/ros/noetic/lib/python3/dist-packages/rosmaster/master_api.py", line 210, in publisher_update_task
+    ret = xmlrpcapi(api).publisherUpdate('/master', topic, pub_uris)
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1109, in __call__
+    return self.__send(self.__name, args)
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1450, in __request
+    response = self.__transport.request(
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1153, in request
+    return self.single_request(host, handler, request_body, verbose)
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1165, in single_request
+    http_conn = self.send_request(host, handler, request_body, verbose)
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1278, in send_request
+    self.send_content(connection, request_body)
+  File "/usr/lib/python3.8/xmlrpc/client.py", line 1308, in send_content
+    connection.endheaders(request_body)
+  File "/usr/lib/python3.8/http/client.py", line 1251, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/usr/lib/python3.8/http/client.py", line 1011, in _send_output
+    self.send(msg)
+  File "/usr/lib/python3.8/http/client.py", line 951, in send
+    self.connect()
+  File "/usr/lib/python3.8/http/client.py", line 922, in connect
+    self.sock = self._create_connection(
+  File "/usr/lib/python3.8/socket.py", line 808, in create_connection
+    raise err
+  File "/usr/lib/python3.8/socket.py", line 796, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+[rosmaster.master][INFO] 2026-08-30 07:46:12,698: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:46417/', 'http://localhost:46107/', 'http://localhost:33783/']: sec=0.02, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:46:12,698: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:46107/', 'http://localhost:33783/']
+[rosmaster.master][INFO] 2026-08-30 07:46:12,699: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:45387/', 'http://localhost:46107/', 'http://localhost:33783/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:46:12,700: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:46107/', 'http://localhost:33783/']
+[rosmaster.master][INFO] 2026-08-30 07:46:12,701: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:46107/', 'http://localhost:33783/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:46:12,701: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:46107/']
+[rosmaster.master][INFO] 2026-08-30 07:46:12,708: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/', 'http://localhost:46107/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:46:12,708: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/']
+[rosmaster.master][INFO] 2026-08-30 07:46:12,712: publisherUpdate[/rosout] -> http://localhost:42775/ ['http://localhost:41061/']: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:46:13,507: -PUB [/rosout] /parameter_validator http://localhost:41061/
+[rosmaster.master][INFO] 2026-08-30 07:46:13,507: -SERVICE [/parameter_validator/get_loggers] /parameter_validator rosrpc://localhost:35777
+[rosmaster.master][INFO] 2026-08-30 07:46:13,507: -SERVICE [/parameter_validator/set_logger_level] /parameter_validator rosrpc://localhost:35777
+[rosmaster.master][INFO] 2026-08-30 07:46:13,513: publisherUpdate[/rosout] -> http://localhost:42775/ []
+[rosmaster.master][INFO] 2026-08-30 07:46:13,515: publisherUpdate[/rosout] -> http://localhost:42775/ []: sec=0.00, result=[1, '', 0]
+[rosmaster.master][INFO] 2026-08-30 07:46:14,345: -PUB [/rosout_agg] /rosout http://localhost:42775/
+[rosmaster.master][INFO] 2026-08-30 07:46:14,346: -SUB [/rosout] /rosout http://localhost:42775/
+[rosmaster.master][INFO] 2026-08-30 07:46:14,347: -SERVICE [/rosout/get_loggers] /rosout rosrpc://localhost:36623
+[rosmaster.master][INFO] 2026-08-30 07:46:14,348: -SERVICE [/rosout/set_logger_level] /rosout rosrpc://localhost:36623
+[rosmaster.master][INFO] 2026-08-30 07:46:14,349: -CACHEDPARAM [/rosout/omit_topics] by /rosout
+[rosmaster.main][INFO] 2026-08-30 07:46:14,424: keyboard interrupt, will exit
+[rosmaster.main][INFO] 2026-08-30 07:46:14,424: stopping master...
+[rospy.core][INFO] 2026-08-30 07:46:14,425: signal_shutdown [atexit]

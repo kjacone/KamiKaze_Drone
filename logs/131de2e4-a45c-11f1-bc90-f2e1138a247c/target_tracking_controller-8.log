@@ -1,0 +1,21 @@
+[rospy.client][INFO] 2026-08-30 10:18:08,456: init_node, name[/target_tracking_controller], pid[115]
+[xmlrpc][INFO] 2026-08-30 10:18:08,466: XML-RPC server binding to 0.0.0.0:0
+[xmlrpc][INFO] 2026-08-30 10:18:08,471: Started XML-RPC server [http://kamikaze:33057/]
+[rospy.impl.masterslave][INFO] 2026-08-30 10:18:08,472: _ready: http://kamikaze:33057/
+[rospy.init][INFO] 2026-08-30 10:18:08,472: ROS Slave URI: [http://kamikaze:33057/]
+[xmlrpc][INFO] 2026-08-30 10:18:08,475: xml rpc node: starting XML-RPC server
+[rospy.registration][INFO] 2026-08-30 10:18:08,474: Registering with master node http://kamikaze:11311
+[rospy.init][INFO] 2026-08-30 10:18:08,577: registered with master
+[rospy.rosout][INFO] 2026-08-30 10:18:08,577: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 10:18:08,609: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 10:18:08,612: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rospy.internal][INFO] 2026-08-30 10:18:08,740: topic[/tracked_targets] adding connection to [/mission_manager], count 0
+[rospy.internal][INFO] 2026-08-30 10:18:08,755: topic[/target_tracking_controller/node_health] adding connection to [/health_checker], count 0
+[rospy.internal][INFO] 2026-08-30 10:18:08,760: topic[/mission_status] adding connection to [http://kamikaze:33325/], count 0
+[rospy.internal][INFO] 2026-08-30 10:18:08,835: topic[/rosout] adding connection to [/rosout], count 0
+[rosout][WARNING] 2026-08-30 10:18:10,864: MAVROS set_mode service not available: timeout exceeded while waiting for service /mavros/set_mode
+[rospy.internal][INFO] 2026-08-30 10:18:12,461: topic[/tracked_targets] adding connection to [/trajectory_planner], count 1
+[rosout][WARNING] 2026-08-30 10:18:12,996: MAVROS arming service not available: timeout exceeded while waiting for service /mavros/cmd/arming
+[rosout][INFO] 2026-08-30 10:18:13,010: Target Tracking Controller started in SEARCHING mode
+[rospy.internal][INFO] 2026-08-30 10:18:13,061: topic[/detected_objects] adding connection to [http://kamikaze:40455/], count 0
+[rospy.internal][INFO] 2026-08-30 10:52:22,615: topic[/tracked_targets] removing connection to /trajectory_planner

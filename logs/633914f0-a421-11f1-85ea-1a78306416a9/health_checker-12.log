@@ -1,0 +1,22 @@
+[rospy.client][INFO] 2026-08-30 03:18:00,991: init_node, name[/health_checker], pid[99]
+[xmlrpc][INFO] 2026-08-30 03:18:00,998: XML-RPC server binding to 127.0.0.1:0
+[xmlrpc][INFO] 2026-08-30 03:18:01,000: Started XML-RPC server [http://localhost:39171/]
+[rospy.impl.masterslave][INFO] 2026-08-30 03:18:01,001: _ready: http://localhost:39171/
+[rospy.init][INFO] 2026-08-30 03:18:01,002: ROS Slave URI: [http://localhost:39171/]
+[rospy.registration][INFO] 2026-08-30 03:18:01,004: Registering with master node http://localhost:11311
+[xmlrpc][INFO] 2026-08-30 03:18:01,004: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 03:18:01,137: registered with master
+[rospy.rosout][INFO] 2026-08-30 03:18:01,137: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 03:18:01,163: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 03:18:01,165: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rospy.internal][INFO] 2026-08-30 03:18:01,269: topic[/vehicle_state_monitor/node_health] adding connection to [http://localhost:41431/], count 0
+[rospy.internal][INFO] 2026-08-30 03:18:01,287: topic[/mission_manager/node_health] adding connection to [http://localhost:35417/], count 0
+[rospy.internal][INFO] 2026-08-30 03:18:01,297: topic[/safety_monitor/node_health] adding connection to [http://localhost:41207/], count 0
+[rospy.internal][INFO] 2026-08-30 03:18:01,303: topic[/command_interpreter/node_health] adding connection to [http://localhost:46511/], count 0
+[rosout][INFO] 2026-08-30 03:18:01,304: Health Checker initialized
+[rospy.internal][INFO] 2026-08-30 03:18:01,345: topic[/rosout] adding connection to [/rosout], count 0
+[rospy.internal][INFO] 2026-08-30 03:18:02,671: topic[/target_tracking_controller/node_health] adding connection to [http://localhost:46321/], count 0
+[rosout][WARNING] 2026-08-30 03:18:06,315: Unhealthy nodes: 2
+[rosout][WARNING] 2026-08-30 03:18:06,317:   yolo_detector: No health report
+[rosout][WARNING] 2026-08-30 03:18:06,319:   target_tracking_controller: No health report
+[rospy.internal][INFO] 2026-08-30 03:18:07,349: topic[/yolo_detector/node_health] adding connection to [http://localhost:44061/], count 0

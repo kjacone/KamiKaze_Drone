@@ -118,6 +118,11 @@ RUN wget -O /tmp/install_geographiclib_datasets.sh \
     && /tmp/install_geographiclib_datasets.sh \
     && rm -f /tmp/install_geographiclib_datasets.sh
 
+
+
+
+
+
 # ------------------------------------------------------------
 # Copy compiled catkin workspace
 # ------------------------------------------------------------
@@ -149,6 +154,7 @@ COPY drone_control/config /app/config
 # ------------------------------------------------------------
 RUN echo "source /opt/ros/noetic/setup.bash" >> /root/.bashrc && \
     echo "source /root/catkin_ws/devel/setup.bash" >> /root/.bashrc
+    
 
 # ------------------------------------------------------------
 # Copy entrypoint

@@ -1,0 +1,17 @@
+[rospy.client][INFO] 2026-08-30 03:57:05,026: init_node, name[/camera_calibration], pid[89]
+[xmlrpc][INFO] 2026-08-30 03:57:05,032: XML-RPC server binding to 127.0.0.1:0
+[xmlrpc][INFO] 2026-08-30 03:57:05,040: Started XML-RPC server [http://localhost:45697/]
+[rospy.impl.masterslave][INFO] 2026-08-30 03:57:05,040: _ready: http://localhost:45697/
+[rospy.init][INFO] 2026-08-30 03:57:05,041: ROS Slave URI: [http://localhost:45697/]
+[rospy.registration][INFO] 2026-08-30 03:57:05,042: Registering with master node http://localhost:11311
+[xmlrpc][INFO] 2026-08-30 03:57:05,045: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 03:57:05,142: registered with master
+[rospy.rosout][INFO] 2026-08-30 03:57:05,142: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 03:57:05,239: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 03:57:05,243: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rosout][INFO] 2026-08-30 03:57:05,304: Camera calibration node started
+[rospy.internal][INFO] 2026-08-30 03:57:05,643: topic[/rosout] adding connection to [/rosout], count 0
+[rospy.core][INFO] 2026-08-30 04:00:03,747: signal_shutdown [signal-2]
+[rospy.internal][INFO] 2026-08-30 04:00:03,801: topic[/rosout] removing connection to /rosout
+[rospy.impl.masterslave][INFO] 2026-08-30 04:00:03,802: signal-2
+[rospy.core][INFO] 2026-08-30 04:00:04,400: signal_shutdown [atexit]

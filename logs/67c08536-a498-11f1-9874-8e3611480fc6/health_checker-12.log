@@ -1,0 +1,24 @@
+[rospy.client][INFO] 2026-08-30 17:29:59,461: init_node, name[/health_checker], pid[128]
+[xmlrpc][INFO] 2026-08-30 17:29:59,481: XML-RPC server binding to 0.0.0.0:0
+[xmlrpc][INFO] 2026-08-30 17:29:59,488: Started XML-RPC server [http://kamikaze:43877/]
+[rospy.init][INFO] 2026-08-30 17:29:59,496: ROS Slave URI: [http://kamikaze:43877/]
+[rospy.impl.masterslave][INFO] 2026-08-30 17:29:59,497: _ready: http://kamikaze:43877/
+[xmlrpc][INFO] 2026-08-30 17:29:59,507: xml rpc node: starting XML-RPC server
+[rospy.registration][INFO] 2026-08-30 17:29:59,509: Registering with master node http://kamikaze:11311
+[rospy.init][INFO] 2026-08-30 17:29:59,600: registered with master
+[rospy.rosout][INFO] 2026-08-30 17:29:59,602: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 17:29:59,718: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 17:29:59,724: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rosout][INFO] 2026-08-30 17:29:59,923: Health Checker initialized
+[rospy.internal][INFO] 2026-08-30 17:29:59,959: topic[/command_interpreter/node_health] adding connection to [http://kamikaze:39787/], count 0
+[rospy.internal][INFO] 2026-08-30 17:29:59,962: topic[/vehicle_state_monitor/node_health] adding connection to [http://kamikaze:36917/], count 0
+[rospy.internal][INFO] 2026-08-30 17:30:00,034: topic[/rosout] adding connection to [/rosout], count 0
+[rospy.internal][INFO] 2026-08-30 17:30:01,578: topic[/safety_monitor/node_health] adding connection to [http://kamikaze:42787/], count 0
+[rospy.internal][INFO] 2026-08-30 17:30:01,765: topic[/mission_manager/node_health] adding connection to [http://kamikaze:44621/], count 0
+[rospy.internal][INFO] 2026-08-30 17:30:04,251: topic[/target_tracking_controller/node_health] adding connection to [http://kamikaze:33983/], count 0
+[rosout][WARNING] 2026-08-30 17:30:04,935: Unhealthy nodes: 2
+[rosout][WARNING] 2026-08-30 17:30:04,942:   yolo_detector: No health report
+[rosout][WARNING] 2026-08-30 17:30:04,949:   target_tracking_controller: No health report
+[rosout][WARNING] 2026-08-30 17:30:09,929: Unhealthy nodes: 1
+[rosout][WARNING] 2026-08-30 17:30:09,941:   yolo_detector: No health report
+[rospy.internal][INFO] 2026-08-30 17:30:10,848: topic[/yolo_detector/node_health] adding connection to [http://kamikaze:37613/], count 0

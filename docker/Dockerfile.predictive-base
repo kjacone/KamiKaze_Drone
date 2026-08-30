@@ -1,0 +1,34 @@
+# syntax=docker/dockerfile:1.4
+
+# ============================================================
+# Predictive Controller Dependencies
+# ============================================================
+
+FROM kamikaze-drone-python:latest
+
+# Set platform to match your system
+ARG TARGETPLATFORM=linux/amd64
+ARG BUILDPLATFORM=linux/amd64
+# ------------------------------------------------------------
+# Predictive controller dependencies
+#
+# This layer is built ONCE.
+# Changes to predictive_controller.py will NOT reinstall these.
+# ------------------------------------------------------------
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python3 -m pip install \
+        --no-cache-dir \
+        --default-timeout=1000 \
+        --retries=5 \
+        scikit-learn \
+        pandas \
+        seaborn \
+        tensorflow-cpu==2.12.0 \
+        keras==2.12.0
+
+# ------------------------------------------------------------
+# TensorFlow runtime configuration
+# ------------------------------------------------------------
+
+ENV TF_CPP_MIN_LOG_LEVEL=2

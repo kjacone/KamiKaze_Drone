@@ -1,53 +1,38 @@
-# # Dockerfile.performance - Performance Monitoring Container
-# FROM ros:noetic-ros-base
+# syntax=docker/dockerfile:1.4
 
-# # Install system dependencies
-# RUN apt-get update && apt-get install -y \
-#     python3-pip \
-#     python3-psutil \
-#     curl \
-#     jq \
-#     bc \
-#     && rm -rf /var/lib/apt/lists/*
-
-# # Install Python monitoring packages
-# RUN pip3 install --no-cache-dir \
-#     prometheus-client==0.17.1 \
-#     influxdb-client==1.33.0 \
-#     psutil==5.9.5 \
-#     python-json-logger==2.0.7
-
-# WORKDIR /root
-
-# # Health check
-# HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-#     CMD curl -f http://localhost:9090/metrics || exit 1
-
-# CMD ["/bin/bash"]
-
-
+# ============================================================
 # Performance Monitor Service
-FROM kamikaze-drone:latest AS base
+# ============================================================
 
-# Install performance monitoring extras
-RUN python3 -m pip install \
-    --no-cache-dir \
-    prometheus-client \
-    prometheus-flask-exporter \
-    psutil \
-    gpustat \
-    nvidia-ml-py3
+FROM kamikaze-drone-python:latest
 
-# Create performance monitor user
-RUN useradd -m -s /bin/bash perfmon && \
-    mkdir -p /var/log/performance && \
-    chown -R perfmon:perfmon /var/log/performance
+# Set platform to match your system
+ARG TARGETPLATFORM=linux/amd64
+ARG BUILDPLATFORM=linux/amd64
 
-# Copy performance monitor script
-COPY drone_control/scripts/monitors/performance_monitor.py /opt/performance_monitor.py
-RUN chmod +x /opt/performance_monitor.py
+# ------------------------------------------------------------
+# Copy application code LAST
+#
+# Changes to performance_monitor.py will only rebuild from here.
+# All heavy dependencies remain cached.
+# ------------------------------------------------------------
+
+COPY --chmod=755 \
+    drone_control/scripts/utils/performance_monitor.py \
+    /opt/performance_monitor.py
+
+# ------------------------------------------------------------
+# Runtime user
+# ------------------------------------------------------------
 
 USER perfmon
+
 WORKDIR /home/perfmon
 
-CMD ["/bin/bash", "-c", "source /opt/ros/noetic/setup.bash && source /root/catkin_ws/devel/setup.bash && python3 /opt/performance_monitor.py"]
+# ------------------------------------------------------------
+# Runtime
+# ------------------------------------------------------------
+
+ENTRYPOINT ["/usr/local/bin/ros-entrypoint.sh"]
+
+CMD ["python3", "/opt/performance_monitor.py"]

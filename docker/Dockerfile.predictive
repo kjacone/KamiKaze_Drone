@@ -1,52 +1,33 @@
-# # Dockerfile.predictive - Predictive Controller Container
-# FROM ros:noetic-ros-base
+# syntax=docker/dockerfile:1.4
 
-# # Install dependencies
-# RUN apt-get update && apt-get install -y \
-#     python3-pip \
-#     python3-numpy \
-#     python3-scipy \
-#     && rm -rf /var/lib/apt/lists/*
-
-# # Install PyTorch and dependencies
-# RUN pip3 install --no-cache-dir \
-#     --index-url https://download.pytorch.org/whl/cpu \
-#     torch==2.0.1 \
-#     torchvision==0.15.2 \
-#     numpy==1.24.3 \
-#     scipy==1.10.1
-
-# WORKDIR /root
-
-# # Health check
-# HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-#     CMD rosnode list | grep -q predictive_controller || exit 1
-
-# CMD ["/bin/bash"]
-
-
-
+# ============================================================
 # Predictive Controller Service
-FROM kamikaze-drone:latest AS base
+# ============================================================
 
-# Install predictive control dependencies
-RUN python3 -m pip install \
-    --no-cache-dir \
-    scikit-learn \
-    pandas \
-    numpy \
-    scipy \
-    matplotlib \
-    seaborn \
-    tensorflow-cpu \
-    keras
+FROM kamikaze-drone-predictive:latest
 
-# Copy predictive controller
-COPY drone_control/scripts/controllers/predictive_controller.py /opt/predictive_controller.py
-RUN chmod +x /opt/predictive_controller.py
+# Set platform to match your system
+ARG TARGETPLATFORM=linux/amd64
+ARG BUILDPLATFORM=linux/amd64
 
-# Create model directory
-RUN mkdir -p /root/models/predictive
-VOLUME /root/models/predictive
 
-CMD ["/bin/bash", "-c", "source /opt/ros/noetic/setup.bash && source /root/catkin_ws/devel/setup.bash && python3 /opt/predictive_controller.py"]
+
+
+
+# ------------------------------------------------------------
+# Copy application code LAST
+# ------------------------------------------------------------
+
+COPY --chmod=755 \
+    drone_control/scripts/controllers/predictive_controller.py \
+    /opt/predictive_controller.py
+
+# ------------------------------------------------------------
+# Runtime
+# ------------------------------------------------------------
+
+WORKDIR /opt
+
+ENTRYPOINT ["/usr/local/bin/ros-entrypoint.sh"]
+
+CMD ["python3", "/opt/predictive_controller.py"]

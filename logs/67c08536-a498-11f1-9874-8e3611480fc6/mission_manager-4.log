@@ -1,0 +1,19 @@
+[rospy.client][INFO] 2026-08-30 17:30:01,247: init_node, name[/mission_manager], pid[120]
+[xmlrpc][INFO] 2026-08-30 17:30:01,270: XML-RPC server binding to 0.0.0.0:0
+[xmlrpc][INFO] 2026-08-30 17:30:01,274: Started XML-RPC server [http://kamikaze:44621/]
+[rospy.impl.masterslave][INFO] 2026-08-30 17:30:01,275: _ready: http://kamikaze:44621/
+[rospy.init][INFO] 2026-08-30 17:30:01,280: ROS Slave URI: [http://kamikaze:44621/]
+[rospy.registration][INFO] 2026-08-30 17:30:01,283: Registering with master node http://kamikaze:11311
+[xmlrpc][INFO] 2026-08-30 17:30:01,292: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 17:30:01,398: registered with master
+[rospy.rosout][INFO] 2026-08-30 17:30:01,400: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 17:30:01,522: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 17:30:01,527: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rospy.internal][INFO] 2026-08-30 17:30:01,782: topic[/mission_manager/node_health] adding connection to [/health_checker], count 0
+[rosout][INFO] 2026-08-30 17:30:01,783: Mission Manager initialized
+[rospy.internal][INFO] 2026-08-30 17:30:01,798: topic[/safety_status] adding connection to [http://kamikaze:42787/], count 0
+[rospy.internal][INFO] 2026-08-30 17:30:01,871: topic[/rosout] adding connection to [/rosout], count 0
+[rospy.internal][INFO] 2026-08-30 17:30:04,240: topic[/mission_status] adding connection to [/target_tracking_controller], count 0
+[rospy.internal][INFO] 2026-08-30 17:30:04,248: topic[/tracked_targets] adding connection to [http://kamikaze:33983/], count 0
+[rospy.internal][INFO] 2026-08-30 17:30:04,775: topic[/mission_status] adding connection to [/trajectory_planner], count 1
+[rospy.internal][INFO] 2026-08-30 17:30:10,850: topic[/mission_status] adding connection to [/yolo_detector], count 2

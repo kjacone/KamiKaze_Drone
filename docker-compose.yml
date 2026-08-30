@@ -1,241 +1,612 @@
+# ============================================================
+# Docker Compose - Drone Simulation / ROS Infrastructure
+# ============================================================
+#
+# Basic:
+#   docker compose up --build kamikaze
+#
+# Predictive:
+#   docker compose --profile predictive up --build
+#
+# Full:
+#   docker compose --profile full up --build
+#
+# Monitoring:
+#   docker compose --profile monitoring up --build
+#
+# Validate:
+#   docker compose config
+#
+# ============================================================
 
 services:
-  # Main drone service
-  ikaze:
-    # image: kamikaze-drone:latest
-    # If you want Compose to build it, uncomment:
+
+  # ==========================================================
+  # Main ROS / Drone Service
+  # ==========================================================
+
+  kamikaze:
     build:
       context: .
       dockerfile: Dockerfile
+
+    image: kamikaze-drone:latest
+
+    # M1/M2/M3/M4 Macs use ARM64 natively.
+    # Keep amd64 only if your Dockerfile/dependencies require it.
     platform: linux/amd64
-    container_name: ikaze_drone
+
+    container_name: kamikaze_drone
     hostname: kamikaze
+
     environment:
-      - ROS_HOSTNAME=localhost
-      - ROS_IP=127.0.0.1
-      - ROS_MASTER_URI=http://localhost:11311
-      - ENABLE_GUI=false
-      - ENABLE_PERFORMANCE_MONITORING=true
-      - PYTHONUNBUFFERED=1
+      ROS_HOSTNAME: kamikaze
+      ROS_IP: kamikaze
+      ROS_MASTER_URI: http://kamikaze:11311
+
+      ENABLE_GUI: "false"
+      ENABLE_PERFORMANCE_MONITORING: "true"
+      ENABLE_SIMULATION: "false"
+      PYTHONUNBUFFERED: "1"
+
+      DISPLAY: ${DISPLAY:-:0}
+      QT_X11_NO_MITSHM: "1"
+
     volumes:
-      - ../logs:/root/.ros/log
-      - ../data:/root/data
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    network_mode: host
+      - ./logs:/root/.ros/log
+      - ./data:/root/data
+
+      # Optional model mount.
+      # Make sure ./yolov8s.pt exists before starting.
+      - ./yolov8s.pt:/root/catkin_ws/src/drone_control/data/models/yolov8s.pt:ro
+
+    # Do NOT mount Docker socket unless the application genuinely
+    # needs to inspect Docker.
+    #
+    # - /var/run/docker.sock:/var/run/docker.sock:ro
+
+    # X11 is disabled because ENABLE_GUI=false.
+    #
+    # If GUI is required later, enable these mounts:
+    #
+    # - /tmp/.X11-unix:/tmp/.X11-unix:ro
+    # - ${HOME}/.Xauthority:/root/.Xauthority:ro
+
+    networks:
+      - drone_net
+
+    ports:
+      - "11311:11311"  # ROS Master
+      - "11312:11312"  # ROS parameter server
+
     restart: unless-stopped
+
     deploy:
       resources:
         limits:
-          cpus: '4'
+          cpus: "4"
           memory: 8G
         reservations:
-          cpus: '2'
+          cpus: "2"
           memory: 4G
+
     logging:
-      driver: "json-file"
+      driver: json-file
       options:
         max-size: "10m"
         max-file: "5"
         compress: "true"
+
     healthcheck:
-      test: ["CMD", "rosnode", "list"]
+      test:
+        [
+          "CMD-SHELL",
+          "bash -c 'source /opt/ros/noetic/setup.bash && rosnode list 2>/dev/null | grep -q . || exit 1'"
+        ]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 30s
+      retries: 5
+      start_period: 45s
 
-  # Predictive controller (optional)
+
+  # ==========================================================
+  # Predictive Controller
+  # ==========================================================
+
   predictive:
-    image: predictive-controller:latest   # you must build this separately
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.predictive
+
+    image: predictive-controller:latest
+
     platform: linux/amd64
+
     container_name: predictive_controller
     hostname: predictive
+
     environment:
-      - ROS_HOSTNAME=localhost
-      - ROS_MASTER_URI=http://localhost:11311
-    network_mode: host
+      ROS_HOSTNAME: predictive
+      ROS_IP: predictive
+      ROS_MASTER_URI: http://kamikaze:11311
+      PYTHONUNBUFFERED: "1"
+
+    volumes:
+      - ./logs:/root/.ros/log
+      - ./data:/root/data
+
+    networks:
+      - drone_net
+
     restart: unless-stopped
+
     depends_on:
       kamikaze:
         condition: service_healthy
+
     profiles:
-      - full
       - predictive
+      - full
+
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 4G
+        reservations:
+          cpus: "1"
+          memory: 2G
+
     logging:
-      driver: "json-file"
+      driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
+        compress: "true"
 
-  # Trajectory planner (optional)
+
+  # ==========================================================
+  # Trajectory Planner
+  # ==========================================================
+
   trajectory:
-    image: trajectory-planner:latest      # you must build this separately
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.trajectory
+
+    image: trajectory-planner:latest
+
     platform: linux/amd64
+
     container_name: trajectory_planner
     hostname: trajectory
+
     environment:
-      - ROS_HOSTNAME=localhost
-      - ROS_MASTER_URI=http://localhost:11311
-    network_mode: host
+      ROS_HOSTNAME: trajectory
+      ROS_IP: trajectory
+      ROS_MASTER_URI: http://kamikaze:11311
+      PYTHONUNBUFFERED: "1"
+
+    volumes:
+      - ./logs:/root/.ros/log
+      - ./data:/root/data
+      - ./drone_control:/root/catkin_ws/src/drone_control
+
+    networks:
+      - drone_net
+
     restart: unless-stopped
+
     depends_on:
       kamikaze:
         condition: service_healthy
+
     profiles:
-      - full
       - trajectory
+      - full
+
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 4G
+        reservations:
+          cpus: "1"
+          memory: 2G
+
     logging:
-      driver: "json-file"
+      driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
+        compress: "true"
 
-  # Performance monitor
+
+  # ==========================================================
+  # Performance Monitor
+  # ==========================================================
+
   performance:
-    image: performance-monitor:latest     # you must build this separately
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.performance
+
+    image: performance-monitor:latest
+
     platform: linux/amd64
+
     container_name: performance_monitor
     hostname: performance
+
     environment:
-      - ROS_HOSTNAME=localhost
-      - ROS_MASTER_URI=http://localhost:11311
-      - PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus
+      ROS_HOSTNAME: performance
+      ROS_IP: performance
+      ROS_MASTER_URI: http://kamikaze:11311
+      PROMETHEUS_MULTIPROC_DIR: /tmp/prometheus
+      PYTHONUNBUFFERED: "1"
+
     volumes:
-      - ../logs/performance:/var/log/performance
+      - ./logs/performance:/var/log/performance
+      - ./logs:/root/.ros/log
+      - ./data:/root/data
+
+      # Read-only host metrics
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
-    network_mode: host
+
+    networks:
+      - drone_net
+
+    ports:
+      - "8000:8000"  # Performance metrics endpoint
+
     restart: unless-stopped
+
     depends_on:
       kamikaze:
         condition: service_healthy
+
     profiles:
-      - full
       - performance
       - monitoring
+      - full
+
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: "1"
           memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 1G
+
     logging:
-      driver: "json-file"
+      driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
+        compress: "true"
 
-  # Monitoring stack (only with 'monitoring' or 'full' profile)
+
+  # ==========================================================
+  # Prometheus
+  # ==========================================================
+
   prometheus:
     image: prom/prometheus:v2.45.0
+
     platform: linux/amd64
+
     container_name: prometheus
     hostname: prometheus
-    network_mode: host
+
+    networks:
+      - drone_net
+
+    ports:
+      - "9090:9090"
+
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./monitoring/prometheus_rules.yml:/etc/prometheus/rules.yml:ro
+      - ./docker/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./docker/monitoring/prometheus_rules.yml:/etc/prometheus/rules.yml:ro
       - prometheus_data:/prometheus
+
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=30d'
-      - '--storage.tsdb.retention.size=20GB'
-      - '--web.enable-lifecycle'
-      - '--web.enable-admin-api'
-      - '--rule-files=/etc/prometheus/rules.yml'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=30d"
+      - "--storage.tsdb.retention.size=20GB"
+      - "--web.enable-lifecycle"
+      - "--web.enable-admin-api"
+      - "--web.listen-address=0.0.0.0:9090"
+
     restart: unless-stopped
+
     profiles:
       - monitoring
       - full
+
     logging:
-      driver: "json-file"
+      driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
+        compress: "true"
+
+
+  # ==========================================================
+  # Grafana
+  # ==========================================================
 
   grafana:
     image: grafana/grafana:10.1.0
+
     platform: linux/amd64
+
     container_name: grafana
     hostname: grafana
-    network_mode: host
+
+    networks:
+      - drone_net
+
+    ports:
+      - "3000:3000"
+
     environment:
-      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
-      - GF_SERVER_HTTP_PORT=3000
-      - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-clock-panel
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+
+      GF_SERVER_HTTP_PORT: "3000"
+      GF_SERVER_ROOT_URL: http://localhost:3000
+
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_DASHBOARDS_MIN_REFRESH_INTERVAL: "10s"
+
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
-      - ./monitoring/grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
-      - ./monitoring/grafana-dashboard.json:/var/lib/grafana/dashboards/drone.json:ro
+
+      - ./docker/monitoring/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+
+      - ./docker/monitoring/grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+
+      - ./docker/monitoring/grafana-dashboard.json:/etc/grafana/provisioning/dashboards/drone.json:ro
+
     depends_on:
-      - prometheus
+      prometheus:
+        condition: service_started
+
     restart: unless-stopped
+
     profiles:
       - monitoring
       - full
+
     logging:
-      driver: "json-file"
+      driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
+        compress: "true"
+
+
+  # ==========================================================
+  # InfluxDB
+  # ==========================================================
+
+  influxdb:
+    image: influxdb:2.7-alpine
+
+    platform: linux/amd64
+
+    container_name: influxdb
+    hostname: influxdb
+
+    networks:
+      - drone_net
+
+    ports:
+      - "8086:8086"
+
+    environment:
+      INFLUXDB_DB: drone_metrics
+      INFLUXDB_ADMIN_USER: admin
+      INFLUXDB_ADMIN_PASSWORD: admin
+      INFLUXDB_HTTP_AUTH_ENABLED: "true"
+
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+
+    restart: unless-stopped
+
+    profiles:
+      - monitoring
+      - full
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        compress: "true"
+
+
+  # ==========================================================
+  # Node Exporter
+  # ==========================================================
 
   node-exporter:
     image: prom/node-exporter:v1.6.0
+
     platform: linux/amd64
+
     container_name: node_exporter
     hostname: node-exporter
+
     network_mode: host
     pid: host
+
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
+
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--path.rootfs=/rootfs'
-      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)'
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
+      - "--web.listen-address=0.0.0.0:9100"
+
     restart: unless-stopped
+
     profiles:
       - monitoring
       - full
 
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        compress: "true"
+
+
+  # ==========================================================
+  # cAdvisor
+  # ==========================================================
+
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.47.0
+
     platform: linux/amd64
+
     container_name: cadvisor
     hostname: cadvisor
+
     network_mode: host
+
     privileged: true
+
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+
     command:
-      - '--docker_only=true'
-      - '--housekeeping_interval=30s'
-      - '--disable_metrics=disk,network,tcp,udp,percpu,sched,process,hugetlb,referenced_memory'
+      - "--docker_only=true"
+      - "--housekeeping_interval=30s"
+      - "--listen_ip=0.0.0.0"
+      - "--port=8080"
+      - "--disable_metrics=disk,network,tcp,udp,percpu,sched,process,hugetlb,referenced_memory"
+
     restart: unless-stopped
+
     profiles:
       - monitoring
       - full
 
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        compress: "true"
+
+
+  # ==========================================================
+  # Nginx
+  # ==========================================================
+
+  nginx:
+    image: nginx:1.25-alpine
+
+    platform: linux/amd64
+
+    container_name: nginx_proxy
+    hostname: nginx
+
+    networks:
+      - drone_net
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d:ro
+
+    depends_on:
+      grafana:
+        condition: service_started
+
+      prometheus:
+        condition: service_started
+
+    restart: unless-stopped
+
+    profiles:
+      - nginx
+      - full
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        compress: "true"
+
+
+  # ==========================================================
+  # Python Dependencies Builder
+  # ==========================================================
+
+  python-deps:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.python-deps
+    image: kamikaze-drone-python:latest
+    profiles:
+      - build
+
+
+  # ==========================================================
+  # Predictive Base Builder
+  # ==========================================================
+
+  predictive-base:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.predictive-base
+    image: kamikaze-drone-predictive:latest
+    profiles:
+      - build
+
+
+# ============================================================
+# Persistent Volumes
+# ============================================================
+
 volumes:
+
   prometheus_data:
     name: prometheus_data
+
   grafana_data:
     name: grafana_data
+    
+  influxdb_data:
+    name: influxdb_data
+
+
+
+# ============================================================
+# Networks
+# ============================================================
+
+networks:
+
+  drone_net:
+    driver: bridge
+    name: drone_network

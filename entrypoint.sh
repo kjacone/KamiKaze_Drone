@@ -1,47 +1,137 @@
 #!/bin/bash
+
 set -e
 
+echo "============================================"
+echo " Starting Kamikaze Drone Simulation Container"
+echo "============================================"
+
+# ------------------------------------------------------------
 # ROS Environment
-export ROS_HOSTNAME=${ROS_HOSTNAME:-localhost}
-export ROS_IP=${ROS_IP:-127.0.0.1}
-export ROS_MASTER_URI=${ROS_MASTER_URI:-http://localhost:11311}
+# ------------------------------------------------------------
 
-# Clean up stale X server state
-rm -f /tmp/.X1-lock /tmp/.X11-unix/X1
+export ROS_HOSTNAME="${ROS_HOSTNAME:-localhost}"
+export ROS_IP="${ROS_IP:-127.0.0.1}"
+export ROS_MASTER_URI="${ROS_MASTER_URI:-http://localhost:11311}"
 
+echo "ROS_HOSTNAME=${ROS_HOSTNAME}"
+echo "ROS_IP=${ROS_IP}"
+echo "ROS_MASTER_URI=${ROS_MASTER_URI}"
+
+# ------------------------------------------------------------
 # Source ROS
+# ------------------------------------------------------------
+
 source /opt/ros/noetic/setup.bash
-source /root/catkin_ws/devel/setup.bash
 
-# Start GUI if enabled
-if [ -n "$DISPLAY" ] || [ -n "$ENABLE_GUI" ]; then
+if [ -f /root/catkin_ws/devel/setup.bash ]; then
+    source /root/catkin_ws/devel/setup.bash
+fi
+
+# ------------------------------------------------------------
+# Python
+# ------------------------------------------------------------
+
+export PYTHONUNBUFFERED=1
+
+export PYTHONPATH="/root/catkin_ws/devel/lib/python3/dist-packages:${PYTHONPATH:-}"
+
+# ------------------------------------------------------------
+# Clean stale X11 state
+# ------------------------------------------------------------
+
+rm -f /tmp/.X1-lock
+rm -f /tmp/.X11-unix/X1
+
+# ------------------------------------------------------------
+# GUI
+# ------------------------------------------------------------
+
+if [ "${ENABLE_GUI:-false}" = "true" ]; then
+
     echo "Starting GUI support..."
+
+    export DISPLAY=:1
+
     Xvfb :1 -screen 0 1280x800x24 &
+
     sleep 2
-    DISPLAY=:1 fluxbox &
-    x11vnc -display :1 -forever -nopw -quiet &
-    websockify --web=/usr/share/novnc 8080 localhost:5900 &
-    echo "GUI available at http://localhost:8080/vnc.html"
-fi
 
-# Set Python path
-export PYTHONPATH=/root/catkin_ws/devel/lib/python3/dist-packages:$PYTHONPATH
+    fluxbox &
 
-# Launch simulation if enabled
-if [ "${ENABLE_SIMULATION:-false}" = "true" ]; then
-    echo "Starting PX4 SITL simulation..."
-    # Note: PX4 SITL needs to be built separately
-    # cd /px4 && make px4_sitl gazebo
-    # roslaunch px4 posix_sitl.launch &
-    # sleep 5
-    roslaunch mavros px4.launch fcu_url:=udp://:14540@127.0.0.1:14557 &
-    sleep 5
-fi
+    x11vnc \
+        -display :1 \
+        -forever \
+        -nopw \
+        -quiet &
 
-# Execute command
-if [ $# -eq 0 ]; then
-    # Default launch
-    exec roslaunch drone_control kamikaze.launch mode:=production
+    websockify \
+        --web=/usr/share/novnc \
+        8080 \
+        localhost:5900 &
+
+    echo "GUI available at:"
+    echo "http://localhost:8080/vnc.html"
+
 else
+
+    echo "GUI disabled."
+
+fi
+
+# ------------------------------------------------------------
+# Simulation
+# ------------------------------------------------------------
+
+if [ "${ENABLE_SIMULATION:-false}" = "true" ]; then
+
+    echo "Simulation mode enabled."
+
+    # Start only the simulation components that are
+    # actually available in this image.
+    #
+    # Keep simulator startup separate from the ROS
+    # application so failures are easier to diagnose.
+
+    if command -v roscore >/dev/null 2>&1; then
+
+        echo "Checking ROS master..."
+
+        if ! rosnode list >/dev/null 2>&1; then
+            echo "Starting ROS master..."
+
+            roscore > /tmp/roscore.log 2>&1 &
+
+            ROSCORE_PID=$!
+
+            sleep 5
+
+            if ! kill -0 "$ROSCORE_PID" 2>/dev/null; then
+                echo "ERROR: roscore failed to start."
+                cat /tmp/roscore.log
+                exit 1
+            fi
+        fi
+
+    fi
+
+fi
+
+# ------------------------------------------------------------
+# Default command
+# ------------------------------------------------------------
+
+if [ "$#" -eq 0 ]; then
+
+    echo "Starting default ROS application..."
+
+    exec roslaunch drone_control kamikaze.launch mode:=production
+
+else
+
+    echo "Executing custom command:"
+    echo "$@"
+
     exec "$@"
+
 fi

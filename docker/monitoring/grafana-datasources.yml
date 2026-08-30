@@ -4,7 +4,7 @@ datasources:
   - name: Prometheus
     type: prometheus
     access: proxy
-    url: http://localhost:9090
+    url: http://prometheus:9090
     isDefault: true
     version: 1
     editable: true
@@ -12,7 +12,7 @@ datasources:
   - name: InfluxDB
     type: influxdb
     access: proxy
-    url: http://localhost:8086
+    url: http://influxdb:8086
     database: drone_metrics
     user: admin
     password: admin

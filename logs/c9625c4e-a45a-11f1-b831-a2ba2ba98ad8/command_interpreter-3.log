@@ -1,0 +1,14 @@
+[rospy.client][INFO] 2026-08-30 10:08:53,026: init_node, name[/command_interpreter], pid[102]
+[xmlrpc][INFO] 2026-08-30 10:08:53,035: XML-RPC server binding to 0.0.0.0:0
+[xmlrpc][INFO] 2026-08-30 10:08:53,038: Started XML-RPC server [http://kamikaze:33509/]
+[rospy.init][INFO] 2026-08-30 10:08:53,039: ROS Slave URI: [http://kamikaze:33509/]
+[rospy.impl.masterslave][INFO] 2026-08-30 10:08:53,039: _ready: http://kamikaze:33509/
+[rospy.registration][INFO] 2026-08-30 10:08:53,043: Registering with master node http://kamikaze:11311
+[xmlrpc][INFO] 2026-08-30 10:08:53,047: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 10:08:53,141: registered with master
+[rospy.rosout][INFO] 2026-08-30 10:08:53,141: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 10:08:53,249: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 10:08:53,256: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rosout][INFO] 2026-08-30 10:08:53,461: Command Interpreter initialized
+[rospy.internal][INFO] 2026-08-30 10:08:53,831: topic[/rosout] adding connection to [/rosout], count 0
+[rospy.internal][INFO] 2026-08-30 10:08:54,528: topic[/command_interpreter/node_health] adding connection to [/health_checker], count 0

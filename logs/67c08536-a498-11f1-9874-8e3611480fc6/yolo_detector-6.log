@@ -1,0 +1,19 @@
+[rospy.client][INFO] 2026-08-30 17:30:10,671: init_node, name[/yolo_detector], pid[122]
+[xmlrpc][INFO] 2026-08-30 17:30:10,674: XML-RPC server binding to 0.0.0.0:0
+[xmlrpc][INFO] 2026-08-30 17:30:10,676: Started XML-RPC server [http://kamikaze:37613/]
+[rospy.impl.masterslave][INFO] 2026-08-30 17:30:10,676: _ready: http://kamikaze:37613/
+[rospy.init][INFO] 2026-08-30 17:30:10,677: ROS Slave URI: [http://kamikaze:37613/]
+[rospy.registration][INFO] 2026-08-30 17:30:10,679: Registering with master node http://kamikaze:11311
+[xmlrpc][INFO] 2026-08-30 17:30:10,680: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 17:30:10,783: registered with master
+[rospy.rosout][INFO] 2026-08-30 17:30:10,783: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 17:30:10,788: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 17:30:10,790: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rosout][INFO] 2026-08-30 17:30:10,805: Loading YOLO model from: /PX4-Autopilot/yolov8s.pt
+[rospy.internal][INFO] 2026-08-30 17:30:10,821: topic[/mission_status] adding connection to [http://kamikaze:44621/], count 0
+[rospy.internal][INFO] 2026-08-30 17:30:10,861: topic[/yolo_detector/node_health] adding connection to [/health_checker], count 0
+[rospy.internal][INFO] 2026-08-30 17:30:11,042: topic[/rosout] adding connection to [/rosout], count 0
+[rosout][INFO] 2026-08-30 17:30:11,330: YOLO model loaded successfully!
+[rosout][INFO] 2026-08-30 17:30:11,347: YOLO Detector initialized in production mode
+[rosout][INFO] 2026-08-30 17:30:11,354: Vehicle classes: [2, 3, 5, 6, 7]
+[rospy.internal][INFO] 2026-08-30 17:30:11,371: topic[/detected_objects] adding connection to [/target_tracking_controller], count 0

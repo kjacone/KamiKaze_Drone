@@ -728,24 +728,39 @@ docker logs -f kamikaze_drone
 docker exec kamikaze_drone ps aux | grep -E 'px4|mavros|gz|ros'
 ```
 
-### Restart the Container
-
-```bash
-docker restart kamikaze_drone
-```
-
-### Rebuild After Code Changes
-
-```bash
-docker-compose up -d --build
-```
 
 ### Rebuild from Scratch
 
 ```bash
-docker-compose down
-docker-compose build kamikaze --no-cache
-docker-compose --profile monitoring up -d
+# Start full stack
+docker compose --profile full up --build
+
+# Start with monitoring only
+docker compose --profile monitoring up --build
+
+# Start predictive only
+docker compose --profile predictive up --build
+
+# Stop everything
+docker compose --profile full down
+
+# Clean everything including volumes
+docker compose --profile full down -v
+
+
+
+# Check all containers are running
+docker compose --profile full ps
+
+# Check ROS nodes
+docker exec kamikaze_drone rosnode list
+
+# Check predictive can connect to ROS
+docker exec predictive_controller rosnode list
+
+# Check services are accessible
+curl http://localhost:9090  # Prometheus
+curl http://localhost:3000  # Grafana
 ```
 
 ### Quick ROS Diagnostics

@@ -1,0 +1,13 @@
+[rospy.client][INFO] 2026-08-30 03:09:44,283: init_node, name[/sensor_fusion], pid[94]
+[xmlrpc][INFO] 2026-08-30 03:09:44,295: XML-RPC server binding to 127.0.0.1:0
+[xmlrpc][INFO] 2026-08-30 03:09:44,299: Started XML-RPC server [http://localhost:37925/]
+[rospy.init][INFO] 2026-08-30 03:09:44,300: ROS Slave URI: [http://localhost:37925/]
+[rospy.impl.masterslave][INFO] 2026-08-30 03:09:44,302: _ready: http://localhost:37925/
+[rospy.registration][INFO] 2026-08-30 03:09:44,308: Registering with master node http://localhost:11311
+[xmlrpc][INFO] 2026-08-30 03:09:44,310: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 03:09:44,403: registered with master
+[rospy.rosout][INFO] 2026-08-30 03:09:44,404: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 03:09:44,444: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 03:09:44,447: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rosout][INFO] 2026-08-30 03:09:44,496: Sensor Fusion initialized
+[rospy.internal][INFO] 2026-08-30 03:09:44,776: topic[/rosout] adding connection to [/rosout], count 0

@@ -1,0 +1,28 @@
+[rospy.client][INFO] 2026-08-30 09:42:47,755: init_node, name[/mission_manager], pid[90]
+[xmlrpc][INFO] 2026-08-30 09:42:47,770: XML-RPC server binding to 127.0.0.1:0
+[xmlrpc][INFO] 2026-08-30 09:42:47,775: Started XML-RPC server [http://localhost:35517/]
+[rospy.init][INFO] 2026-08-30 09:42:47,775: ROS Slave URI: [http://localhost:35517/]
+[rospy.impl.masterslave][INFO] 2026-08-30 09:42:47,775: _ready: http://localhost:35517/
+[rospy.registration][INFO] 2026-08-30 09:42:47,828: Registering with master node http://localhost:11311
+[xmlrpc][INFO] 2026-08-30 09:42:47,838: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 09:42:47,878: registered with master
+[rospy.rosout][INFO] 2026-08-30 09:42:47,878: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 09:42:47,952: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 09:42:47,956: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rosout][INFO] 2026-08-30 09:42:48,045: Mission Manager initialized
+[rospy.internal][INFO] 2026-08-30 09:42:48,149: topic[/rosout] adding connection to [/rosout], count 0
+[rospy.internal][INFO] 2026-08-30 09:42:48,154: topic[/safety_status] adding connection to [http://localhost:33533/], count 0
+[rospy.internal][INFO] 2026-08-30 09:42:48,644: topic[/mission_manager/node_health] adding connection to [/health_checker], count 0
+[rospy.internal][INFO] 2026-08-30 09:42:48,918: topic[/mission_status] adding connection to [/target_tracking_controller], count 0
+[rospy.internal][INFO] 2026-08-30 09:42:48,975: topic[/tracked_targets] adding connection to [http://localhost:40415/], count 0
+[rospy.internal][INFO] 2026-08-30 09:42:51,514: topic[/mission_status] adding connection to [/yolo_detector], count 1
+[rosout][WARNING] 2026-08-30 09:43:30,403: Could not process inbound connection: topic types do not match: [std_msgs/String] vs. [drone_control/MissionStatus]{'callerid': '/trajectory_planner', 'md5sum': '992ce8a1687cec8c8bd883ec73ca41d1', 'message_definition': 'string data\n', 'tcp_nodelay': '0', 'topic': '/mission_status', 'type': 'std_msgs/String'}
+[rospy.core][INFO] 2026-08-30 09:51:50,713: signal_shutdown [signal-2]
+[rospy.internal][INFO] 2026-08-30 09:51:50,757: topic[/rosout] removing connection to /rosout
+[rospy.internal][INFO] 2026-08-30 09:51:50,765: topic[/tracked_targets] removing connection to http://localhost:40415/
+[rospy.internal][INFO] 2026-08-30 09:51:50,770: topic[/mission_status] removing connection to /target_tracking_controller
+[rospy.internal][INFO] 2026-08-30 09:51:50,770: topic[/mission_status] removing connection to /yolo_detector
+[rospy.internal][INFO] 2026-08-30 09:51:50,772: topic[/mission_manager/node_health] removing connection to /health_checker
+[rospy.internal][INFO] 2026-08-30 09:51:50,773: topic[/safety_status] removing connection to http://localhost:33533/
+[rospy.impl.masterslave][INFO] 2026-08-30 09:51:50,773: signal-2
+[rospy.core][INFO] 2026-08-30 09:51:51,332: signal_shutdown [atexit]

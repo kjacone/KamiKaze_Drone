@@ -1,0 +1,17 @@
+[rospy.client][INFO] 2026-08-30 10:53:20,707: init_node, name[/sensor_fusion], pid[108]
+[xmlrpc][INFO] 2026-08-30 10:53:20,720: XML-RPC server binding to 0.0.0.0:0
+[xmlrpc][INFO] 2026-08-30 10:53:20,725: Started XML-RPC server [http://kamikaze:44885/]
+[rospy.init][INFO] 2026-08-30 10:53:20,726: ROS Slave URI: [http://kamikaze:44885/]
+[rospy.impl.masterslave][INFO] 2026-08-30 10:53:20,726: _ready: http://kamikaze:44885/
+[rospy.registration][INFO] 2026-08-30 10:53:20,732: Registering with master node http://kamikaze:11311
+[xmlrpc][INFO] 2026-08-30 10:53:20,732: xml rpc node: starting XML-RPC server
+[rospy.init][INFO] 2026-08-30 10:53:20,827: registered with master
+[rospy.rosout][INFO] 2026-08-30 10:53:20,828: initializing /rosout core topic
+[rospy.rosout][INFO] 2026-08-30 10:53:20,938: connected to core topic /rosout
+[rospy.simtime][INFO] 2026-08-30 10:53:21,008: /use_sim_time is not set, will not subscribe to simulated time [/clock] topic
+[rosout][INFO] 2026-08-30 10:53:21,312: Sensor Fusion initialized
+[rospy.internal][INFO] 2026-08-30 10:53:21,543: topic[/rosout] adding connection to [/rosout], count 0
+[rospy.core][INFO] 2026-08-30 17:02:56,029: signal_shutdown [signal-2]
+[rospy.internal][INFO] 2026-08-30 17:02:56,068: topic[/rosout] removing connection to /rosout
+[rospy.impl.masterslave][INFO] 2026-08-30 17:02:56,070: signal-2
+[rospy.core][INFO] 2026-08-30 17:02:56,685: signal_shutdown [atexit]
