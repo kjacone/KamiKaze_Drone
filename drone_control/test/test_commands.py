@@ -5,9 +5,11 @@ Unit tests for command interpreter
 """
 
 import unittest
+
 import rospy
-import json
-from drone_control.msg import Command, CommandResponse
+
+from drone_control import Command, CommandResponse
+
 
 class TestCommandInterpreter(unittest.TestCase):
     """Test command interpreter functionality"""

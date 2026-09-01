@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   mavros_msgs
   message_generation
 )
-
+catkin_python_setup()
 # Declare custom messages
 add_message_files(
   FILES
@@ -79,11 +79,16 @@ catkin_install_python(PROGRAMS
   scripts/monitors/health_checker.py
   
   # Utils
-  scripts/utils/error_handler.py
-  scripts/utils/message_validator.py
-  scripts/utils/parameter_validator.py
-  scripts/utils/reload_parameters.py
-  scripts/utils/generate_schema_doc.py
+  src/drone_control/utils/error_handler.py
+  src/drone_control/utils/message_validator.py
+  src/drone_control/utils/parameter_validator.py
+  src/drone_control/utils/reload_parameters.py
+  src/drone_control/utils/generate_schema_doc.py
+
+  # lib
+  src/drone_control/lib/control_lib.py
+  src/drone_control/lib/mission_lib.py
+  src/drone_control/lib/safety_lib.py
   
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

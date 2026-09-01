@@ -4,39 +4,24 @@ drone_control/scripts/controllers/waypoint_navigator.py
 Advanced waypoint navigation with automatic route calculation
 """
 
-import rospy
-import numpy as np
+import json
+import math
+import os
+import time
 from enum import Enum
+
+import numpy as np
+import rospy
+import yaml
 from geometry_msgs.msg import PoseStamped, Twist
 from nav_msgs.msg import Odometry, Path
 from sensor_msgs.msg import NavSatFix
-from drone_control.msg import TrackedTarget
 from std_msgs.msg import String
-import sys
-import os
-import math
-import json
-import time
-from typing import List, Tuple, Optional, Dict, Set
-from datetime import datetime, timedelta
-import yaml
 
-sys.path.append(os.path.join(os.path.dirname(__file__), 'utils'))
+from drone_control import ControlLibrary
+from drone_control.msg import TrackedTarget
+from drone_control.utils import ErrorHandler
 
-try:
-    from error_handler import ErrorHandler
-    from lib.control_lib import ControlLibrary
-except ImportError:
-    class ErrorHandler:
-        def __init__(self, node_name):
-            self.node_name = node_name
-        def handle_error(self, error, context=None):
-            rospy.logerr(f"[{self.node_name}] {error}: {context}")
-    
-    class ControlLibrary:
-        @staticmethod
-        def calculate_velocity_to_target(current, target, max_speed):
-            return Twist()
 
 class WaypointStatus(Enum):
     IDLE = "idle"

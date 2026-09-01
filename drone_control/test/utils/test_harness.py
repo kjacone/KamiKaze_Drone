@@ -8,8 +8,8 @@ import rospy
 import time
 import unittest
 import json
-from typing import Dict, Any, Optional
-from drone_control.msg import Command, CommandResponse
+from typing import Dict, Optional
+from drone_control import Command, CommandResponse
 from std_msgs.msg import String
 
 class TestHarness:

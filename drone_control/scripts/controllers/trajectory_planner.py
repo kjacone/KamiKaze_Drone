@@ -1,32 +1,34 @@
-import rospy
-import numpy as np
+#!/usr/bin/env python3
+"""
+drone_control/scripts/planners/trajectory_planner.py
+Advanced trajectory planning with A* algorithm and dynamic obstacle avoidance
+"""
+
 import heapq
-from enum import IntEnum
-from geometry_msgs.msg import PoseStamped, Twist, Point
-from nav_msgs.msg import Odometry
-from drone_control.msg import TrackedTarget, TrackedTargets, MissionStatus
-from std_msgs.msg import String
-import sys
-import os
 import math
-from typing import List, Tuple, Optional, Dict, Set
+from enum import IntEnum
 
-sys.path.append(os.path.join(os.path.dirname(__file__), 'utils'))
+import numpy as np
+import rospy
+from geometry_msgs.msg import Point, PoseStamped, Twist
+from nav_msgs.msg import Odometry
+from std_msgs.msg import String
+from drone_control.lib import ControlLibrary
+from drone_control.utils.tracing import traced, span_context
+from drone_control.msg import MissionStatus, TrackedTarget, TrackedTargets
+from drone_control.utils import ErrorHandler
+from drone_control.utils.logging_framework import (
+    get_logger_with_ros_level,
+)
+from drone_control.utils.ros_tracing import get_component_tracer, traced_ros_callback, span_context
+from drone_control.utils.tracing import init_tracing, traced
+from drone_control.utils.metrics_collector import MetricsCollector, MetricTimer
+from drone_control.utils.ros_tracing import (
+    create_traced_publisher,
+    traced_ros_callback,
+)
 
-try:
-    from error_handler import ErrorHandler
-    from lib.control_lib import ControlLibrary
-except ImportError:
-    class ErrorHandler:
-        def __init__(self, node_name):
-            self.node_name = node_name
-        def handle_error(self, error, context=None):
-            rospy.logerr(f"[{self.node_name}] {error}: {context}")
 
-    class ControlLibrary:
-        @staticmethod
-        def calculate_velocity_to_target(current, target, max_speed):
-            return Twist()
 
 # NOTE: Changed from Enum to IntEnum. self.map_grid is a numpy int8 array,
 # and a plain Enum member never compares equal to a numpy int, so every
@@ -44,6 +46,18 @@ class TrajectoryPlanner:
     def __init__(self):
         rospy.init_node('trajectory_planner', anonymous=False)
 
+        # Initialize structured logger
+        self.logger = get_logger_with_ros_level("trajectory_planner")
+        self.logger.info("node_initializing", extra={
+            "version": "1.0.0",
+            "simulation_mode": rospy.get_param('/use_simulation', True)
+        })
+
+        # Tracing setup, before anything else registers
+        # publishers/subscribers/timers.
+        init_tracing(component='trajectory_planner')
+        self.tracer = get_component_tracer('trajectory_planner')
+
         self.error_handler = ErrorHandler(node_name='trajectory_planner')
         self.control_lib = ControlLibrary()
 
@@ -55,6 +69,10 @@ class TrajectoryPlanner:
         self.max_acceleration = rospy.get_param('~max_acceleration', 2.0)
         self.safety_margin = rospy.get_param('~safety_margin', 1.0)
         self.simulation_mode = rospy.get_param('/use_simulation', True)
+
+        # Initialize metrics collector (parameters above must be set first)
+        self.metrics = MetricsCollector("trajectory_planner", port=8005)
+        self._init_metrics()
 
         # State variables
         self.current_position = None
@@ -79,10 +97,18 @@ class TrajectoryPlanner:
         self.mission_sub = rospy.Subscriber('/mission_status', MissionStatus, self.mission_callback)
 
         # Publishers
-        self.trajectory_pub = rospy.Publisher('/planned_trajectory', PoseStamped, queue_size=10)
-        self.waypoint_pub = rospy.Publisher('/waypoints', PoseStamped, queue_size=10)
-        self.path_pub = rospy.Publisher('/path', PoseStamped, queue_size=10)
-        self.planner_status_pub = rospy.Publisher('/planner_status', String, queue_size=10)
+        self.trajectory_pub = create_traced_publisher(
+            '/planned_trajectory', PoseStamped, queue_size=10, tracer_name='trajectory_planner'
+        )
+        self.waypoint_pub = create_traced_publisher(
+            '/waypoints', PoseStamped, queue_size=10, tracer_name='trajectory_planner'
+        )
+        self.path_pub = create_traced_publisher(
+            '/path', PoseStamped, queue_size=10, tracer_name='trajectory_planner'
+        )
+        self.planner_status_pub = create_traced_publisher(
+            '/planner_status', String, queue_size=10, tracer_name='trajectory_planner'
+        )
 
         # Timers
         self.planning_timer = rospy.Timer(rospy.Duration(1.0 / self.replanning_frequency), self.planning_loop)
@@ -91,8 +117,78 @@ class TrajectoryPlanner:
         # Initialize map
         self.initialize_map()
 
+        self.logger.info("node_initialized", extra={
+            "map_resolution": self.map_resolution,
+            "replanning_frequency": self.replanning_frequency,
+            "safety_margin": self.safety_margin
+        })
         rospy.loginfo("Trajectory Planner initialized")
 
+    def _init_metrics(self):
+        """Initialize Prometheus metrics for this node"""
+        self.logger.debug("initializing_metrics")
+
+        # Counters
+        self.metric_replans_total = self.metrics.counter(
+            "replans_total",
+            "Total number of replanning cycles attempted"
+        )
+        self.metric_planning_failures_total = self.metrics.counter(
+            "planning_failures_total",
+            "Total number of planning attempts that failed to produce a trajectory",
+            labels=["reason"]
+        )
+        self.metric_collisions_detected_total = self.metrics.counter(
+            "collisions_detected_total",
+            "Total number of collisions detected during planning"
+        )
+        self.metric_waypoints_generated_total = self.metrics.counter(
+            "waypoints_generated_total",
+            "Total number of waypoints generated across all successful plans"
+        )
+        self.metric_errors_total = self.metrics.counter(
+            "errors_total",
+            "Total number of errors encountered",
+            labels=["error_type"]
+        )
+        self.metric_emergency_stops_total = self.metrics.counter(
+            "emergency_stops_total",
+            "Total number of emergency stops triggered"
+        )
+
+        # Gauges
+        self.metric_waypoint_count = self.metrics.gauge(
+            "waypoint_count",
+            "Number of waypoints in the current trajectory"
+        )
+        self.metric_current_waypoint_index = self.metrics.gauge(
+            "current_waypoint_index",
+            "Index of the waypoint currently being followed"
+        )
+        self.metric_emergency_stop_status = self.metrics.gauge(
+            "emergency_stop_active",
+            "Whether the planner is currently in emergency stop (1=yes, 0=no)"
+        )
+        self.metric_target_set = self.metrics.gauge(
+            "target_set",
+            "Whether a target position is currently set (1=yes, 0=no)"
+        )
+
+        # Histograms
+        self.metric_planning_duration = self.metrics.histogram(
+            "planning_duration_seconds",
+            "Time taken by plan_trajectory() per invocation",
+            buckets=[0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5]
+        )
+        self.metric_a_star_duration = self.metrics.histogram(
+            "a_star_duration_seconds",
+            "Time taken by the A* search itself per invocation",
+            buckets=[0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5]
+        )
+
+        self.logger.info("metrics_initialized")
+
+    @traced('trajectory_planner', 'initialize_map')
     def initialize_map(self):
         """Initialize planning grid based on workspace bounds"""
         # Workspace bounds (meters)
@@ -120,6 +216,12 @@ class TrajectoryPlanner:
         # obstacle -- there would never be a free cell for A* to route
         # through. We only want the outer shell marked, not the interior.
         self.mark_boundary_walls()
+
+        self.logger.info("map_initialized", extra={
+            "grid_size": self.grid_size,
+            "map_bounds": self.map_bounds,
+            "resolution": self.map_resolution
+        })
 
     def mark_boundary_walls(self):
         """Mark the six outer faces of the workspace as a thin obstacle wall (geofence)"""
@@ -158,6 +260,7 @@ class TrajectoryPlanner:
                 for x in range(x_min_idx, x_max_idx + 1):
                     self.map_grid[z, y, x] = obstacle_type
 
+    @traced_ros_callback('trajectory_planner', 'odometry_callback')
     def odometry_callback(self, msg):
         """Update current vehicle state"""
         self.current_position = np.array([
@@ -176,6 +279,7 @@ class TrajectoryPlanner:
         if self.emergency_stop:
             self.trigger_emergency_stop()
 
+    @traced_ros_callback('trajectory_planner', 'tracked_targets_callback')
     def tracked_targets_callback(self, msg):
         """Update target positions from tracked targets"""
         # Guard against messages arriving before the first odometry update
@@ -204,83 +308,129 @@ class TrajectoryPlanner:
                     closest_target.position.y,
                     closest_target.position.z
                 ])
+                self.metric_target_set.set(1)
                 rospy.logdebug(f"New target position: {self.target_position}, distance: {min_distance:.2f}m")
+                self.logger.debug("target_position_updated", extra={
+                    "distance": min_distance,
+                    "target_position": self.target_position.tolist()
+                })
 
+    @traced_ros_callback('trajectory_planner', 'mission_callback')
     def mission_callback(self, msg):
         """Handle mission state changes"""
         # msg is now a drone_control/MissionStatus, not std_msgs/String —
         # the mission state lives in msg.state (see MissionStatus.msg),
         # not msg.data.
+        self.logger.debug("mission_status_received", extra={"state": msg.state})
         if msg.state == 'emergency':
             self.emergency_stop = True
+            self.logger.warning("emergency_stop_set_from_mission", extra={"state": msg.state})
         elif msg.state in ['completed', 'failed']:
             self.emergency_stop = False
             self.waypoint_sequence = []
             self.current_waypoint_index = 0
+            self.logger.info("mission_ended", extra={"state": msg.state})
 
     def planning_loop(self, event):
         """Main planning loop"""
-        current_time = rospy.Time.now().to_sec()
+        with span_context(self.tracer, "planning_loop") as span:
+            current_time = rospy.Time.now().to_sec()
 
-        # Check if we need to replan
-        if current_time - self.last_replan_time > (1.0 / self.replanning_frequency):
-            if self.current_position is not None and self.target_position is not None:
-                self.plan_trajectory()
-                self.last_replan_time = current_time
+            # Check if we need to replan
+            replanned = False
+            if current_time - self.last_replan_time > (1.0 / self.replanning_frequency):
+                if self.current_position is not None and self.target_position is not None:
+                    self.plan_trajectory()
+                    self.last_replan_time = current_time
+                    replanned = True
 
+            span.set_attribute("replanned", replanned)
+
+    @traced('trajectory_planner', 'plan_trajectory')
     def plan_trajectory(self):
         """Plan trajectory using A* algorithm"""
-        if self.emergency_stop:
-            return
+        with span_context(self.tracer, "plan_trajectory") as span:
+            with MetricTimer(self.metric_planning_duration):
+                self.metric_replans_total.inc()
 
-        # Convert current and target positions to grid indices
-        current_idx = self.world_to_grid(self.current_position)
-        target_idx = self.world_to_grid(self.target_position)
+                if self.emergency_stop:
+                    span.set_attribute("aborted_reason", "emergency_stop")
+                    return
 
-        if current_idx is None or target_idx is None:
-            rospy.logwarn("Cannot plan trajectory - invalid positions")
-            return
+                # Convert current and target positions to grid indices
+                current_idx = self.world_to_grid(self.current_position)
+                target_idx = self.world_to_grid(self.target_position)
 
-        # Check if target is reachable
-        if self.map_grid[target_idx[0], target_idx[1], target_idx[2]] == NodeType.OBSTACLE:
-            rospy.logwarn("Target position is in obstacle - using alternative approach")
-            # Find alternative target position
-            target_idx = self.find_nearest_free_cell(target_idx)
-            if target_idx is None:
-                rospy.logerr("No free cells found for target")
-                return
+                if current_idx is None or target_idx is None:
+                    rospy.logwarn("Cannot plan trajectory - invalid positions")
+                    self.logger.warning("plan_trajectory_invalid_positions", extra={
+                        "current_position": self.current_position.tolist() if self.current_position is not None else None,
+                        "target_position": self.target_position.tolist() if self.target_position is not None else None
+                    })
+                    self.metric_planning_failures_total.labels(reason="invalid_positions").inc()
+                    span.set_attribute("aborted_reason", "invalid_positions")
+                    return
 
-        # Check for collision with current obstacles
-        if self.check_collision(current_idx):
-            rospy.logwarn("Collision detected with current obstacles")
-            # Try to move to a safer position first
-            safe_position = self.find_safe_position()
-            if safe_position is not None:
-                current_idx = self.world_to_grid(safe_position)
-            if current_idx is None:
-                rospy.logerr("Could not resolve a safe starting position")
-                return
+                # Check if target is reachable
+                if self.map_grid[target_idx[0], target_idx[1], target_idx[2]] == NodeType.OBSTACLE:
+                    rospy.logwarn("Target position is in obstacle - using alternative approach")
+                    self.logger.warning("target_in_obstacle")
+                    # Find alternative target position
+                    target_idx = self.find_nearest_free_cell(target_idx)
+                    if target_idx is None:
+                        rospy.logerr("No free cells found for target")
+                        self.logger.error("no_free_cells_found_for_target")
+                        self.metric_planning_failures_total.labels(reason="no_free_target_cell").inc()
+                        span.set_attribute("aborted_reason", "no_free_target_cell")
+                        return
 
-        # Run A* algorithm
-        path = self.a_star_planning(current_idx, target_idx)
+                # Check for collision with current obstacles
+                if self.check_collision(current_idx):
+                    rospy.logwarn("Collision detected with current obstacles")
+                    self.logger.warning("collision_detected_at_current_position")
+                    self.metric_collisions_detected_total.inc()
+                    # Try to move to a safer position first
+                    safe_position = self.find_safe_position()
+                    if safe_position is not None:
+                        current_idx = self.world_to_grid(safe_position)
+                    if current_idx is None:
+                        rospy.logerr("Could not resolve a safe starting position")
+                        self.logger.error("no_safe_starting_position")
+                        self.metric_planning_failures_total.labels(reason="no_safe_start").inc()
+                        span.set_attribute("aborted_reason", "no_safe_start")
+                        return
 
-        if path is not None:
-            # Convert path back to world coordinates
-            world_path = [self.grid_to_world(idx) for idx in path]
+                # Run A* algorithm
+                with MetricTimer(self.metric_a_star_duration):
+                    path = self.a_star_planning(current_idx, target_idx)
 
-            # Filter path for safety
-            safe_path = self.filter_path_for_safety(world_path)
+                if path is not None:
+                    # Convert path back to world coordinates
+                    world_path = [self.grid_to_world(idx) for idx in path]
 
-            if safe_path:
-                # Generate waypoints
-                self.generate_waypoints(safe_path)
-                rospy.loginfo(f"Trajectory planned with {len(safe_path)} waypoints")
-            else:
-                rospy.logwarn("Generated path failed safety checks")
-        else:
-            rospy.logwarn("A* planning failed - no path found")
-            self.collision_warnings.append("No path found to target")
+                    # Filter path for safety
+                    safe_path = self.filter_path_for_safety(world_path)
 
+                    if safe_path:
+                        # Generate waypoints
+                        self.generate_waypoints(safe_path)
+                        rospy.loginfo(f"Trajectory planned with {len(safe_path)} waypoints")
+                        self.logger.info("trajectory_planned", extra={"waypoint_count": len(safe_path)})
+                        self.metric_waypoints_generated_total.inc(len(safe_path))
+                        span.set_attribute("waypoint_count", len(safe_path))
+                    else:
+                        rospy.logwarn("Generated path failed safety checks")
+                        self.logger.warning("path_failed_safety_checks")
+                        self.metric_planning_failures_total.labels(reason="path_failed_safety_checks").inc()
+                        span.set_attribute("aborted_reason", "path_failed_safety_checks")
+                else:
+                    rospy.logwarn("A* planning failed - no path found")
+                    self.collision_warnings.append("No path found to target")
+                    self.logger.warning("a_star_no_path_found")
+                    self.metric_planning_failures_total.labels(reason="no_path_found").inc()
+                    span.set_attribute("aborted_reason", "no_path_found")
+
+    @traced('trajectory_planner', 'a_star_planning')
     def a_star_planning(self, start_idx, goal_idx):
         """A* algorithm for path planning"""
         # Initialize open and closed sets
@@ -298,6 +448,15 @@ class TrajectoryPlanner:
         while open_set:
             # Get node with lowest f-score
             current_f, current = heapq.heappop(open_set)
+
+            # Skip stale entries: since we push a new (f_score, node) pair
+            # every time g_score improves rather than decreasing the key
+            # in place, the same node can appear multiple times in
+            # open_set. Once it's been expanded (added to closed_set), any
+            # leftover duplicate entries are stale and should be ignored
+            # instead of being re-expanded.
+            if current in closed_set:
+                continue
 
             if current == goal_idx:
                 # Reconstruct path
@@ -409,6 +568,7 @@ class TrajectoryPlanner:
 
         return False
 
+    @traced('trajectory_planner', 'generate_waypoints')
     def generate_waypoints(self, path):
         """Generate waypoints from planned path"""
         self.waypoint_sequence = []
@@ -448,6 +608,8 @@ class TrajectoryPlanner:
             trajectory_pose.pose.position.z = path[0][2]
             self.trajectory_pub.publish(trajectory_pose)
 
+        self.metric_waypoint_count.set(len(self.waypoint_sequence))
+        self.metric_current_waypoint_index.set(self.current_waypoint_index)
         rospy.loginfo(f"Generated {len(self.waypoint_sequence)} waypoints")
 
     def filter_path_for_safety(self, path):
@@ -554,34 +716,47 @@ class TrajectoryPlanner:
 
         return None
 
+    @traced('trajectory_planner', 'trigger_emergency_stop')
     def trigger_emergency_stop(self):
         """Trigger emergency stop procedures"""
         rospy.logerr("Emergency stop triggered!")
+        self.logger.error("emergency_stop_triggered")
+        self.metric_emergency_stops_total.inc()
 
-        # Publish emergency stop signal
+        # Publish emergency stop signal. Previously this published
+        # "emergency_stop" while publish_status() below published
+        # "emergency" for the same condition -- any downstream consumer
+        # matching on one string would miss the other. Use the same
+        # string as publish_status() for consistency.
         status_msg = String()
-        status_msg.data = "emergency_stop"
+        status_msg.data = "emergency"
         self.planner_status_pub.publish(status_msg)
 
         # Clear current trajectory
         self.waypoint_sequence = []
         self.current_waypoint_index = 0
         self.target_position = None
+        self.metric_target_set.set(0)
+        self.metric_waypoint_count.set(0)
 
     def publish_status(self, event):
         """Publish planner status"""
-        status_msg = String()
+        with span_context(self.tracer, "publish_status") as span:
+            status_msg = String()
 
-        if self.emergency_stop:
-            status_msg.data = "emergency"
-        elif self.target_position is None:
-            status_msg.data = "searching"
-        elif len(self.waypoint_sequence) > 0:
-            status_msg.data = f"following_waypoints_{self.current_waypoint_index}/{len(self.waypoint_sequence)}"
-        else:
-            status_msg.data = "planning"
+            if self.emergency_stop:
+                status_msg.data = "emergency"
+            elif self.target_position is None:
+                status_msg.data = "searching"
+            elif len(self.waypoint_sequence) > 0:
+                status_msg.data = f"following_waypoints_{self.current_waypoint_index}/{len(self.waypoint_sequence)}"
+            else:
+                status_msg.data = "planning"
 
-        self.planner_status_pub.publish(status_msg)
+            span.set_attribute("status", status_msg.data)
+            self.metric_emergency_stop_status.set(1 if self.emergency_stop else 0)
+            self.planner_status_pub.publish(status_msg)
+            self.logger.debug("status_published", extra={"status": status_msg.data})
 
     @staticmethod
     def euler_to_quaternion(roll, pitch, yaw):

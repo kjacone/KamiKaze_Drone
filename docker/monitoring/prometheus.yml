@@ -20,29 +20,6 @@ scrape_configs:
           - "prometheus:9090"  # Changed from localhost to container name
 
   # ============================================================
-  # Node Exporter - Host Metrics
-  # ============================================================
-
-  - job_name: "node-exporter"
-    static_configs:
-      - targets:
-          - "node-exporter:9100"  # Changed from localhost to container name
-    scrape_interval: 30s
-    scrape_timeout: 10s
-
-  # ============================================================
-  # cAdvisor - Container Metrics
-  # ============================================================
-
-  - job_name: "cadvisor"
-    static_configs:
-      - targets:
-          - "cadvisor:8080"  # Changed from localhost to container name
-    scrape_interval: 30s
-    scrape_timeout: 10s
-    metrics_path: "/metrics"
-
-  # ============================================================
   # ROS Metrics - From Kamikaze Drone
   # ============================================================
 
@@ -120,23 +97,7 @@ scrape_configs:
     scrape_interval: 10s
     scrape_timeout: 5s
 
-  # ============================================================
-  # Docker Container Metrics (via cAdvisor alternative)
-  # ============================================================
 
-  - job_name: "docker-containers"
-    static_configs:
-      - targets:
-          - "cadvisor:8080"
-    metrics_path: "/metrics"
-    scrape_interval: 15s
-    scrape_timeout: 10s
-    relabel_configs:
-      - source_labels: [__meta_docker_container_name]
-        regex: "/(.*)"
-        target_label: container
-      - source_labels: [__meta_docker_container_label_com_docker_compose_service]
-        target_label: service
 
   # ============================================================
   # ROS Topics Metrics (if exposed via HTTP)
@@ -169,14 +130,3 @@ scrape_configs:
     scrape_interval: 10s
     scrape_timeout: 5s
 
-  # ============================================================
-  # System Metrics (alternative to node-exporter)
-  # ============================================================
-
-  - job_name: "system-metrics"
-    static_configs:
-      - targets:
-          - "node-exporter:9100"
-    metrics_path: "/metrics"
-    scrape_interval: 30s
-    scrape_timeout: 15s

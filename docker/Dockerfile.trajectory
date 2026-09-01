@@ -4,38 +4,67 @@
 # Trajectory Planner Service
 # ============================================================
 
-FROM kamikaze-drone-python:latest
+FROM kjacone/kamikaze-drone-python:latest
 
-# Set platform to match your system
 ARG TARGETPLATFORM=linux/amd64
 ARG BUILDPLATFORM=linux/amd64
-# ------------------------------------------------------------
-# Copy application code LAST
-# ------------------------------------------------------------
 
+# ------------------------------------------------------------
+# Install package code so imports work even if the base image
+# does not have a current catkin install of drone_control.
+# Layout: /opt/python_pkgs/drone_control/{lib,utils,...}
+# so "import drone_control.lib" resolves correctly.
+# ------------------------------------------------------------
+COPY drone_control/src/drone_control /opt/python_pkgs/drone_control
+
+# ------------------------------------------------------------
+# Reconcile with the catkin-built copy in the base image.
+#
+# ros-entrypoint.sh (shipped in the base image) prepends
+# /root/catkin_ws/devel/lib/python3/dist-packages onto PYTHONPATH
+# ahead of /opt/python_pkgs at container runtime. Since drone_control
+# is a regular package (not a namespace package), Python resolves the
+# entire import from whichever path entry it finds first -- so that
+# catkin-built copy always wins, regardless of our own PYTHONPATH order.
+#
+# That catkin copy is stale/incomplete for lib/utils (e.g. missing
+# drone_control.lib), but its msg/srv submodules are generated at
+# image build time from drone_control/msg/*.msg and are NOT present
+# in our source copy under /opt/python_pkgs.
+#
+# Merge: keep the generated msg/srv from the catkin devel copy, layer
+# our fresh lib/utils on top, then symlink devel -> our merged copy so
+# every possible import path resolves to one complete package.
+# ------------------------------------------------------------
+RUN CATKIN_PKG=/root/catkin_ws/devel/lib/python3/dist-packages/drone_control && \
+    if [ -d "$CATKIN_PKG/msg" ]; then cp -r "$CATKIN_PKG/msg" /opt/python_pkgs/drone_control/msg; fi && \
+    if [ -d "$CATKIN_PKG/srv" ]; then cp -r "$CATKIN_PKG/srv" /opt/python_pkgs/drone_control/srv; fi && \
+    rm -rf "$CATKIN_PKG" && \
+    mkdir -p /root/catkin_ws/devel/lib/python3/dist-packages && \
+    ln -s /opt/python_pkgs/drone_control "$CATKIN_PKG"
+
+# ------------------------------------------------------------
+# Node entry script
+# ------------------------------------------------------------
 COPY --chmod=755 \
     drone_control/scripts/controllers/trajectory_planner.py \
     /opt/trajectory_planner.py
 
-# ------------------------------------------------------------
-# Verify ROS messages
-#
-# This is intentionally lightweight and happens after the
-# shared dependency image has already been built.
-# ------------------------------------------------------------
+# Prefer explicit package path; catkin devel still wins if present
+ENV PYTHONPATH="/opt/python_pkgs:/root/catkin_ws/devel/lib/python3/dist-packages:${PYTHONPATH}"
 
+# ------------------------------------------------------------
+# Verify ROS messages (lightweight; base image already has deps)
+# ------------------------------------------------------------
 RUN /bin/bash -c "\
     source /opt/ros/noetic/setup.bash && \
     source /root/catkin_ws/devel/setup.bash 2>/dev/null || true && \
     echo 'Checking for drone_control messages...' && \
-    find /root/catkin_ws/devel -name '*TrackedTarget*' -type f || true"
-
-# ------------------------------------------------------------
-# Runtime
-# ------------------------------------------------------------
+    find /root/catkin_ws/devel -name '*TrackedTarget*' -type f || true && \
+    python3 -c 'from drone_control.lib import ControlLibrary; from drone_control.msg import DiagnosticStatus, MissionStatus, TrackedTarget, TrackedTargets; print(\"drone_control imports OK\")' \
+"
 
 WORKDIR /opt
 
 ENTRYPOINT ["/usr/local/bin/ros-entrypoint.sh"]
-
 CMD ["python3", "/opt/trajectory_planner.py"]

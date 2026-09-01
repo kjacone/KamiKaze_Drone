@@ -4,12 +4,15 @@ drone_control/scripts/diagnostic_reporter.py
 System-wide diagnostic reporting
 """
 
-import rospy
-import time
-import psutil
 import json
-from drone_control.msg import DiagnosticStatus, NodeHealth, SafetyStatus, MissionStatus
+import time
+
+import psutil
+import rospy
 from std_msgs.msg import String
+
+from drone_control import DiagnosticStatus, MissionStatus, NodeHealth, SafetyStatus
+
 
 class DiagnosticReporter:
     """System-wide diagnostic status reporting"""

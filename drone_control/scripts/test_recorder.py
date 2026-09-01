@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-import rospy
 import sys
+
+import rospy
+
 
 def main():
     rospy.init_node('test_recorder', anonymous=True)

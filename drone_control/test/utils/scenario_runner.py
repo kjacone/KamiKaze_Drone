@@ -8,9 +8,8 @@ import rospy
 import time
 import yaml
 import os
-import json
-from typing import Dict, List, Any
-from drone_control.msg import Detection, DetectionArray, ControlCommand
+from typing import Dict, List
+from drone_control import Detection, DetectionArray, ControlCommand
 from geometry_msgs.msg import Pose, Point
 
 class ScenarioRunner:

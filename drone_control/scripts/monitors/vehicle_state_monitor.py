@@ -1,27 +1,16 @@
-
-
-import rospy
-import psutil
 import time
+
+import psutil
+import rospy
+from geometry_msgs.msg import TwistStamped
 from mavros_msgs.msg import State
 from sensor_msgs.msg import BatteryState
-from std_msgs.msg import String, Float32
-from geometry_msgs.msg import TwistStamped
-from drone_control.msg import NodeHealth, DiagnosticStatus
+from std_msgs.msg import Float32, String
 from std_srvs.srv import Trigger, TriggerResponse
-import sys
-import os
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from drone_control.msg import DiagnosticStatus, NodeHealth
+from drone_control.utils import ErrorHandler
 
-try:
-    from utils.error_handler import ErrorHandler
-except ImportError:
-    class ErrorHandler:
-        def __init__(self, node_name):
-            self.node_name = node_name
-        def handle_error(self, error, context=None):
-            rospy.logerr(f"[{self.node_name}] {error}: {context}")
 
 class VehicleStateMonitor:
     """Vehicle state monitoring with diagnostics"""

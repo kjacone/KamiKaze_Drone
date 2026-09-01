@@ -4,33 +4,18 @@ drone_control/scripts/controllers/flight_controller.py
 Enhanced flight controller with PID and trajectory tracking
 """
 
-import rospy
 import numpy as np
-from geometry_msgs.msg import PoseStamped, Twist, Pose, Point
-from mavros_msgs.msg import PositionTarget, State
-from mavros_msgs.srv import SetMode, CommandBool
-from drone_control.msg import ControlCommand, NodeHealth
-import sys
-import os
-import math
+import rospy
 from filterpy.common import Q_discrete_white_noise
+from geometry_msgs.msg import Point, Pose, PoseStamped, Twist
+from mavros_msgs.msg import PositionTarget, State
+from mavros_msgs.srv import CommandBool, SetMode
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from drone_control import ControlLibrary
+from drone_control import SafetyLibrary
+from drone_control.msg  import ControlCommand, NodeHealth, SafetyStatus, TrackedTarget
+from drone_control.utils import ErrorHandler
 
-try:
-    from utils.error_handler import ErrorHandler
-    from lib.control_lib import ControlLibrary
-except ImportError:
-    class ErrorHandler:
-        def __init__(self, node_name):
-            self.node_name = node_name
-        def handle_error(self, error, context=None):
-            rospy.logerr(f"[{self.node_name}] {error}: {context}")
-    
-    class ControlLibrary:
-        @staticmethod
-        def calculate_velocity_to_target(current, target, max_speed):
-            return Twist()
 
 class PIDController:
     """Simple PID controller implementation"""

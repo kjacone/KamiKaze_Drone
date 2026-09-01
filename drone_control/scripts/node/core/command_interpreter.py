@@ -7,13 +7,15 @@ Link to controllers/command_interpreter.py
 # This is a symbolic link - the actual implementation is in controllers/
 # For ROS package compatibility, we import from the actual location
 
-import sys
 import os
+import sys
+
+import rospy
 
 # Add parent directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from controllers.command_interpreter import CommandInterpreter
+from ...controllers.command_interpreter import CommandInterpreter
 
 if __name__ == '__main__':
     try:

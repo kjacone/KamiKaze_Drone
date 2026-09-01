@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 # drone_control/test/test_integration.py
 
-import unittest
-import rospy
 import time
+import unittest
+
 import numpy as np
+import rospy
+from drone_control import MockSensors, ScenarioRunner, TestDataRecorder
+from geometry_msgs.msg import Point, Pose
 from sensor_msgs.msg import Image
-from geometry_msgs.msg import Pose, Point
-from drone_control.msg import DetectionArray, TrackedTargets, ControlCommand
-from drone_control.src.test_utils import MockSensors, ScenarioRunner, TestDataRecorder
+
+from drone_control import ControlCommand, DetectionArray, TrackedTargets
+
 
 class TestIntegration(unittest.TestCase):
     """End-to-end integration tests for the drone control pipeline"""
@@ -192,8 +195,7 @@ class TestIntegration(unittest.TestCase):
         print("Benchmarking system performance...")
         
         import psutil
-        import subprocess
-        
+
         # Check CPU and memory usage
         process = psutil.Process()
         cpu_percent = process.cpu_percent(interval=1.0)

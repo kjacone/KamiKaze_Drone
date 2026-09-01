@@ -4,11 +4,14 @@ drone_control/scripts/simulated_target.py
 Simulated target generator for testing
 """
 
-import rospy
 import math
 import time
+
+import rospy
 from geometry_msgs.msg import Point, Vector3
-from drone_control.msg import TrackedTarget, TrackedTargets
+
+from drone_control import TrackedTarget, TrackedTargets
+
 
 class SimulatedTarget:
     """Generate simulated targets for testing"""

@@ -4,24 +4,19 @@ drone_control/scripts/node/utilities/parameter_server.py
 Centralized parameter server with validation and monitoring
 """
 
-import rospy
-import yaml
 import json
 import os
-from drone_control.srv import ValidateParameter, ReloadConfig
-from drone_control.msg import NodeHealth
 import sys
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+import rospy
+import yaml
 
-try:
-    from utils.parameter_validator import ParameterValidator
-except ImportError:
-    class ParameterValidator:
-        def __init__(self, config_dir):
-            self.config_dir = config_dir
-        def validate_all_parameters(self):
-            return True, []
+from drone_control import NodeHealth
+from drone_control.utils import ParameterReloadClient, ParameterValidator
+from drone_control.utils import ParameterValidator
+
+# sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
 
 class ParameterServer:
     """Centralized parameter server with validation"""
@@ -33,8 +28,8 @@ class ParameterServer:
         self.validator = ParameterValidator(self.config_dir)
         
         # Services
-        rospy.Service('/parameter/validate', ValidateParameter, self._validate)
-        rospy.Service('/parameter/reload', ReloadConfig, self._reload)
+        rospy.Service('/parameter/validate', ParameterValidator, self._validate)
+        rospy.Service('/parameter/reload', ParameterReloadClient, self._reload)
         
         # Publisher
         self.health_pub = rospy.Publisher('/parameter_server/node_health', NodeHealth, queue_size=10)
@@ -46,7 +41,7 @@ class ParameterServer:
         
     def _validate(self, req):
         """Validate a parameter"""
-        response = ValidateParameterResponse()
+        response = ParameterValidator()
         
         try:
             # Parse value
@@ -72,7 +67,7 @@ class ParameterServer:
         
     def _reload(self, req):
         """Reload configuration"""
-        response = ReloadConfigResponse()
+        response = ParameterReloadClient()
         
         try:
             # Reload parameters

@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1.4
 
 # ============================================================
-# Application Build Stage
+# Application Build Stage docker pull kjacone/kamikaze_drone:base-builder
 # ============================================================
-FROM localhost:5000/kamikaze-drone-base:latest AS builder
+FROM kjacone/kamikaze-drone-base:latest AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV ROS_DISTRO=noetic
@@ -85,7 +85,7 @@ RUN /bin/bash -c "\
 # ============================================================
 # Runtime Stage
 # ============================================================
-FROM localhost:5000/kamikaze-drone-base:latest
+FROM kjacone/kamikaze-drone-base:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV ROS_DISTRO=noetic

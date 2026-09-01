@@ -4,7 +4,7 @@
 # Performance Monitor Service
 # ============================================================
 
-FROM kamikaze-drone-python:latest
+FROM kjacone/kamikaze-drone-python:latest
 
 # Set platform to match your system
 ARG TARGETPLATFORM=linux/amd64
@@ -18,7 +18,7 @@ ARG BUILDPLATFORM=linux/amd64
 # ------------------------------------------------------------
 
 COPY --chmod=755 \
-    drone_control/scripts/utils/performance_monitor.py \
+    drone_control/src/drone_control/utils/performance_monitor.py \
     /opt/performance_monitor.py
 
 # ------------------------------------------------------------

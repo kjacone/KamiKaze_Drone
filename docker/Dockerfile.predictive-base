@@ -4,7 +4,7 @@
 # Predictive Controller Dependencies
 # ============================================================
 
-FROM kamikaze-drone-python:latest
+FROM kjacone/kamikaze-drone-python:latest
 
 # Set platform to match your system
 ARG TARGETPLATFORM=linux/amd64

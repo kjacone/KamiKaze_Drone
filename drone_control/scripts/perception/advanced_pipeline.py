@@ -4,19 +4,21 @@ Advanced Perception Pipeline
 Multi-sensor fusion (LiDAR + Camera + Radar) with deep learning-based object detection
 """
 
-import rospy
 import cv2
+import message_filters
 import numpy as np
+import rospy
+import sensor_msgs.point_cloud2 as pc2
 import torch
 import torchvision
+from cv_bridge import CvBridge
+from geometry_msgs.msg import Point, Pose, Quaternion
 from sensor_msgs.msg import Image, PointCloud2
 from std_msgs.msg import Header
-from vision_msgs.msg import Detection2DArray, Detection2D
-from geometry_msgs.msg import Point, Pose, Quaternion
-from drone_control.msg import DetectedObjects, Detection
-import sensor_msgs.point_cloud2 as pc2
-from cv_bridge import CvBridge
-import message_filters
+from vision_msgs.msg import Detection2D, Detection2DArray
+
+from drone_control import DetectedObjects, Detection
+
 
 class AdvancedPerceptionPipeline:
     def __init__(self):

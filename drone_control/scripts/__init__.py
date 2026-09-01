@@ -1,61 +1,16 @@
 # drone_control/scripts/__init__.py
 # Scripts package initialization
 
-# Core components
-from .core import (
-    CameraCalibration,
-    SensorFusion,
-    ObstacleAvoidance,
-)
-
-# Controllers
-from .controllers import (
-    MissionManager,
-    CommandInterpreter,
-    TargetTrackingController,
-    FlightController,
-    WaypointNavigator,
-    TrajectoryPlanner,
-    PredictiveController,
-    CollisionAvoidance,
-)
-
-# Detectors
-from .detectors import (
-    YOLODetector,
-    ObjectTracker,
-)
-
-# Monitors
-from .monitors import (
-    VehicleStateMonitor,
-    SafetyMonitor,
-    SystemHealthMonitor,
-    HealthChecker,
-    DiagnosticReporter,
-)
+from .diagnostic_reporter import DiagnosticReporter
+from .parameter_validation_service import ParameterValidationService
+from .simulated_target import SimulatedTarget
+from .startup_notifier import StartupNotifier
+from .test_verification import TestVerification
 
 __all__ = [
-    # Core
-    'CameraCalibration',
-    'SensorFusion',
-    'ObstacleAvoidance',
-    # Controllers
-    'MissionManager',
-    'CommandInterpreter',
-    'TargetTrackingController',
-    'FlightController',
-    'WaypointNavigator',
-    'TrajectoryPlanner',
-    'PredictiveController',
-    'CollisionAvoidance',
-    # Detectors
-    'YOLODetector',
-    'ObjectTracker',
-    # Monitors
-    'VehicleStateMonitor',
-    'SafetyMonitor',
-    'SystemHealthMonitor',
-    'HealthChecker',
-    'DiagnosticReporter',
+   'DiagnosticReporter', 
+   'ParameterValidationService', 
+   'SimulatedTarget', 
+   'StartupNotifier', 
+   'TestVerification', 
 ]

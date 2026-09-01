@@ -2,7 +2,7 @@
 
 > **Educational and research use only.**
 
-This project is intended for controlled simulation environments. It is **not recommended for real-world surveillance, tracking, weaponization, or operational deployment**. Users are responsible for complying with all applicable laws, safety requirements, and organizational policies.
+This project is intended for controlled simulation environments. It is **not recommended for real-world surveillance, tracking or operational deployment**. Users are responsible for complying with all applicable laws, safety requirements, and organizational policies.
 
 ---
 
@@ -782,125 +782,7 @@ curl http://localhost:9090/metrics
 curl http://localhost:3000/api/health
 ```
 
----
-
-# Project Structure
-
-```text
-KamiKaze_Drone/
-├── Dockerfile
-├── docker-compose.yml
-├── entrypoint.sh
-├── requirements.txt
-├── README.md
-├── LICENSE
-│
-├── PX4-Autopilot/                    # PX4 flight stack Git submodule
-│
-├── catkin_ws/                        # ROS workspace / mount point
-│
-└── drone_control/                    # Main ROS package
-    ├── CMakeLists.txt
-    ├── package.xml
-    │
-    ├── config/
-    │   ├── target_params.yaml
-    │   ├── mission_config.yaml
-    │   ├── flight_control.yaml
-    │   ├── camera_calib.yaml
-    │   ├── kalman_filter.yaml
-    │   ├── system_params.yaml
-    │   ├── production_params.yaml
-    │   ├── test_params.yaml
-    │   ├── debug_params.yaml
-    │   ├── diagnostics.yaml
-    │   ├── drone_control.rviz
-    │   └── test_scenarios/
-    │
-    ├── launch/
-    │   ├── kamikaze.launch
-    │   ├── test.launch
-    │   └── test_minimal.launch
-    │
-    ├── msg/
-    │   ├── BBox.msg
-    │   ├── Object.msg
-    │   ├── DetectedObjects.msg
-    │   ├── Target.msg
-    │   ├── TrackedTarget.msg
-    │   ├── TrackedTargets.msg
-    │   ├── ControlCommand.msg
-    │   ├── MissionStatus.msg
-    │   ├── Command.msg
-    │   ├── CommandResponse.msg
-    │   ├── SafetyStatus.msg
-    │   ├── NodeHealth.msg
-    │   ├── DiagnosticStatus.msg
-    │   ├── Detection.msg
-    │   └── DetectionArray.msg
-    │
-    ├── srv/
-    │   ├── EmergencyStop.srv
-    │   ├── ValidateParameter.srv
-    │   └── ReloadConfig.srv
-    │
-    ├── lib/
-    │   ├── control_lib.py
-    │   ├── mission_lib.py
-    │   ├── safety_lib.py
-    │   └── __init__.py
-    │
-    └── scripts/
-        ├── controllers/
-        │   ├── target_tracking_controller.py
-        │   ├── mission_manager.py
-        │   ├── flight_controller.py
-        │   ├── waypoint_navigator.py
-        │   ├── trajectory_planner.py
-        │   ├── predictive_controller.py
-        │   ├── collision_avoidance.py
-        │   ├── command_interpreter.py
-        │   └── __init__.py
-        │
-        ├── detectors/
-        │   ├── yolo_detector.py
-        │   ├── object_tracker.py
-        │   └── __init__.py
-        │
-        ├── monitors/
-        │   ├── vehicle_state_monitor.py
-        │   ├── safety_monitor.py
-        │   ├── system_health_monitor.py
-        │   ├── health_checker.py
-        │   ├── diagnostic_reporter.py
-        │   └── __init__.py
-        │
-        ├── core/
-        │   ├── camera_calibration.py
-        │   ├── sensor_fusion.py
-        │   └── collision_avoidance.py
-        │
-        ├── utils/
-        │   ├── error_handler.py
-        │   ├── message_validator.py
-        │   ├── parameter_validator.py
-        │   ├── parameter_loader.py
-        │   ├── reload_parameters.py
-        │   ├── generate_schema_doc.py
-        │   ├── performance_monitor.py
-        │   └── __init__.py
-        │
-        └── standalone/
-            ├── test_detector.py
-            ├── test_recorder.py
-            ├── test_verification.py
-            ├── simulated_target.py
-            ├── startup_notifier.py
-            ├── diagnostic_reporter.py
-            └── parameter_validation_service.py
-```
-
----
+--
 
 # Mission and Control Components
 
@@ -933,8 +815,6 @@ The ROS package is organized into functional areas:
 | MAVROS | `14557` | FCU bridge |
 | Prometheus | `9090` | Metrics collection |
 | Grafana | `3000` | Monitoring dashboard |
-| Node Exporter | `9100` | System metrics |
-| cAdvisor | `8081` | Container metrics |
 | noVNC | `8080` | Browser-based GUI |
 
 ---

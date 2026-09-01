@@ -2,9 +2,11 @@
 """
 Dummy test detector for when test mode is needed
 """
-import rospy
-import sys
 import os
+import sys
+
+import rospy
+
 
 def main():
     rospy.init_node('test_detector', anonymous=True)

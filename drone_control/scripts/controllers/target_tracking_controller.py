@@ -4,18 +4,27 @@ drone_control/scripts/controllers/target_tracking_controller.py
 Enhanced target tracking with mission manager integration
 """
 
-import rospy
-import numpy as np
 import time
-from geometry_msgs.msg import PoseStamped, Twist
-from mavros_msgs.msg import State, PositionTarget
-from mavros_msgs.srv import SetMode, CommandBool
-from nav_msgs.msg import Odometry
-from drone_control.msg import DetectedObjects, TrackedTargets, TrackedTarget
-from drone_control.msg import NodeHealth, Command, CommandResponse, MissionStatus
+
+import numpy as np
 import psutil
-import sys
-import os
+import rospy
+from geometry_msgs.msg import PoseStamped, Twist
+from mavros_msgs.msg import PositionTarget, State
+from mavros_msgs.srv import CommandBool, SetMode
+from nav_msgs.msg import Odometry
+
+from drone_control.utils import ErrorHandler
+
+from drone_control.msg import (
+    Command,
+    CommandResponse,
+    DetectedObjects,
+    MissionStatus,
+    NodeHealth,
+    TrackedTarget,
+    TrackedTargets,
+)
 
 try:
     from filterpy.kalman import KalmanFilter
@@ -42,17 +51,8 @@ except ImportError:
             K = self.P @ self.H.T @ np.linalg.inv(S)
             self.x = self.x + K @ y
             self.P = (np.eye(self.dim_x) - K @ self.H) @ self.P
-            
-sys.path.append(os.path.join(os.path.dirname(__file__), 'utils'))
-try:
-    from error_handler import ErrorHandler
-except ImportError:
-    class ErrorHandler:
-        def __init__(self, node_name):
-            self.node_name = node_name
-        def handle_error(self, error, context=None):
-            rospy.logerr(f"[{self.node_name}] {error}: {context}")
-
+      
+      
 class TargetTrackingController:
     """Enhanced target tracking with mission integration"""
     

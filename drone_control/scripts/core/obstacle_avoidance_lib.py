@@ -4,25 +4,17 @@ drone_control/scripts/core/collision_avoidance.py
 Collision avoidance using potential fields
 """
 
-import rospy
-import numpy as np
-from geometry_msgs.msg import Twist, Point, PoseStamped
-from sensor_msgs.msg import LaserScan, PointCloud2
-from drone_control.msg import SafetyStatus, NodeHealth
-import sys
-import os
 import math
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import numpy as np
+import rospy
+from geometry_msgs.msg import Point, PoseStamped, Twist
+from sensor_msgs.msg import LaserScan, PointCloud2
 
-try:
-    from utils.error_handler import ErrorHandler
-except ImportError:
-    class ErrorHandler:
-        def __init__(self, node_name):
-            self.node_name = node_name
-        def handle_error(self, error, context=None):
-            rospy.logerr(f"[{self.node_name}] {error}: {context}")
+from drone_control.msg import NodeHealth, SafetyStatus
+
+from drone_control.utils import ErrorHandler
+
 
 class CollisionAvoidance:
     """Collision avoidance using potential fields"""

@@ -4,26 +4,24 @@ drone_control/scripts/controllers/command_interpreter.py
 Unified command interface
 """
 
-import rospy
 import json
 import time
-from typing import Dict, Any, Tuple, Optional
 from enum import Enum
-from drone_control.msg import Command, CommandResponse, NodeHealth 
-import sys
-import os
+from typing import Any, Dict
+
 import psutil
+import rospy
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from drone_control.lib.safety_lib import SafetyLibrary
+from drone_control.msg import (
+    Command,
+    CommandResponse,
+    NodeHealth,
+    SafetyStatus,
+    TrackedTarget,
+)
+from drone_control.utils import ErrorHandler
 
-try:
-    from utils.error_handler import ErrorHandler
-except ImportError:
-    class ErrorHandler:
-        def __init__(self, node_name):
-            self.node_name = node_name
-        def handle_error(self, error, context=None):
-            rospy.logerr(f"[{self.node_name}] {error}: {context}")
 
 class CommandType(Enum):
     """Supported command types"""

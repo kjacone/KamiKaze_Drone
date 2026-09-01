@@ -4,13 +4,12 @@
 import numpy as np
 import cv2
 import random
-from enum import Enum
 from dataclasses import dataclass
 from typing import List, Tuple, Optional
 import rospy
 from sensor_msgs.msg import Image, CameraInfo
 from geometry_msgs.msg import Point, Pose, Twist
-from drone_control.msg import Detection, DetectionArray
+from drone_control import Detection, DetectionArray
 
 @dataclass
 class Target:

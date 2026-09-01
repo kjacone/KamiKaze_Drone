@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 # drone_control/test/test_detector.py
 
-import unittest
-import numpy as np
-import cv2
-import torch
-import rospy
-from sensor_msgs.msg import Image
-from geometry_msgs.msg import Point
-from drone_control.msg import Detection, DetectionArray
-import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from src.detector import YOLODetector
+import unittest
+
+import cv2
+import numpy as np
+import rospy
+import torch
+from drone_control import YOLODetector
+from geometry_msgs.msg import Point
+from sensor_msgs.msg import Image
+
+from drone_control import Detection, DetectionArray
+
 
 class TestYOLODetector(unittest.TestCase):
     """Unit tests for YOLO detector implementation"""

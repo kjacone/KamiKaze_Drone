@@ -2,11 +2,14 @@
 # drone_control/test/test_tracker.py
 
 import unittest
+
 import numpy as np
-from filterpy.kalman import KalmanFilter
-from drone_control.src.tracker import KalmanTracker, TargetTracker
-from drone_control.msg import Detection, TrackedTarget, TrackedTargets
 import rospy
+from drone_control import KalmanTracker, TargetTracker
+from filterpy.kalman import KalmanFilter
+
+from drone_control import Detection, TrackedTarget, TrackedTargets
+
 
 class TestKalmanTracker(unittest.TestCase):
     """Unit tests for Kalman Filter tracking"""
@@ -147,7 +150,7 @@ class TestKalmanTracker(unittest.TestCase):
     def test_publish_subscribe(self):
         """Test tracking node with ROS messages"""
         import rospy
-        from drone_control.msg import DetectionArray
+        from drone_control import DetectionArray
         
         # Wait for topic
         try:

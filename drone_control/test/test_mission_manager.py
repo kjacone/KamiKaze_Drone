@@ -5,9 +5,11 @@ Unit tests for mission manager
 """
 
 import unittest
+
 import rospy
-import time
-from drone_control.msg import MissionStatus, Command
+
+from drone_control import Command, MissionStatus
+
 
 class TestMissionManager(unittest.TestCase):
     """Test mission manager functionality"""

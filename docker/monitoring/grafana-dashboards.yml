@@ -1,3 +1,4 @@
+# docker/monitoring/grafana-dashboards.yml
 apiVersion: 1
 
 providers:
@@ -7,6 +8,8 @@ providers:
     type: file
     disableDeletion: false
     editable: true
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
     options:
       path: /etc/grafana/provisioning/dashboards
-      
+      foldersFromFilesStructure: true

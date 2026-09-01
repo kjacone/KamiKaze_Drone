@@ -4,26 +4,20 @@ drone_control/scripts/detectors/object_tracker.py
 Object tracking with Kalman filter and association
 """
 
-import rospy
 import numpy as np
-from filterpy.kalman import KalmanFilter
+import rospy
 from filterpy.common import Q_discrete_white_noise
-from drone_control.msg import Detection, DetectionArray, TrackedTarget, TrackedTargets
-from drone_control.msg import NodeHealth
-import sys
-import os
-import math
+from filterpy.kalman import KalmanFilter
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from drone_control.msg import (
+    Detection,
+    DetectionArray,
+    NodeHealth,
+    TrackedTarget,
+    TrackedTargets,
+)
+from drone_control.utils import ErrorHandler
 
-try:
-    from utils.error_handler import ErrorHandler
-except ImportError:
-    class ErrorHandler:
-        def __init__(self, node_name):
-            self.node_name = node_name
-        def handle_error(self, error, context=None):
-            rospy.logerr(f"[{self.node_name}] {error}: {context}")
 
 class Track:
     """Single track representation"""

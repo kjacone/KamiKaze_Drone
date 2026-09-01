@@ -4,47 +4,28 @@ drone_control/scripts/controllers/collision_avoidance.py
 Enhanced collision avoidance using multi-sensor fusion
 """
 
-import rospy
-import numpy as np
-from enum import Enum
-from geometry_msgs.msg import PoseStamped, Twist, Point
-from sensor_msgs.msg import Image, LaserScan
-from nav_msgs.msg import Odometry
-from drone_control.msg import TrackedTarget, SafetyStatus
-from std_msgs.msg import String, Bool
-import sys
-import os
+import json
 import math
-import cv2
 import time
-from typing import List, Tuple, Optional, Dict, Set
+from enum import Enum
 
-sys.path.append(os.path.join(os.path.dirname(__file__), 'utils'))
+import cv2
+import numpy as np
+import rospy
+from geometry_msgs.msg import Point, PoseStamped, Twist
+from nav_msgs.msg import Odometry
+from sensor_msgs.msg import Image, LaserScan
+from std_msgs.msg import Bool, String
+from tf.transformations import euler_from_quaternion
 
-try:
-    from error_handler import ErrorHandler
-    from lib.safety_lib import SafetyLibrary
-except ImportError:
-    class ErrorHandler:
-        def __init__(self, node_name):
-            self.node_name = node_name
-        def handle_error(self, error, context=None):
-            rospy.logerr(f"[{self.node_name}] {error}: {context}")
-    
-    class SafetyLibrary:
-        @staticmethod
-        def check_geofence(position, center, radius):
-            distance = math.sqrt((position[0] - center[0])**2 + 
-                                (position[1] - center[1])**2)
-            return distance <= radius, distance
-        
-        @staticmethod
-        def check_altitude(altitude, min_alt, max_alt):
-            if altitude < min_alt:
-                return False, "Too low"
-            elif altitude > max_alt:
-                return False, "Too high"
-            return True, "OK"
+from drone_control.utils.metrics_collector import MetricsCollector, MetricTimer
+from drone_control.utils.ros_tracing import get_component_tracer, traced_ros_callback, span_context
+from drone_control.utils.tracing import init_tracing, traced
+from monitors.system_health_monitor import create_traced_publisher
+from drone_control.lib import SafetyLibrary
+from drone_control.utils import ErrorHandler
+from drone_control.utils.logging_framework import get_logger_with_ros_level
+from drone_control.msg  import TrackedTarget,SafetyStatus
 
 class CollisionAvoidanceStatus(Enum):
     ACTIVE = "active"
@@ -58,10 +39,19 @@ class CollisionAvoidance:
     
     def __init__(self):
         rospy.init_node('collision_avoidance', anonymous=False)
-        
+
+        # Structured logger
+        self.logger = get_logger_with_ros_level("collision_avoidance")
+        self.logger.info("node_initializing", extra={"version": "1.0.0"})
+
         self.error_handler = ErrorHandler(node_name='collision_avoidance')
         self.safety_lib = SafetyLibrary()
-        
+
+        # Distributed tracing, set up before any publishers/subscribers/
+        # timers are registered.
+        init_tracing(component='collision_avoidance')
+        self.tracer = get_component_tracer('collision_avoidance')
+
         # Configuration parameters
         self.min_obstacle_distance = rospy.get_param('~min_obstacle_distance', 1.0)
         self.max_obstacle_distance = rospy.get_param('~max_obstacle_distance', 20.0)
@@ -75,7 +65,11 @@ class CollisionAvoidance:
         self.camera_enabled = rospy.get_param('~camera_enabled', True)
         self.radar_enabled = rospy.get_param('~radar_enabled', False)
         self.infrared_enabled = rospy.get_param('~infrared_enabled', False)
-        
+
+        # Metrics
+        self.metrics = MetricsCollector("collision_avoidance", port=8004)
+        self._init_metrics()
+
         # State variables
         self.current_position = None
         self.current_velocity = None
@@ -93,6 +87,7 @@ class CollisionAvoidance:
         self.collision_risk_level = 0.0
         self.avoidance_path = []
         self.escape_vector = np.zeros(3)
+        self.error_count = 0
         
         # Subscribers
         self.odom_sub = rospy.Subscriber('/mavros/local_position/odom', Odometry, self.odometry_callback)
@@ -102,20 +97,82 @@ class CollisionAvoidance:
         self.infrared_sub = rospy.Subscriber('/infrared/detections', String, self.infrared_callback) if self.infrared_enabled else None
         self.tracked_targets_sub = rospy.Subscriber('/tracked_targets', TrackedTarget, self.tracked_targets_callback)
         self.safety_status_sub = rospy.Subscriber('/safety_status', SafetyStatus, self.safety_status_callback)
-        
-        # Publishers
-        self.control_pub = rospy.Publisher('/mavros/setpoint_velocity/cmd_vel_unstamped', Twist, queue_size=10)
-        self.avoidance_pub = rospy.Publisher('/collision_avoidance/commands', String, queue_size=10)
-        self.obstacle_map_pub = rospy.Publisher('/collision_avoidance/obstacle_map', String, queue_size=10)
-        self.avoidance_status_pub = rospy.Publisher('/collision_avoidance/status', String, queue_size=10)
+
+        # Publishers (traced so each publish shows up as a span)
+        self.control_pub = create_traced_publisher(
+            '/mavros/setpoint_velocity/cmd_vel_unstamped', Twist, queue_size=10, tracer_name='collision_avoidance'
+        )
+        self.avoidance_pub = create_traced_publisher(
+            '/collision_avoidance/commands', String, queue_size=10, tracer_name='collision_avoidance'
+        )
+        self.obstacle_map_pub = create_traced_publisher(
+            '/collision_avoidance/obstacle_map', String, queue_size=10, tracer_name='collision_avoidance'
+        )
+        self.avoidance_status_pub = create_traced_publisher(
+            '/collision_avoidance/status', String, queue_size=10, tracer_name='collision_avoidance'
+        )
         
         # Timers
         self.avoidance_timer = rospy.Timer(rospy.Duration(0.1), self.avoidance_loop)
         self.obstacle_map_timer = rospy.Timer(rospy.Duration(1.0), self.update_obstacle_map)
         self.status_timer = rospy.Timer(rospy.Duration(1.0), self.publish_status)
-        
+
+        self.logger.info("node_initialized", extra={
+            "min_obstacle_distance": self.min_obstacle_distance,
+            "max_obstacle_distance": self.max_obstacle_distance,
+            "lidar_enabled": self.lidar_enabled,
+            "camera_enabled": self.camera_enabled,
+            "radar_enabled": self.radar_enabled,
+            "infrared_enabled": self.infrared_enabled
+        })
         rospy.loginfo("Collision Avoidance initialized")
-    
+
+    def _init_metrics(self):
+        """Initialize Prometheus metrics for this node"""
+        self.logger.debug("initializing_metrics")
+
+        self.metric_obstacles_detected_total = self.metrics.counter(
+            "obstacles_detected_total",
+            "Total number of newly detected obstacles",
+            labels=["sensor"]
+        )
+        self.metric_avoidance_maneuvers_total = self.metrics.counter(
+            "avoidance_maneuvers_total",
+            "Total number of avoidance maneuvers executed"
+        )
+        self.metric_emergency_evasions_total = self.metrics.counter(
+            "emergency_evasions_total",
+            "Total number of emergency evasions triggered",
+            labels=["trigger"]
+        )
+        self.metric_errors_total = self.metrics.counter(
+            "errors_total",
+            "Total number of errors encountered",
+            labels=["error_type"]
+        )
+
+        self.metric_collision_risk = self.metrics.gauge(
+            "collision_risk_level",
+            "Current calculated collision risk level (0.0-1.0)"
+        )
+        self.metric_obstacle_count = self.metrics.gauge(
+            "obstacle_count",
+            "Current number of tracked obstacles"
+        )
+        self.metric_status_emergency = self.metrics.gauge(
+            "status_is_emergency",
+            "Whether collision avoidance status is currently EMERGENCY (1) or not (0)"
+        )
+
+        self.metric_avoidance_loop_duration = self.metrics.histogram(
+            "avoidance_loop_duration_seconds",
+            "Time taken to complete one avoidance loop iteration",
+            buckets=[0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25]
+        )
+
+        self.logger.info("metrics_initialized")
+
+    @traced_ros_callback('collision_avoidance', 'odometry_callback')
     def odometry_callback(self, msg):
         """Update current vehicle state"""
         self.current_position = np.array([
@@ -131,7 +188,6 @@ class CollisionAvoidance:
         ])
         
         # Extract current yaw from quaternion
-        from tf.transformations import euler_from_quaternion
         quat = [
             msg.pose.pose.orientation.x,
             msg.pose.pose.orientation.y,
@@ -141,6 +197,7 @@ class CollisionAvoidance:
         roll, pitch, yaw = euler_from_quaternion(quat)
         self.current_yaw = yaw
     
+    @traced_ros_callback('collision_avoidance', 'lidar_callback')
     def lidar_callback(self, msg):
         """Process LiDAR data"""
         if not self.lidar_enabled:
@@ -168,8 +225,12 @@ class CollisionAvoidance:
             
             rospy.logdebug(f"LiDAR detected {len(points)} points")
         except Exception as e:
+            self.error_count += 1
+            self.metric_errors_total.labels(error_type="lidar_processing").inc()
+            self.logger.warning("lidar_processing_failed", extra={"error": str(e)})
             rospy.logwarn(f"LiDAR processing error: {e}")
     
+    @traced_ros_callback('collision_avoidance', 'camera_callback')
     def camera_callback(self, msg):
         """Process camera data"""
         if not self.camera_enabled:
@@ -194,8 +255,12 @@ class CollisionAvoidance:
                     self.update_obstacle_detection('camera', point)
         
         except Exception as e:
+            self.error_count += 1
+            self.metric_errors_total.labels(error_type="camera_processing").inc()
+            self.logger.warning("camera_processing_failed", extra={"error": str(e)})
             rospy.logwarn(f"Camera processing error: {e}")
     
+    @traced_ros_callback('collision_avoidance', 'radar_callback')
     def radar_callback(self, msg):
         """Process radar data"""
         if not self.radar_enabled:
@@ -211,8 +276,12 @@ class CollisionAvoidance:
             
             rospy.logdebug(f"Radar detected {len(radar_data.get('detections', []))} objects")
         except Exception as e:
+            self.error_count += 1
+            self.metric_errors_total.labels(error_type="radar_processing").inc()
+            self.logger.warning("radar_processing_failed", extra={"error": str(e)})
             rospy.logwarn(f"Radar processing error: {e}")
     
+    @traced_ros_callback('collision_avoidance', 'infrared_callback')
     def infrared_callback(self, msg):
         """Process infrared data"""
         if not self.infrared_enabled:
@@ -228,8 +297,12 @@ class CollisionAvoidance:
             
             rospy.logdebug(f"Infrared detected {len(ir_data.get('detections', []))} objects")
         except Exception as e:
+            self.error_count += 1
+            self.metric_errors_total.labels(error_type="infrared_processing").inc()
+            self.logger.warning("infrared_processing_failed", extra={"error": str(e)})
             rospy.logwarn(f"Infrared processing error: {e}")
     
+    @traced_ros_callback('collision_avoidance', 'tracked_targets_callback')
     def tracked_targets_callback(self, msg):
         """Process tracked target updates"""
         if msg.targets:
@@ -238,12 +311,14 @@ class CollisionAvoidance:
                 point = (target.position.x, target.position.y, target.position.z)
                 self.update_obstacle_detection('target', point)
     
+    @traced_ros_callback('collision_avoidance', 'safety_status_callback')
     def safety_status_callback(self, msg):
         """Process safety status updates"""
         if not msg.is_safe:
+            self.logger.warning("safety_violation", extra={"violations": list(msg.violations)})
             rospy.logwarn(f"Safety violation: {msg.violations}")
             self.status = CollisionAvoidanceStatus.EMERGENCY
-            self.trigger_emergency_evasion()
+            self.trigger_emergency_evasion(trigger="safety_violation")
     
     def update_obstacle_detection(self, sensor_type, point):
         """Update obstacle detection list"""
@@ -275,38 +350,69 @@ class CollisionAvoidance:
             
             self.detected_obstacles.append(obstacle)
             self.last_obstacle_detection = time.time()
-            
+            self.metric_obstacles_detected_total.labels(sensor=sensor_type).inc()
+
+            self.logger.info("obstacle_detected", extra={
+                "sensor": sensor_type,
+                "point": list(point),
+                "distance": obstacle['distance']
+            })
             rospy.loginfo(f"New obstacle detected by {sensor_type}: {point}, distance: {obstacle['distance']:.2f}m")
     
     def avoidance_loop(self, event):
         """Main avoidance loop"""
-        current_time = time.time()
-        
-        # Update obstacle velocities
-        self.update_obstacle_velocities()
-        
-        # Calculate collision risk
-        self.collision_risk_level = self.calculate_collision_risk()
-        
-        # Check for immediate collision
-        if self.collision_risk_level > 0.8:
-            self.status = CollisionAvoidanceStatus.EMERGENCY
-            self.trigger_immediate_evasion()
-        elif self.collision_risk_level > 0.5:
-            self.status = CollisionAvoidanceStatus.EVADING
-        elif self.collision_risk_level > 0.2:
-            self.status = CollisionAvoidanceStatus.MONITORING
-        else:
-            self.status = CollisionAvoidanceStatus.ACTIVE
-        
-        # Calculate escape vector
-        self.calculate_escape_vector()
-        
-        # Execute avoidance maneuver
-        if self.status == CollisionAvoidanceStatus.EVADING:
-            self.execute_avoidance_maneuver()
-        elif self.status == CollisionAvoidanceStatus.EMERGENCY:
-            self.execute_emergency_evasion()
+        with span_context(self.tracer, "avoidance_loop") as span:
+            with MetricTimer(self.metric_avoidance_loop_duration):
+                current_time = time.time()
+
+                # Nothing meaningful to do until the first odometry message
+                # has arrived -- calculate_collision_risk() already
+                # tolerates current_position being None (returns 0.0), but
+                # execute_avoidance_maneuver()/trigger_immediate_evasion()
+                # index directly into current_velocity, so bail out early
+                # rather than relying on that being coincidentally safe.
+                if self.current_position is None or self.current_velocity is None:
+                    span.set_attribute("skipped_no_odometry", True)
+                    return
+
+                # Update obstacle velocities
+                self.update_obstacle_velocities()
+
+                # Calculate collision risk
+                self.collision_risk_level = self.calculate_collision_risk()
+                self.metric_collision_risk.set(self.collision_risk_level)
+                self.metric_obstacle_count.set(len(self.detected_obstacles))
+
+                # Check for immediate collision
+                if self.collision_risk_level > 0.8:
+                    self.status = CollisionAvoidanceStatus.EMERGENCY
+                    self.trigger_immediate_evasion()
+                elif self.collision_risk_level > 0.5:
+                    self.status = CollisionAvoidanceStatus.EVADING
+                elif self.collision_risk_level > 0.2:
+                    self.status = CollisionAvoidanceStatus.MONITORING
+                else:
+                    self.status = CollisionAvoidanceStatus.ACTIVE
+
+                self.metric_status_emergency.set(1 if self.status == CollisionAvoidanceStatus.EMERGENCY else 0)
+
+                # Calculate escape vector
+                self.calculate_escape_vector()
+
+                # Execute avoidance maneuver
+                if self.status == CollisionAvoidanceStatus.EVADING:
+                    self.execute_avoidance_maneuver()
+                elif self.status == CollisionAvoidanceStatus.EMERGENCY:
+                    # NOTE: previously called self.execute_emergency_evasion(),
+                    # a method that was never defined anywhere in this class
+                    # -- this raised AttributeError the first time risk
+                    # exceeded 0.8. The method that actually performs the
+                    # stop-and-alert sequence is trigger_emergency_evasion().
+                    self.trigger_emergency_evasion(trigger="avoidance_loop")
+
+                span.set_attribute("status", self.status.value)
+                span.set_attribute("collision_risk_level", self.collision_risk_level)
+                span.set_attribute("obstacle_count", len(self.detected_obstacles))
     
     def update_obstacle_velocities(self):
         """Update obstacle velocities based on movement patterns"""
@@ -406,6 +512,7 @@ class CollisionAvoidance:
                 # Scale to desired escape speed
                 self.escape_vector = combined_vector * self.avoidance_velocity
     
+    @traced('collision_avoidance', 'execute_avoidance_maneuver')
     def execute_avoidance_maneuver(self):
         """Execute avoidance maneuver"""
         if np.linalg.norm(self.escape_vector) == 0:
@@ -440,11 +547,17 @@ class CollisionAvoidance:
         
         # Publish control command
         self.control_pub.publish(twist)
-        
+
+        self.metric_avoidance_maneuvers_total.inc()
+        self.logger.info("avoidance_maneuver_executed", extra={
+            "escape_vector": self.escape_vector.tolist()
+        })
         rospy.loginfo(f"Executing avoidance maneuver: {self.escape_vector}")
     
+    @traced('collision_avoidance', 'trigger_immediate_evasion')
     def trigger_immediate_evasion(self):
         """Trigger immediate emergency evasion"""
+        self.logger.error("immediate_collision_evasion_triggered")
         rospy.logerr("IMMEDIATE COLLISION EVASION TRIGGERED!")
         
         # Calculate emergency escape vector
@@ -455,9 +568,10 @@ class CollisionAvoidance:
             self.escape_vector = self.escape_vector / velocity_magnitude * self.avoidance_velocity * 2.0
         
         # Execute emergency maneuver
-        self.execute_emergency_evasion()
+        self.trigger_emergency_evasion(trigger="immediate_evasion")
     
-    def trigger_emergency_evasion(self):
+    @traced('collision_avoidance', 'trigger_emergency_evasion')
+    def trigger_emergency_evasion(self, trigger="unknown"):
         """Execute emergency evasion maneuver"""
         # Stop current movement
         stop_twist = Twist()
@@ -480,7 +594,12 @@ class CollisionAvoidance:
         
         # Change status
         self.status = CollisionAvoidanceStatus.EMERGENCY
-        
+
+        self.metric_emergency_evasions_total.labels(trigger=trigger).inc()
+        self.logger.error("emergency_evasion_activated", extra={
+            "trigger": trigger,
+            "escape_vector": self.escape_vector.tolist()
+        })
         rospy.logwarn("Emergency evasion activated - STOPPING IMMEDIATELY")
     
     def update_obstacle_map(self, event):
@@ -488,47 +607,53 @@ class CollisionAvoidance:
         if not self.detected_obstacles:
             return
         
-        # Create obstacle map message
-        map_data = {
-            'timestamp': time.time(),
-            'obstacle_count': len(self.detected_obstacles),
-            'obstacles': []
-        }
-        
-        for obstacle in self.detected_obstacles:
-            map_data['obstacles'].append({
-                'position': obstacle['point'],
-                'sensor': obstacle['sensor'],
-                'distance': obstacle['distance'],
-                'velocity': obstacle['velocity'].tolist(),
-                'type': obstacle['type']
-            })
-        
-        # Publish obstacle map
-        map_msg = String()
-        map_msg.data = json.dumps(map_data)
-        self.obstacle_map_pub.publish(map_msg)
+        with span_context(self.tracer, "update_obstacle_map", {
+            "obstacle_count": len(self.detected_obstacles)
+        }):
+            # Create obstacle map message
+            map_data = {
+                'timestamp': time.time(),
+                'obstacle_count': len(self.detected_obstacles),
+                'obstacles': []
+            }
+            
+            for obstacle in self.detected_obstacles:
+                map_data['obstacles'].append({
+                    'position': obstacle['point'],
+                    'sensor': obstacle['sensor'],
+                    'distance': obstacle['distance'],
+                    'velocity': obstacle['velocity'].tolist(),
+                    'type': obstacle['type']
+                })
+            
+            # Publish obstacle map
+            map_msg = String()
+            map_msg.data = json.dumps(map_data)
+            self.obstacle_map_pub.publish(map_msg)
     
     def publish_status(self, event):
         """Publish collision avoidance status"""
-        status_msg = String()
-        
-        status_info = {
-            'status': self.status.value,
-            'obstacle_count': len(self.detected_obstacles),
-            'collision_risk_level': self.collision_risk_level,
-            'escape_vector': self.escape_vector.tolist(),
-            'emergency_stop_timer': time.time() - self.emergency_stop_timer if self.emergency_stop_timer > 0 else 0.0,
-            'enabled_sensors': {
-                'lidar': self.lidar_enabled,
-                'camera': self.camera_enabled,
-                'radar': self.radar_enabled,
-                'infrared': self.infrared_enabled
+        with span_context(self.tracer, "publish_status", {
+            "status": self.status.value
+        }):
+            status_msg = String()
+            
+            status_info = {
+                'status': self.status.value,
+                'obstacle_count': len(self.detected_obstacles),
+                'collision_risk_level': self.collision_risk_level,
+                'escape_vector': self.escape_vector.tolist(),
+                'emergency_stop_timer': time.time() - self.emergency_stop_timer if self.emergency_stop_timer > 0 else 0.0,
+                'enabled_sensors': {
+                    'lidar': self.lidar_enabled,
+                    'camera': self.camera_enabled,
+                    'radar': self.radar_enabled,
+                    'infrared': self.infrared_enabled
+                }
             }
-        }
-        
-        status_msg.data = json.dumps(status_info)
-        self.avoidance_status_pub.publish(status_msg)
+            
+            status_msg.data = json.dumps(status_info)
+            self.avoidance_status_pub.publish(status_msg)
 
 if __name__ == '__main__':
     try:

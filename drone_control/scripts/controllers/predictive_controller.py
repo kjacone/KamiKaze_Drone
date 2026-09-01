@@ -14,36 +14,28 @@ controller uses `simple_target_prediction` (constant-velocity extrapolation)
 instead, which is a legitimate, well-understood baseline on its own.
 """
 
-import rospy
-import numpy as np
+import json
+import os
+import time
 from enum import Enum
+
+import numpy as np
+import rospy
+
+
 from geometry_msgs.msg import PoseStamped, Twist
 from nav_msgs.msg import Odometry, Path
-from drone_control.msg import TrackedTarget
 from std_msgs.msg import String
-import sys
-import os
-import math
-import json
-import time
-from typing import List, Tuple, Optional, Dict, Set
 
-sys.path.append(os.path.join(os.path.dirname(__file__), 'utils'))
-
-try:
-    from error_handler import ErrorHandler
-    from lib.control_lib import ControlLibrary
-except ImportError:
-    class ErrorHandler:
-        def __init__(self, node_name):
-            self.node_name = node_name
-        def handle_error(self, error, context=None):
-            rospy.logerr(f"[{self.node_name}] {error}: {context}")
-
-    class ControlLibrary:
-        @staticmethod
-        def calculate_velocity_to_target(current, target, max_speed):
-            return Twist()
+from drone_control.lib import ControlLibrary
+from drone_control.utils.ros_tracing import get_component_tracer, create_traced_publisher, traced_ros_callback, \
+    span_context
+from drone_control.utils.tracing import init_tracing, traced
+from drone_control.msg  import TrackedTargets
+from drone_control.utils import ErrorHandler
+from drone_control.utils.correlation import get_or_create_mission_id
+from drone_control.utils.logging_framework import get_logger,get_logger_with_ros_level
+from drone_control.utils.metrics_collector import MetricsCollector, MetricTimer
 
 # TensorFlow is optional at runtime. Importing it (or a wheel compiled for
 # AVX on a CPU/VM without AVX) can hard-crash the process with "Illegal
@@ -72,6 +64,18 @@ class PredictiveController:
     def __init__(self):
         rospy.init_node('predictive_controller', anonymous=False)
 
+        # Initialize structured logger
+        self.logger = get_logger_with_ros_level("predictive_controller")
+        self.logger.info("node_initializing", extra={
+            "version": "1.0.0",
+            "simulation_mode": rospy.get_param('/use_simulation', True)
+        })
+
+        # Tracing setup, before anything else registers
+        # publishers/subscribers/timers.
+        init_tracing(component='predictive_controller')
+        self.tracer = get_component_tracer('predictive_controller')
+
         self.error_handler = ErrorHandler(node_name='predictive_controller')
         self.control_lib = ControlLibrary()
 
@@ -94,6 +98,10 @@ class PredictiveController:
 
         self.simulation_mode = rospy.get_param('/use_simulation', True)
 
+        # Initialize metrics collector (parameters above must be set first)
+        self.metrics = MetricsCollector("predictive_controller", port=8006)
+        self._init_metrics()
+
         # State variables
         self.current_state = None
         self.target_trajectory = None
@@ -110,15 +118,32 @@ class PredictiveController:
 
         # Subscribers
         self.odom_sub = rospy.Subscriber('/mavros/local_position/odom', Odometry, self.odometry_callback)
-        self.tracked_targets_sub = rospy.Subscriber('/tracked_targets', TrackedTarget, self.tracked_targets_callback)
+        # NOTE: this used to import/subscribe with `TrackedTarget` (singular),
+        # but the callback below reads msg.targets -- that's the *plural*
+        # container message (see trajectory_planner.py, which gets this
+        # right). Subscribing with the wrong message type makes ROS refuse
+        # the connection outright ("topic types do not match"), so this
+        # callback never fired at all and target-trajectory prediction never
+        # ran.
+        self.tracked_targets_sub = rospy.Subscriber('/tracked_targets', TrackedTargets, self.tracked_targets_callback)
         self.planner_status_sub = rospy.Subscriber('/planner_status', String, self.planner_status_callback)
 
         # Publishers
-        self.control_pub = rospy.Publisher('/mavros/setpoint_velocity/cmd_vel_unstamped', Twist, queue_size=10)
-        self.position_target_pub = rospy.Publisher('/mavros/setpoint_raw/local', PoseStamped, queue_size=10)
-        self.prediction_pub = rospy.Publisher('/predicted_trajectory', Path, queue_size=10)
-        self.optimization_pub = rospy.Publisher('/optimization_results', String, queue_size=10)
-        self.controller_status_pub = rospy.Publisher('/controller_status', String, queue_size=10)
+        self.control_pub = create_traced_publisher(
+            '/mavros/setpoint_velocity/cmd_vel_unstamped', Twist, queue_size=10, tracer_name='predictive_controller'
+        )
+        self.position_target_pub = create_traced_publisher(
+            '/mavros/setpoint_raw/local', PoseStamped, queue_size=10, tracer_name='predictive_controller'
+        )
+        self.prediction_pub = create_traced_publisher(
+            '/predicted_trajectory', Path, queue_size=10, tracer_name='predictive_controller'
+        )
+        self.optimization_pub = create_traced_publisher(
+            '/optimization_results', String, queue_size=10, tracer_name='predictive_controller'
+        )
+        self.controller_status_pub = create_traced_publisher(
+            '/controller_status', String, queue_size=10, tracer_name='predictive_controller'
+        )
 
         # Timers
         self.prediction_timer = rospy.Timer(rospy.Duration(1.0 / self.control_frequency), self.prediction_loop)
@@ -136,7 +161,69 @@ class PredictiveController:
                 "-- using constant-velocity target prediction instead."
             )
 
+        self.logger.info("node_initialized", extra={
+            "horizon_length": self.horizon_length,
+            "control_frequency": self.control_frequency,
+            "neural_network_enabled": self.neural_network_enabled,
+            "simulation_mode": self.simulation_mode
+        })
         rospy.loginfo("Predictive Controller initialized")
+
+    def _init_metrics(self):
+        """Initialize Prometheus metrics for this node"""
+        self.logger.debug("initializing_metrics")
+
+        # Counters
+        self.metric_predictions_total = self.metrics.counter(
+            "predictions_total",
+            "Total number of target-trajectory predictions run",
+            labels=["method"]
+        )
+        self.metric_neural_prediction_failures_total = self.metrics.counter(
+            "neural_prediction_failures_total",
+            "Total number of neural-network predictions that raised an exception and fell back"
+        )
+        self.metric_emergency_stops_total = self.metrics.counter(
+            "emergency_stops_total",
+            "Total number of emergency stops triggered"
+        )
+        self.metric_errors_total = self.metrics.counter(
+            "errors_total",
+            "Total number of errors encountered",
+            labels=["error_type"]
+        )
+
+        # Gauges
+        self.metric_trajectory_quality = self.metrics.gauge(
+            "trajectory_quality",
+            "Current trajectory quality score (0-1)"
+        )
+        self.metric_prediction_error = self.metrics.gauge(
+            "prediction_error",
+            "Mean recent prediction error (position, meters)"
+        )
+        self.metric_control_sequence_length = self.metrics.gauge(
+            "control_sequence_length",
+            "Number of control commands remaining in the current sequence"
+        )
+        self.metric_neural_network_enabled = self.metrics.gauge(
+            "neural_network_enabled",
+            "Whether the neural prediction path is active (1=yes, 0=no)"
+        )
+        self.metric_emergency_stop_status = self.metrics.gauge(
+            "emergency_stop_active",
+            "Whether the controller is currently in emergency stop (1=yes, 0=no)"
+        )
+
+        # Histograms
+        self.metric_prediction_loop_duration = self.metrics.histogram(
+            "prediction_loop_duration_seconds",
+            "Time taken by a full prediction_loop cycle",
+            buckets=[0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5]
+        )
+
+        self.metric_neural_network_enabled.set(0)
+        self.logger.info("metrics_initialized")
 
     def initialize_neural_network(self):
         """Load a trained neural network for trajectory prediction, if available.
@@ -155,6 +242,7 @@ class PredictiveController:
                 "constant-velocity prediction. See ~model_weights_path and "
                 "the training plan for how to bring the neural path up."
             )
+            self.logger.warning("tensorflow_unavailable")
             return
 
         if not self.model_weights_path or not os.path.exists(self.model_weights_path):
@@ -165,17 +253,25 @@ class PredictiveController:
                 f"offline first (see training plan) and point this param at "
                 f"the resulting weights file."
             )
+            self.logger.warning("no_trained_weights_found", extra={
+                "model_weights_path": self.model_weights_path
+            })
             return
 
         try:
             self.neural_network_model = tf.keras.models.load_model(self.model_weights_path)
             self.neural_network_enabled = True
+            self.metric_neural_network_enabled.set(1)
             rospy.loginfo(f"Loaded trained neural network from {self.model_weights_path}")
+            self.logger.info("neural_network_loaded", extra={"path": self.model_weights_path})
         except Exception as e:
             rospy.logwarn(f"Could not load neural network weights: {e}")
+            self.logger.exception("neural_network_load_failed", extra={"error": str(e)})
+            self.metric_errors_total.labels(error_type="neural_network_load").inc()
             self.neural_network_model = None
             self.neural_network_enabled = False
 
+    @traced_ros_callback('predictive_controller', 'odometry_callback')
     def odometry_callback(self, msg):
         """Update current vehicle state"""
         self.current_state = np.array([
@@ -194,6 +290,7 @@ class PredictiveController:
         if self.emergency_stop:
             self.trigger_emergency_stop()
 
+    @traced_ros_callback('predictive_controller', 'tracked_targets_callback')
     def tracked_targets_callback(self, msg):
         """Handle tracked target updates"""
         if self.current_state is None:
@@ -221,48 +318,87 @@ class PredictiveController:
                 # Predict target trajectory
                 self.predict_target_trajectory(closest_target)
 
+    @traced_ros_callback('predictive_controller', 'planner_status_callback')
     def planner_status_callback(self, msg):
-        """Handle planner status updates"""
-        try:
-            status_data = json.loads(msg.data)
-            if status_data.get('status') == 'emergency':
-                self.emergency_stop = True
-            elif status_data.get('status') == 'arrived':
+        """Handle planner status updates.
+
+        NOTE: trajectory_planner.publish_status() publishes plain strings
+        (e.g. "emergency", "searching", "planning",
+        "following_waypoints_2/5"), not JSON -- so the previous
+        `json.loads(msg.data)` here always raised, was swallowed by the
+        except block, and this callback never actually updated
+        emergency_stop/status. Parse the plain-string protocol the planner
+        actually uses instead.
+
+        This also adds a recovery path: previously emergency_stop was only
+        ever set to True and nothing ever cleared it, so a single emergency
+        would latch the controller into PredictiveControllerStatus.EMERGENCY
+        forever with no way back.
+        """
+        status = msg.data
+        self.logger.debug("planner_status_received", extra={"status": status})
+
+        if status in ('emergency', 'emergency_stop'):
+            self.emergency_stop = True
+            self.logger.warning("emergency_stop_set_from_planner", extra={"status": status})
+        else:
+            # Planner has reported a non-emergency status (searching,
+            # planning, following_waypoints_*), so clear our own latched
+            # emergency_stop and let the controller resume driving.
+            if self.emergency_stop:
+                self.logger.info("emergency_stop_cleared_from_planner", extra={"status": status})
+            self.emergency_stop = False
+            if self.status == PredictiveControllerStatus.EMERGENCY:
                 self.status = PredictiveControllerStatus.IDLE
-        except Exception as e:
-            rospy.logwarn(f"Could not parse planner status: {e}")
 
     def prediction_loop(self, event):
         """Main prediction loop"""
-        if self.emergency_stop:
-            return
+        with span_context(self.tracer, "prediction_loop") as span:
+            with MetricTimer(self.metric_prediction_loop_duration):
+                if self.emergency_stop:
+                    span.set_attribute("skipped_reason", "emergency_stop")
+                    return
 
-        if self.current_state is not None:
-            self.status = PredictiveControllerStatus.PREDICTING
+                if self.current_state is not None:
+                    self.status = PredictiveControllerStatus.PREDICTING
 
-            # Run prediction
-            self.run_prediction()
+                    # Run prediction
+                    self.run_prediction()
 
-            # Optimize controls
-            self.status = PredictiveControllerStatus.OPTIMIZING
-            self.optimize_controls()
+                    # Optimize controls
+                    self.status = PredictiveControllerStatus.OPTIMIZING
+                    self.optimize_controls()
 
-            # Execute optimized controls
-            self.status = PredictiveControllerStatus.CONTROLLING
-            self.execute_controls()
+                    # Execute optimized controls
+                    self.status = PredictiveControllerStatus.CONTROLLING
+                    self.execute_controls()
+
+                    # Used by collect_performance_metrics() to report a real
+                    # execution_time; previously this was never assigned after
+                    # init, so execution_time = time.time() - 0.0 reported a
+                    # Unix-timestamp-sized number instead of a duration.
+                    self.last_update_time = time.time()
 
     def optimization_loop(self, event):
         """Performance optimization and monitoring"""
-        # Collect performance metrics
-        self.collect_performance_metrics()
+        with span_context(self.tracer, "optimization_loop") as span:
+            # Collect performance metrics
+            self.collect_performance_metrics()
 
-        # Update trajectory quality
-        if self.optimization_result:
-            self.update_trajectory_quality()
+            # Update trajectory quality
+            if self.optimization_result:
+                self.update_trajectory_quality()
 
+            self.metric_trajectory_quality.set(self.trajectory_quality)
+            self.metric_prediction_error.set(self.calculate_prediction_error())
+            self.metric_control_sequence_length.set(len(self.control_sequence))
+            span.set_attribute("trajectory_quality", self.trajectory_quality)
+
+    @traced('predictive_controller', 'predict_target_trajectory')
     def predict_target_trajectory(self, target):
         """Predict target trajectory, using the trained network if loaded, otherwise the constant-velocity fallback"""
         if not self.neural_network_enabled:
+            self.metric_predictions_total.labels(method="simple").inc()
             self.simple_target_prediction(target)
             return
 
@@ -291,9 +427,16 @@ class PredictiveController:
                 pos = predicted_trajectory[i*3:(i+1)*3]
                 self.target_trajectory.append(pos)
 
+            self.metric_predictions_total.labels(method="neural").inc()
             rospy.logdebug(f"Target trajectory predicted with {len(self.target_trajectory)} points")
+            self.logger.debug("neural_target_trajectory_predicted", extra={
+                "point_count": len(self.target_trajectory)
+            })
         except Exception as e:
             rospy.logwarn(f"Neural network prediction failed: {e}")
+            self.logger.exception("neural_prediction_failed", extra={"error": str(e)})
+            self.metric_neural_prediction_failures_total.inc()
+            self.metric_errors_total.labels(error_type="neural_prediction").inc()
             self.simple_target_prediction(target)
 
     def simple_target_prediction(self, target):
@@ -313,15 +456,34 @@ class PredictiveController:
                 target.position.z + target_velocity[2] * i * self.time_step
             ])
 
-            # Add some randomness
-            future_position += np.random.normal(0, 0.1, 3)
+            # Add simulated uncertainty. This is only meaningful for
+            # testing against a simulator -- on real hardware there's no
+            # reason to inject fake noise into a real target's predicted
+            # position, since it just makes tracking jitter for no benefit.
+            if self.simulation_mode:
+                future_position += np.random.normal(0, 0.1, 3)
 
             self.target_trajectory.append(future_position)
 
+    @traced('predictive_controller', 'run_prediction')
     def run_prediction(self):
         """Run MPC prediction"""
         if self.current_state is None:
             return
+
+        # Evaluate the *previous* cycle's first predicted future state
+        # against where we actually ended up, so calculate_prediction_error()
+        # / update_trajectory_quality() reflect real prediction accuracy
+        # instead of staying at zero forever (prediction_errors was
+        # previously never appended to anywhere in this file).
+        if self.prediction_horizon and len(self.prediction_horizon) > 1:
+            previously_predicted_next_state = self.prediction_horizon[1]
+            position_error = float(np.linalg.norm(
+                previously_predicted_next_state[0:3] - self.current_state[0:3]
+            ))
+            self.prediction_errors.append(position_error)
+            if len(self.prediction_errors) > 100:
+                self.prediction_errors.pop(0)
 
         # Predict future states based on current dynamics
         self.prediction_horizon = []
@@ -335,8 +497,13 @@ class PredictiveController:
             # Predict next state
             future_state = self.predict_next_state(current_state)
 
-            # Add prediction error
-            future_state += self.add_prediction_error()
+            # Add prediction error to simulate uncertainty. As with the
+            # target-prediction noise above, this should only apply when
+            # testing against a simulator -- injecting random noise into
+            # the state used by the control law on real hardware would
+            # make every command noisier for no reason.
+            if self.simulation_mode:
+                future_state += self.add_prediction_error()
 
             # Add to horizon
             self.prediction_horizon.append(future_state)
@@ -459,6 +626,7 @@ class PredictiveController:
             if acceleration_magnitude > self.max_acceleration:
                 control['acceleration'] = acceleration * (self.max_acceleration / acceleration_magnitude)
 
+    @traced('predictive_controller', 'execute_controls')
     def execute_controls(self):
         """Execute optimized control commands"""
         if not self.control_sequence or len(self.control_sequence) == 0:
@@ -476,15 +644,22 @@ class PredictiveController:
         # Publish control command
         self.control_pub.publish(twist)
 
-        # Also publish position setpoint for more precise control
-        pose = PoseStamped()
-        pose.header.stamp = rospy.Time.now()
-        pose.header.frame_id = "map"
-        pose.pose.position.x = self.prediction_horizon[0][0]
-        pose.pose.position.y = self.prediction_horizon[0][1]
-        pose.pose.position.z = self.prediction_horizon[0][2]
-
-        self.position_target_pub.publish(pose)
+        # Also publish a position setpoint for more precise control.
+        # prediction_horizon[0] is a copy of the *current* actual state
+        # (see run_prediction()), not a forward prediction -- publishing
+        # it as the position setpoint told the flight controller to stay
+        # exactly where it already was, fighting the velocity command
+        # above and preventing any net movement toward the target. Use
+        # the first predicted *future* state instead.
+        if len(self.prediction_horizon) > 1:
+            next_state = self.prediction_horizon[1]
+            pose = PoseStamped()
+            pose.header.stamp = rospy.Time.now()
+            pose.header.frame_id = "map"
+            pose.pose.position.x = next_state[0]
+            pose.pose.position.y = next_state[1]
+            pose.pose.position.z = next_state[2]
+            self.position_target_pub.publish(pose)
 
         # Remove executed command
         self.control_sequence.pop(0)
@@ -515,7 +690,7 @@ class PredictiveController:
             'prediction_error': self.calculate_prediction_error(),
             'control_smoothness': self.calculate_control_smoothness(),
             'trajectory_quality': self.trajectory_quality,
-            'execution_time': time.time() - self.last_update_time
+            'execution_time': time.time() - self.last_update_time if self.last_update_time else 0.0
         }
 
         self.control_performance.append(metrics)
@@ -557,9 +732,12 @@ class PredictiveController:
         # Normalize quality between 0 and 1
         self.trajectory_quality = max(0.0, min(1.0, 1.0 - mean_error / 1.0))
 
+    @traced('predictive_controller', 'trigger_emergency_stop')
     def trigger_emergency_stop(self):
         """Trigger emergency stop procedures"""
         rospy.logerr("Emergency stop triggered in predictive controller!")
+        self.logger.error("emergency_stop_triggered")
+        self.metric_emergency_stops_total.inc()
 
         # Stop all controls
         twist = Twist()
@@ -581,20 +759,26 @@ class PredictiveController:
 
     def publish_status(self, event):
         """Publish controller status"""
-        status_msg = String()
+        with span_context(self.tracer, "publish_status") as span:
+            status_msg = String()
 
-        status_info = {
-            'status': self.status.value,
-            'prediction_horizon': len(self.prediction_horizon) if self.prediction_horizon else 0,
-            'control_sequence_length': len(self.control_sequence),
-            'target_trajectory_length': len(self.target_trajectory) if self.target_trajectory else 0,
-            'trajectory_quality': self.trajectory_quality,
-            'emergency_stop': self.emergency_stop,
-            'neural_network_enabled': self.neural_network_enabled
-        }
+            status_info = {
+                'status': self.status.value,
+                'prediction_horizon': len(self.prediction_horizon) if self.prediction_horizon else 0,
+                'control_sequence_length': len(self.control_sequence),
+                'target_trajectory_length': len(self.target_trajectory) if self.target_trajectory else 0,
+                'trajectory_quality': self.trajectory_quality,
+                'emergency_stop': self.emergency_stop,
+                'neural_network_enabled': self.neural_network_enabled
+            }
 
-        status_msg.data = json.dumps(status_info)
-        self.controller_status_pub.publish(status_msg)
+            status_msg.data = json.dumps(status_info)
+            self.controller_status_pub.publish(status_msg)
+
+            self.metric_emergency_stop_status.set(1 if self.emergency_stop else 0)
+            span.set_attribute("status", self.status.value)
+            span.set_attribute("emergency_stop", self.emergency_stop)
+            self.logger.debug("status_published", extra=status_info)
 
 if __name__ == '__main__':
     try:

@@ -6,11 +6,13 @@ Link to controllers/mission_manager.py
 
 # This is a symbolic link - the actual implementation is in controllers/
 
-import sys
 import os
+import sys
+
+import rospy
 
 # Add parent directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from controllers.mission_manager import MissionManager
 

@@ -3,7 +3,7 @@
 set -e
 
 echo "============================================"
-echo " Starting Kamikaze Drone Simulation Container"
+echo " Starting  Drone Simulation Container"
 echo "============================================"
 
 # ------------------------------------------------------------

@@ -4,9 +4,11 @@ drone_control/scripts/startup_notifier.py
 Startup notification and system initialization
 """
 
-import rospy
 import time
+
+import rospy
 from std_msgs.msg import String
+
 
 class StartupNotifier:
     """Notify system startup and initialization status"""

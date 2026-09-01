@@ -1,3 +1,4 @@
+# docker/monitoring/grafana-datasources.yml
 apiVersion: 1
 
 datasources:
@@ -8,14 +9,47 @@ datasources:
     isDefault: true
     version: 1
     editable: true
+    uid: prometheus
+    jsonData:
+      exemplarTraceIdDestinations:
+        - name: trace_id
+          datasourceUid: tempo
 
-  - name: InfluxDB
-    type: influxdb
+  - name: Loki
+    type: loki
     access: proxy
-    url: http://influxdb:8086
-    database: drone_metrics
-    user: admin
-    password: admin
+    url: http://loki:3100
     isDefault: false
     version: 1
     editable: true
+    uid: loki
+    jsonData:
+      maxLines: 1000
+      timeInterval: 10s
+      derivedFields:
+        - datasourceUid: tempo
+          matcherRegex: '"trace_id":"(\w+)"'
+          name: TraceID
+          url: '$${__value.raw}'
+
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    isDefault: false
+    version: 1
+    editable: true
+    uid: tempo
+    jsonData:
+      httpMethod: GET
+      tracesToLogsV2:
+        datasourceUid: loki
+        spanStartTimeShift: '-5m'
+        spanEndTimeShift: '5m'
+        filterByTraceID: true
+      tracesToMetrics:
+        datasourceUid: prometheus
+      serviceMap:
+        datasourceUid: prometheus
+      nodeGraph:
+        enabled: true

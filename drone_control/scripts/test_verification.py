@@ -4,11 +4,14 @@ drone_control/scripts/test_verification.py
 Test verification node for automated testing
 """
 
-import rospy
-import time
 import json
-from drone_control.msg import TrackedTargets, SafetyStatus, MissionStatus
+import time
+
+import rospy
 from std_msgs.msg import String
+
+from drone_control import MissionStatus, SafetyStatus, TrackedTargets
+
 
 class TestVerification:
     """Verify test results against expected outputs"""
