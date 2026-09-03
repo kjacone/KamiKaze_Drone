@@ -55,7 +55,7 @@ class TrajectoryPlanner:
 
         # Tracing setup, before anything else registers
         # publishers/subscribers/timers.
-        init_tracing(component='trajectory_planner')
+        init_tracing(component='trajectory_planner', service_name='trajectory-planner')
         self.tracer = get_component_tracer('trajectory_planner')
 
         self.error_handler = ErrorHandler(node_name='trajectory_planner')

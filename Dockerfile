@@ -3,7 +3,7 @@
 # ============================================================
 # Application Build Stage docker pull kjacone/kamikaze_drone:base-builder
 # ============================================================
-FROM kjacone/kamikaze-drone-base:latest AS builder
+FROM  kjacone/kamikaze_drone:base-builder AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV ROS_DISTRO=noetic
@@ -85,7 +85,7 @@ RUN /bin/bash -c "\
 # ============================================================
 # Runtime Stage
 # ============================================================
-FROM kjacone/kamikaze-drone-base:latest
+FROM kjacone/kamikaze_drone:base-builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV ROS_DISTRO=noetic
@@ -112,6 +112,9 @@ RUN pip3 install --no-cache-dir \
 # ------------------------------------------------------------
 # Install MAVROS GeographicLib datasets
 # ------------------------------------------------------------
+# First try to install from local file if available
+COPY egm96-5.tar.bz2 /tmp/egm96-5.tar.bz2     
+
 RUN wget -O /tmp/install_geographiclib_datasets.sh \
     https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh \
     && chmod +x /tmp/install_geographiclib_datasets.sh \

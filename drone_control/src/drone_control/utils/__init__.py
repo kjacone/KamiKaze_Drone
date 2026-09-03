@@ -6,7 +6,6 @@ from .generate_schema_doc import SchemaDocumentationGenerator
 from .message_validator import MessageValidator
 from .parameter_loader import ParameterValidator
 from .parameter_validator import ParameterValidator
-from .performance_monitor import PerformanceMonitor
 from .reload_parameters import ParameterReloadClient
 
 __all__ = [
@@ -15,6 +14,5 @@ __all__ = [
     'ParameterValidator',
     'ParameterReloadClient',
     'ParameterValidator',
-    'PerformanceMonitor',
     'SchemaDocumentationGenerator',
 ]

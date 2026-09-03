@@ -60,7 +60,7 @@ scrape_configs:
   - job_name: "predictive-controller"
     static_configs:
       - targets:
-          - "predictive:8002"  # Predictive controller metrics port
+          - "predictive:8006"  # Predictive controller metrics port
     metrics_path: "/metrics"
     scrape_interval: 5s
     scrape_timeout: 3s
@@ -76,7 +76,7 @@ scrape_configs:
   - job_name: "trajectory-planner"
     static_configs:
       - targets:
-          - "trajectory:8003"  # Trajectory planner metrics port
+          - "trajectory:8005"  # 8005 Trajectory planner metrics port
     metrics_path: "/metrics"
     scrape_interval: 5s
     scrape_timeout: 3s
@@ -92,7 +92,7 @@ scrape_configs:
   - job_name: "performance-monitor"
     static_configs:
       - targets:
-          - "performance:8000"  # Performance monitor port
+          - "performance:8004"  # Performance monitor port
     metrics_path: "/metrics"
     scrape_interval: 10s
     scrape_timeout: 5s

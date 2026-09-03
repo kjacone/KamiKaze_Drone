@@ -511,10 +511,10 @@ class SystemHealthMonitor:
         self._check_tcp_port("127.0.0.1", 11311, "ROS master (localhost:11311)")
 
         # Check PX4
-        self._check_tcp_port("127.0.0.1", 14540, "PX4 UDP port (14540)")
+        self._check_tcp_port("px4_sitl", 14540, "PX4 UDP port (14540)")
 
         # Check MAVROS
-        self._check_tcp_port("127.0.0.1", 14550, "MAVROS UDP port (14550)")
+        self._check_tcp_port("px4_sitl", 14550, "MAVROS UDP port (14550)")
 
     def _check_tcp_port(self, host, port, label):
         """Attempt a TCP connection and always close the socket afterwards.

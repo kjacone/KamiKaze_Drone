@@ -1,6 +1,3 @@
-# ============================================================
-# Docker Compose - Simplified Monitoring Stack
-# ============================================================
 
 services:
 
@@ -71,8 +68,32 @@ services:
       timeout: 10s
       retries: 5
       start_period: 45s
+  
+  px4_sitl:
+    image: jonasvautherin/px4-gazebo-headless:latest
+    platform: linux/amd64
+    container_name: px4_sitl
+    hostname: px4_sitl
+    command: ["kamikaze", "kamikaze"]
 
+    networks:
+      - drone_net
 
+    ports:
+      - "14540:14540/udp"
+      - "14550:14550/udp"
+
+    restart: unless-stopped
+    depends_on:
+      - kamikaze
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+        compress: "true"
+           
   # ==========================================================
   # Performance Monitor (already has container metrics)
   # ==========================================================
@@ -195,6 +216,7 @@ services:
       - "--web.enable-lifecycle"
       - "--web.enable-admin-api"
       - "--web.listen-address=0.0.0.0:9090"
+      - "--web.enable-remote-write-receiver"
 
     restart: unless-stopped
 
@@ -264,10 +286,11 @@ services:
     volumes:
       - ./docker/monitoring/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
       - ./docker/monitoring/parsers.conf:/fluent-bit/etc/parsers.conf:ro
+      - ./docker/monitoring/container_name.lua:/fluent-bit/etc/container_name.lua:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - fluent-bit-pos:/fluent-bit/etc/pos
-
+      - fluent-bit-pos:/fluent-bit/etc/pos 
+      
     environment:
       LOKI_URL: http://loki:3100/loki/api/v1/push
 

@@ -73,7 +73,7 @@ class PredictiveController:
 
         # Tracing setup, before anything else registers
         # publishers/subscribers/timers.
-        init_tracing(component='predictive_controller')
+        init_tracing(component='predictive_controller', service_name='predictive-controller')
         self.tracer = get_component_tracer('predictive_controller')
 
         self.error_handler = ErrorHandler(node_name='predictive_controller')

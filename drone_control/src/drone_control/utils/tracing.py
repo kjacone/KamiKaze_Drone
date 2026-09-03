@@ -10,9 +10,6 @@ from contextlib import contextmanager
 from functools import wraps
 from typing import Any, Dict
 
-# Add parent directory to path
-# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 try:
     from drone_control.utils.logging_framework import get_logger
 except ImportError:
@@ -20,10 +17,8 @@ except ImportError:
     def get_logger(name):
         return logging.getLogger(name)
 
-# OpenTelemetry imports
 try:
     from opentelemetry import context, trace
-    from opentelemetry.exporter.jaeger.thrift import JaegerExporter
     from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
     from opentelemetry.instrumentation.grpc import GrpcInstrumentorClient
     from opentelemetry.instrumentation.requests import RequestsInstrumentor
@@ -33,7 +28,7 @@ try:
         BatchSpanProcessor,
         ConsoleSpanExporter,
     )
-    from opentelemetry.trace import Status, StatusCode
+    from opentelemetry.trace import Status, StatusCode, Tracer
     OTEL_AVAILABLE = True
 except ImportError:
     OTEL_AVAILABLE = False
@@ -81,47 +76,33 @@ except ImportError:
     trace = _DummyTraceModule()
 
 
-# Initialize OpenTelemetry
 _initialized = False
 _logger = None
 
 
 def init_tracing(
     service_name: str = "kamikaze-drone",
-    jaeger_host: str = "jaeger",
+    jaeger_host: str = "tempo",
     jaeger_port: int = 14250,
     use_otlp: bool = True,
     export_to_console: bool = False,
     component: str = None
 ):
-    """
-    Initialize OpenTelemetry tracing.
-
-    Args:
-        service_name: Name of the service
-        jaeger_host: Jaeger collector host
-        jaeger_port: Jaeger collector port
-        use_otlp: Use OTLP exporter (gRPC) instead of Thrift
-        export_to_console: Export spans to console for debugging
-        component: Component name for logging
-    """
     global _initialized, _logger
 
     if not OTEL_AVAILABLE:
         _logger = get_logger("tracing")
         _logger.warning("opentelemetry_not_available", extra={
-            "message": "Install: pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-jaeger opentelemetry-exporter-otlp"
+            "message": "Install: pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp"
         })
         return False
 
     if _initialized:
         return True
 
-    # Get logger
     _logger = get_logger(component or "tracing")
 
     try:
-        # Create resource with service information
         resource = Resource.create({
             "service.name": service_name,
             "service.version": "1.0.0",
@@ -129,12 +110,9 @@ def init_tracing(
             "container.name": os.environ.get("HOSTNAME", "unknown"),
         })
 
-        # Create tracer provider
         provider = TracerProvider(resource=resource)
 
-        # Configure exporter
         if use_otlp:
-            # OTLP gRPC exporter (recommended)
             exporter = OTLPSpanExporter(
                 endpoint=f"{jaeger_host}:4317",
                 insecure=True,
@@ -144,7 +122,14 @@ def init_tracing(
                 "endpoint": f"{jaeger_host}:4317"
             })
         else:
-            # Jaeger Thrift exporter (legacy)
+            try:
+                from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+            except ImportError:
+                _logger.error("jaeger_thrift_exporter_not_installed", extra={
+                    "message": "pip install opentelemetry-exporter-jaeger, or use use_otlp=True instead"
+                })
+                return False
+
             exporter = JaegerExporter(
                 collector_endpoint=f"http://{jaeger_host}:14268/api/traces",
                 agent_host_name=jaeger_host,
@@ -155,21 +140,17 @@ def init_tracing(
                 "endpoint": f"http://{jaeger_host}:14268/api/traces"
             })
 
-        # Add batch processor
         span_processor = BatchSpanProcessor(exporter)
         provider.add_span_processor(span_processor)
 
-        # Add console exporter for debugging
         if export_to_console:
             console_exporter = ConsoleSpanExporter()
             console_processor = BatchSpanProcessor(console_exporter)
             provider.add_span_processor(console_processor)
             _logger.info("otel_console_exporter_enabled")
 
-        # Set global tracer provider
         trace.set_tracer_provider(provider)
 
-        # Instrument common libraries
         try:
             RequestsInstrumentor().instrument()
         except Exception as e:
@@ -196,16 +177,6 @@ def init_tracing(
 
 
 def get_tracer(name: str, version: str = "1.0.0") -> Tracer:
-    """
-    Get a tracer instance.
-
-    Args:
-        name: Tracer name (usually component name)
-        version: Tracer version
-
-    Returns:
-        Tracer instance
-    """
     if not OTEL_AVAILABLE:
         return Tracer()
 
@@ -213,8 +184,6 @@ def get_tracer(name: str, version: str = "1.0.0") -> Tracer:
 
 
 class TracingContext:
-    """Context manager for trace context propagation"""
-
     def __init__(self, tracer: Tracer, name: str, attributes: Dict[str, Any] = None):
         self.tracer = tracer
         self.name = name
@@ -228,9 +197,6 @@ class TracingContext:
                 self.name,
                 attributes=self.attributes
             )
-            # Actually activate the span in the current context so that any
-            # child spans created inside this `with` block are correctly
-            # nested underneath it.
             self._token = context.attach(trace.set_span_in_context(self.span))
         return self
 
@@ -246,22 +212,6 @@ class TracingContext:
 
 @contextmanager
 def span_context(tracer: Tracer, name: str, attributes: Dict[str, Any] = None):
-    """
-    Context manager for creating spans.
-
-    Usage:
-        with span_context(tracer, "detect_objects", {"frame_id": 42}) as span:
-            # do work
-            span.set_attribute("detections", 3)
-
-    Args:
-        tracer: Tracer instance
-        name: Span name
-        attributes: Span attributes
-
-    Yields:
-        Span instance
-    """
     if not OTEL_AVAILABLE or not tracer:
         class DummySpan:
             def set_attribute(self, key, value): pass
@@ -283,29 +233,14 @@ def span_context(tracer: Tracer, name: str, attributes: Dict[str, Any] = None):
 
 
 def traced(tracer_name: str, span_name: str = None, attributes: Dict[str, Any] = None):
-    """
-    Decorator for tracing functions.
-
-    Usage:
-        @traced("mission_manager", "execute_mission")
-        def execute_mission(self, mission_id):
-            # function body
-
-    Args:
-        tracer_name: Name for the tracer
-        span_name: Name for the span (defaults to function name)
-        attributes: Static attributes for the span
-    """
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             tracer = get_tracer(tracer_name)
             span_name_ = span_name or func.__name__
 
-            # Try to extract mission_id from args/kwargs
             mission_id = kwargs.get('mission_id')
             if not mission_id and args:
-                # Check if first arg is self and has mission_id
                 if len(args) > 0 and hasattr(args[0], 'mission_id'):
                     mission_id = args[0].mission_id
                 elif len(args) > 0 and isinstance(args[0], str):
@@ -318,20 +253,17 @@ def traced(tracer_name: str, span_name: str = None, attributes: Dict[str, Any] =
                 span_attrs['mission_id'] = mission_id
 
             with span_context(tracer, span_name_, span_attrs) as span:
-                # Add arguments as attributes (limited)
                 if args and len(args) <= 3:
                     for i, arg in enumerate(args):
                         if isinstance(arg, (str, int, float, bool)):
                             span.set_attribute(f"arg_{i}", str(arg))
 
-                # Add keyword arguments as attributes
                 for key, value in kwargs.items():
                     if isinstance(value, (str, int, float, bool)):
                         span.set_attribute(f"arg_{key}", str(value))
 
                 result = func(*args, **kwargs)
 
-                # Add result info if possible
                 if result is not None:
                     if isinstance(result, (str, int, float, bool)):
                         span.set_attribute("result", str(result))
@@ -344,13 +276,6 @@ def traced(tracer_name: str, span_name: str = None, attributes: Dict[str, Any] =
 
 
 def add_span_attributes(span, attributes: Dict[str, Any]):
-    """
-    Add attributes to a span.
-
-    Args:
-        span: Span instance
-        attributes: Dictionary of attributes
-    """
     if not OTEL_AVAILABLE or not span:
         return
 
@@ -358,43 +283,21 @@ def add_span_attributes(span, attributes: Dict[str, Any]):
         if isinstance(value, (str, int, float, bool)):
             span.set_attribute(key, value)
         elif isinstance(value, dict):
-            # Flatten nested dict
             for k, v in value.items():
                 if isinstance(v, (str, int, float, bool)):
                     span.set_attribute(f"{key}.{k}", v)
 
 
-# Global tracer instances
 _tracers = {}
 
 
 def get_component_tracer(component: str, service_name: str = "kamikaze-drone") -> Tracer:
-    """
-    Get or create a tracer for a component.
-
-    Args:
-        component: Component name (e.g., "mission_manager")
-        service_name: Service name
-
-    Returns:
-        Tracer instance
-    """
     if component not in _tracers:
         _tracers[component] = get_tracer(f"{service_name}.{component}")
     return _tracers[component]
 
 
-# Convenience function for instrumenting ROS nodes
 def instrument_ros_node(node_name: str):
-    """
-    Instrument a ROS node with OpenTelemetry.
-
-    Args:
-        node_name: Name of the ROS node
-
-    Returns:
-        Tracer instance and a decorator for instrumentation
-    """
     tracer = get_component_tracer(node_name)
 
     def ros_traced(span_name: str = None, attributes: Dict[str, Any] = None):

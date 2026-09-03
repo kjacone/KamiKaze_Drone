@@ -71,6 +71,7 @@ catkin_install_python(PROGRAMS
   scripts/controllers/mission_manager.py
   scripts/controllers/command_interpreter.py
   scripts/controllers/target_tracking_controller.py
+  scripts/controllers/performance_monitor.py
   
   # Monitors
   scripts/monitors/vehicle_state_monitor.py
@@ -81,9 +82,17 @@ catkin_install_python(PROGRAMS
   # Utils
   src/drone_control/utils/error_handler.py
   src/drone_control/utils/message_validator.py
+  src/drone_control/utils/parameter_loader.py
+  src/drone_control/utils/logging_framework.py
+  src/drone_control/utils/metrics_collector.py
+  src/drone_control/utils/neural_planner.py
   src/drone_control/utils/parameter_validator.py
   src/drone_control/utils/reload_parameters.py
   src/drone_control/utils/generate_schema_doc.py
+  src/drone_control/utils/tracing.py
+  src/drone_control/utils/ros_tracing.py
+  src/drone_control/utils/generate_schema_doc.py
+  src/drone_control/utils/correlation.py
 
   # lib
   src/drone_control/lib/control_lib.py

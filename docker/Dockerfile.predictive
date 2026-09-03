@@ -42,7 +42,19 @@ RUN CATKIN_PKG=/root/catkin_ws/devel/lib/python3/dist-packages/drone_control && 
     mkdir -p /root/catkin_ws/devel/lib/python3/dist-packages && \
     ln -s /opt/python_pkgs/drone_control "$CATKIN_PKG"
 
-
+# ------------------------------------------------------------
+# Ensure OpenTelemetry tracing dependencies are present,
+# regardless of what the base image ships with. Same fix as
+# Dockerfile.trajectory -- opentelemetry-exporter-jaeger is
+# deliberately excluded since tracing.py's OTLP path (the only
+# one actually used) no longer imports it at module load time.
+# ------------------------------------------------------------
+RUN pip install --no-cache-dir --break-system-packages \
+    opentelemetry-api \
+    opentelemetry-sdk \
+    opentelemetry-exporter-otlp-proto-grpc \
+    opentelemetry-instrumentation-grpc \
+    opentelemetry-instrumentation-requests
 
 # ------------------------------------------------------------
 # Node entry script

@@ -18,7 +18,7 @@ ARG BUILDPLATFORM=linux/amd64
 # ------------------------------------------------------------
 
 COPY --chmod=755 \
-    drone_control/src/drone_control/utils/performance_monitor.py \
+    drone_control/scripts/controllers/performance_monitor.py \ 
     /opt/performance_monitor.py
 
 # ------------------------------------------------------------

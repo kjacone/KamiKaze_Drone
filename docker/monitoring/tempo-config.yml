@@ -20,6 +20,20 @@ compactor:
   compaction:
     block_retention: 24h
 
+metrics_generator:
+  registry:
+    collection_interval: 15s
+  storage:
+    path: /tmp/tempo/generator/wal
+    remote_write:
+      - url: http://prometheus:9090/api/v1/write
+        send_exemplars: true
+
+overrides:
+  metrics_generator_processors:
+    - service-graphs
+    - span-metrics
+
 storage:
   trace:
     backend: local

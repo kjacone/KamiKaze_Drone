@@ -136,7 +136,7 @@ kamikaze_drone
 │   └── UDP 14580
 │
 ├── MAVROS
-│   └── FCU URL: udp://:14540@127.0.0.1:14557
+│   └── FCU URL: udpin://:14540@127.0.0.1:14557
 │
 └── ROS Control Nodes
     ├── YOLO detector
@@ -282,36 +282,18 @@ git clone --recurse-submodules https://github.com/kjacone/KamiKaze_Drone.git
 cd KamiKaze_Drone
 ```
 
-If the repository was cloned without submodules:
+Start PX4 indepently using Docker
 
 ```bash
-git submodule update --init --recursive
+docker run --rm \                       
+  -p 14540:14540/udp \    
+  -p 14550:14550/udp \
+  --name px4_sitl \         
+  jonasvautherin/px4-gazebo-headless:latest \
+  127.0.0.1
 ```
 
-### 2. Update the Repository
 
-```bash
-git pull
-git submodule update --init --recursive
-```
-
-### 3. Update PX4
-
-Only update the PX4 submodule intentionally, since changing the PX4 revision can introduce compatibility changes.
-
-```bash
-cd PX4-Autopilot
-git checkout main
-git pull
-cd ..
-```
-
-Record the new submodule revision:
-
-```bash
-git add PX4-Autopilot
-git commit -m "Update PX4-Autopilot"
-```
 
 > **Important:** Validate the entire simulation after changing the PX4 revision.
 
@@ -341,10 +323,10 @@ docker logs kamikaze_drone
 
 ### 8. Open the Simulation
 
-Open the browser-based VNC interface:
+Install QGroundControl to view the drone in realtime
 
 ```text
-http://localhost:8080/vnc.html
+https://docs.qgroundcontrol.com/Stable_V5.1/en/qgc-user-guide/getting_started/download_and_install.html
 ```
 
 ---
@@ -434,13 +416,9 @@ cp ~/KamiKaze_Drone/modified_px4/Tools/simulation/gazebo-classic/models/iris/iri
 docker-compose up -d
 ```
 
-### 2. Open noVNC
+### 2. Open [QGroundControl](https://docs.qgroundcontrol.com/Stable_V5.1/en/qgc-user-guide/getting_started/download_and_install.html)
 
-Open:
 
-```text
-http://localhost:8080/vnc.html
-```
 
 ### 3. Enter the Container
 
@@ -614,38 +592,6 @@ docker-compose.yml
 
 # Troubleshooting
 
-## noVNC Shows the Ubuntu Logo Instead of Gazebo
-
-Enter the container:
-
-```bash
-docker exec -it kamikaze_drone bash
-```
-
-Restart the display stack:
-
-```bash
-pkill -f Xvfb
-pkill -f x11vnc
-pkill -f websockify
-
-sleep 2
-
-Xvfb :1 -screen 0 1280x800x24 &
-sleep 2
-
-DISPLAY=:1 fluxbox &
-x11vnc -display :1 -forever -nopw -quiet &
-websockify --web=/usr/share/novnc 8080 localhost:5900
-```
-
-Then open:
-
-```text
-http://localhost:8080/vnc.html
-```
-
----
 
 ## Drone Is Not Moving
 

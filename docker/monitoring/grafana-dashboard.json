@@ -214,7 +214,7 @@
       },
       "targets": [
         {
-          "expr": "{container=\"kamikaze_drone\"}",
+        "expr": "{container_name=\"kamikaze_drone\"}",
           "refId": "A",
           "queryType": "range"
         }

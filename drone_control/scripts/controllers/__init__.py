@@ -5,6 +5,8 @@ from .collision_avoidance import CollisionAvoidance
 from .command_interpreter import CommandInterpreter
 from .flight_controller import FlightController
 from .mission_manager import MissionManager
+from .performance_monitor import PerformanceMonitor
+from .health_checker import HealthChecker
 from .predictive_controller import PredictiveController
 from .target_tracking_controller import TargetTrackingController
 from .trajectory_planner import TrajectoryPlanner
@@ -15,6 +17,7 @@ __all__ = [
     'CommandInterpreter',
     'FlightController',
     'MissionManager',
+    'PerformanceMonitor',
     'PredictiveController',
     'TargetTrackingController',
     'TrajectoryPlanner',
