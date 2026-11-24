@@ -83,12 +83,9 @@ performance:
 
 network:
   px4:
-    udp_port: 14540
+    udp_port: 14580
     tcp_port: 14550
     heartbeat_rate: 1.0
-  mavros:
-    fcu_url: "udp://:14540@127.0.0.1:14557"
-    gcs_url: "udp://@127.0.0.1:14550"
   timeout: 10.0
   reconnect_attempts: 3
   reconnect_delay: 5.0

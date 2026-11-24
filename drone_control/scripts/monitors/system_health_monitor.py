@@ -83,7 +83,7 @@ class SystemHealthMonitor:
         self.logger = get_logger_with_ros_level("system_health_monitor")
         self.logger.info("node_initializing", extra={
             "version": "1.0.0",
-            "simulation_mode": rospy.get_param('/use_simulation', True)
+            "simulation_mode": rospy.get_param('use_simulation', True)
         })
 
         self.error_handler = ErrorHandler(node_name='system_health_monitor')
@@ -103,7 +103,7 @@ class SystemHealthMonitor:
         self.enable_network_monitoring = rospy.get_param('~enable_network_monitoring', True)
         self.enable_disk_monitoring = rospy.get_param('~enable_disk_monitoring', True)
         self.enable_process_monitoring = rospy.get_param('~enable_process_monitoring', True)
-        self.simulation_mode = rospy.get_param('/use_simulation', True)
+        self.simulation_mode = rospy.get_param('use_simulation', True)
 
         # Initialize metrics collector (parameters above must be set first,
         # since _init_metrics() reads self.monitoring_interval etc.)
@@ -128,21 +128,21 @@ class SystemHealthMonitor:
         self.error_count = 0
 
         # Subscribers
-        self.health_check_sub = rospy.Subscriber('/health/check_all', String, self.check_all_callback)
+        self.health_check_sub = rospy.Subscriber('health/check_all', String, self.check_all_callback)
 
         # Publishers (traced so publishes show up as spans alongside the
         # health-check cycle that produced them)
         self.health_pub = create_traced_publisher(
-            '/system_health', NodeHealth, queue_size=10, tracer_name='system_health_monitor'
+            'system_health', NodeHealth, queue_size=10, tracer_name='system_health_monitor'
         )
         self.diagnostic_pub = create_traced_publisher(
-            '/diagnostic_status', DiagnosticStatus, queue_size=10, tracer_name='system_health_monitor'
+            'diagnostic_status', DiagnosticStatus, queue_size=10, tracer_name='system_health_monitor'
         )
         self.performance_pub = create_traced_publisher(
-            '/performance_metrics', String, queue_size=10, tracer_name='system_health_monitor'
+            'performance_metrics', String, queue_size=10, tracer_name='system_health_monitor'
         )
         self.alert_pub = create_traced_publisher(
-            '/system_alert', String, queue_size=10, tracer_name='system_health_monitor'
+            'system_alert', String, queue_size=10, tracer_name='system_health_monitor'
         )
 
         # Timers
@@ -506,15 +506,12 @@ class SystemHealthMonitor:
 
     @traced('system_health_monitor', 'check_network_connectivity')
     def check_network_connectivity(self):
-        """Check network connectivity and endpoints"""
-        # Check localhost (ROS master)
+        """Check network connectivity of TCP endpoints.
+
+        PX4/MAVROS links are UDP, so a TCP probe can never succeed against
+        them; those links are covered by /mavros/state instead.
+        """
         self._check_tcp_port("127.0.0.1", 11311, "ROS master (localhost:11311)")
-
-        # Check PX4
-        self._check_tcp_port("px4_sitl", 14540, "PX4 UDP port (14540)")
-
-        # Check MAVROS
-        self._check_tcp_port("px4_sitl", 14550, "MAVROS UDP port (14550)")
 
     def _check_tcp_port(self, host, port, label):
         """Attempt a TCP connection and always close the socket afterwards.

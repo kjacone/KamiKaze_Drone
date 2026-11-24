@@ -38,8 +38,8 @@ class SensorFusion:
         self.tracer = get_component_tracer('sensor_fusion')
 
         self.publish_rate = rospy.get_param('~publish_rate', 20)
-        self.simulation_mode = rospy.get_param('/use_simulation', True)
-        self.test_mode = rospy.get_param('/test_mode', False)
+        self.simulation_mode = rospy.get_param('use_simulation', True)
+        self.test_mode = rospy.get_param('test_mode', False)
 
         # How long a sensor can go without a new message before it's
         # considered stale, for the health check below.
@@ -64,13 +64,13 @@ class SensorFusion:
         self.last_pose_time = None
 
         # Subscribers
-        rospy.Subscriber('/mavros/imu/data', Imu, self.imu_callback)
-        rospy.Subscriber('/mavros/global_position/global', NavSatFix, self.gps_callback)
-        rospy.Subscriber('/mavros/local_position/pose', PoseStamped, self.pose_callback)
+        rospy.Subscriber('mavros/imu/data', Imu, self.imu_callback)
+        rospy.Subscriber('mavros/global_position/global', NavSatFix, self.gps_callback)
+        rospy.Subscriber('mavros/local_position/pose', PoseStamped, self.pose_callback)
 
         # Publishers
         self.health_pub = create_traced_publisher(
-            '/sensor_fusion/node_health', NodeHealth, queue_size=10, tracer_name='sensor_fusion'
+            'sensor_fusion/node_health', NodeHealth, queue_size=10, tracer_name='sensor_fusion'
         )
 
         # Timer

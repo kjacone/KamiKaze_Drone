@@ -11,6 +11,7 @@ from enum import Enum
 from typing import Callable, Dict, Optional
 
 import rospy
+from mavros_msgs.msg import State
 from std_msgs.msg import String
 
 from drone_control.utils import ErrorHandler
@@ -102,6 +103,13 @@ class MissionManager:
         self.current_waypoint_index = 0
         self.mission_start_time = None
         self._acquisition_start_time = None
+        self._last_target_time = 0.0
+        self._start_requested = False
+        self._safety_ok = True
+        self.mavros_connected = False
+        self.auto_start = False
+        self.require_mavros = True
+        self.target_timeout = 2.0
         self.correlation_id = get_or_create_mission_id()
         
         # Place-holders for deferred objects
@@ -119,12 +127,13 @@ class MissionManager:
         # ------------------------------------------------------------------
         # 2. Create ALL publishers / subscribers FIRST
         # ------------------------------------------------------------------
-        self.status_pub = rospy.Publisher('/mission_status', MissionStatus, queue_size=10)
-        self.health_pub = rospy.Publisher('/mission_manager/node_health', NodeHealth, queue_size=10)
+        self.status_pub = rospy.Publisher('mission_status', MissionStatus, queue_size=10)
+        self.health_pub = rospy.Publisher('mission_manager/node_health', NodeHealth, queue_size=10)
         
-        self.command_sub = rospy.Subscriber('/drone_control/command', Command, self._command_callback)
-        self.safety_sub = rospy.Subscriber('/safety_status', SafetyStatus, self._safety_callback)
-        self.target_sub = rospy.Subscriber('/tracked_targets', TrackedTargets, self._target_callback)
+        self.command_sub = rospy.Subscriber('drone_control/command', Command, self._command_callback)
+        self.safety_sub = rospy.Subscriber('safety_status', SafetyStatus, self._safety_callback)
+        self.target_sub = rospy.Subscriber('tracked_targets', TrackedTargets, self._target_callback)
+        self.mavros_sub = rospy.Subscriber('mavros/state', State, self._mavros_state_cb)
         
         # ------------------------------------------------------------------
         # 3. NOW safe to load config, create MetricsCollector, etc.
@@ -136,18 +145,25 @@ class MissionManager:
         # Timers after everything else is ready
         self.state_timer = rospy.Timer(rospy.Duration(0.1), self._update)
         self.health_timer = rospy.Timer(rospy.Duration(1.0), self._publish_health)
+        self.status_timer = rospy.Timer(rospy.Duration(1.0), self._publish_status)
         
         self.logger.info("node_initialized", extra={
             "correlation_id": self.correlation_id,
             "initial_state": self.current_state.value
         })
         self._set_state(MissionState.IDLE)
+        if self.auto_start:
+            rospy.Timer(rospy.Duration(1.0), self._auto_start_cb, oneshot=True)
         
     # ----------------------------------------------------------------------
     # Deferred config load (yaml + rospy.get_param)
     # ----------------------------------------------------------------------
     def _load_config(self) -> None:
         """Load mission configuration AFTER the node is fully wired."""
+        self.auto_start = rospy.get_param('~auto_start', False)
+        self.require_mavros = rospy.get_param('~require_mavros', True)
+        self.target_timeout = float(rospy.get_param('~target_timeout', 2.0))
+
         # Lazy-import yaml so a missing dep does not cascade
         try:
             import yaml
@@ -269,27 +285,26 @@ class MissionManager:
             Transition(MissionState.IDLE, MissionState.INITIALIZING,
                       MissionEvent.START, action=self._on_initialize),
             Transition(MissionState.INITIALIZING, MissionState.SEARCHING,
-                      MissionEvent.TARGET_DETECTED, condition=self._is_initialized,
+                      MissionEvent.START, condition=self._is_initialized,
                       action=self._on_start_search),
             Transition(MissionState.SEARCHING, MissionState.TRACKING,
                       MissionEvent.TARGET_DETECTED, condition=self._is_valid_target,
                       action=self._on_start_tracking),
-            Transition(MissionState.TRACKING, MissionState.ENGAGING,
-                      MissionEvent.TARGET_ENGAGED, condition=self._is_within_engagement_distance,
-                      action=self._on_engage),
-            Transition(MissionState.ENGAGING, MissionState.ATTACKING,
-                      MissionEvent.TARGET_ENGAGED, condition=self._is_within_attack_distance,
-                      action=self._on_attack),
-            Transition(MissionState.ATTACKING, MissionState.COMPLETED,
-                      MissionEvent.TARGET_DESTROYED, action=self._on_complete),
+            Transition(MissionState.TRACKING, MissionState.SEARCHING,
+                      MissionEvent.TARGET_LOST, action=self._on_target_lost),
             Transition(MissionState.NONE, MissionState.EMERGENCY,
                       MissionEvent.EMERGENCY, priority=100, action=self._on_emergency),
             Transition(MissionState.NONE, MissionState.PAUSED,
                       MissionEvent.PAUSE, priority=50, action=self._on_pause),
             Transition(MissionState.PAUSED, MissionState.SEARCHING,
-                      MissionEvent.RESUME, action=self._on_resume),
-            Transition(MissionState.TRACKING, MissionState.SEARCHING,
-                      MissionEvent.TARGET_LOST, action=self._on_target_lost),
+                      MissionEvent.RESUME, condition=self._is_safe,
+                      action=self._on_resume),
+            Transition(MissionState.EMERGENCY, MissionState.SEARCHING,
+                      MissionEvent.RESUME, priority=10, condition=self._is_safe,
+                      action=self._on_resume),
+            Transition(MissionState.NONE, MissionState.COMPLETED,
+                      MissionEvent.MISSION_COMPLETE, priority=40,
+                      action=self._on_complete),
         ]
         
         self.logger.debug("transitions_configured", extra={
@@ -371,7 +386,11 @@ class MissionManager:
             "current_state": self.current_state.value,
             "correlation_id": self.correlation_id
         })
-        
+
+        if (self.current_state == MissionState.EMERGENCY
+                and event in (MissionEvent.EMERGENCY, MissionEvent.SAFETY_VIOLATION)):
+            return False
+
         if event in [MissionEvent.EMERGENCY, MissionEvent.SAFETY_VIOLATION]:
             for transition in self.transitions:
                 if transition.event == event and transition.priority >= 50:
@@ -403,22 +422,36 @@ class MissionManager:
         
     def _update(self, event):
         elapsed = time.time() - self.state_start_time
-        
-        if self.current_state == MissionState.SEARCHING and elapsed > self.config.get('timeout', 300):
-            self.logger.warning("search_timeout", extra={
-                "elapsed": elapsed,
-                "timeout": self.config.get('timeout', 300)
-            })
-            self._process_event(MissionEvent.ERROR, {"message": "Search timeout"})
-            
-        if self.current_state == MissionState.TRACKING and elapsed > self.config.get('timeout', 300):
-            self.logger.warning("tracking_timeout", extra={
-                "elapsed": elapsed,
-                "timeout": self.config.get('timeout', 300)
-            })
-            self._process_event(MissionEvent.ERROR, {"message": "Tracking timeout"})
-            
-    def _publish_status(self):
+        state_timeouts = self.config.get('state_timeouts', {})
+        default_timeout = self.config.get('timeout', 300)
+
+        if (self.current_state == MissionState.INITIALIZING
+                and self._start_requested and self._is_initialized()):
+            self._process_event(MissionEvent.START, {'source': 'initialized'})
+
+        if (self.current_state == MissionState.TRACKING
+                and (time.time() - self._last_target_time) > self.target_timeout):
+            self._process_event(MissionEvent.TARGET_LOST, {'reason': 'timeout'})
+
+        if self.current_state == MissionState.SEARCHING:
+            timeout = state_timeouts.get('searching', default_timeout)
+            if elapsed > timeout:
+                self.logger.warning("search_timeout", extra={
+                    "elapsed": elapsed,
+                    "timeout": timeout
+                })
+                self._process_event(MissionEvent.ERROR, {"message": "Search timeout"})
+
+        if self.current_state == MissionState.TRACKING:
+            timeout = state_timeouts.get('tracking', default_timeout)
+            if elapsed > timeout:
+                self.logger.warning("tracking_timeout", extra={
+                    "elapsed": elapsed,
+                    "timeout": timeout
+                })
+                self._process_event(MissionEvent.ERROR, {"message": "Tracking timeout"})
+
+    def _publish_status(self, _event=None):
         status_msg = MissionStatus()
         status_msg.mission_id = self.mission_id or "unknown"
         status_msg.state = self.current_state.value
@@ -427,8 +460,12 @@ class MissionManager:
         status_msg.current_waypoint = self.current_waypoint_index
         status_msg.total_waypoints = len(self.waypoints)
         status_msg.target_count = 1 if self.target_data else 0
+        status_msg.target_distance = float(self.target_data.get('distance', 0.0))
+        status_msg.target_id = int(self.target_data.get('id', 0))
+        status_msg.status_message = self.current_state.value
+        status_msg.timestamp = rospy.Time.now()
         self.status_pub.publish(status_msg)
-        
+
         self.logger.debug("status_published", extra={
             "state": status_msg.state,
             "elapsed": status_msg.elapsed_time
@@ -470,6 +507,7 @@ class MissionManager:
         self.correlation_id = self.mission_id
         self.mission_data = data or {}
         self.mission_start_time = time.time()
+        self._start_requested = True
         
         if self.metric_mission_started:
             try:
@@ -488,7 +526,15 @@ class MissionManager:
             "correlation_id": self.correlation_id,
             "altitude": self.config.get('search_altitude', 10.0)
         })
+        self._start_requested = False
         self._acquisition_start_time = time.time()
+
+        # A target that arrived while INITIALIZING should be picked up now.
+        if (self.target_data
+                and (time.time() - self._last_target_time) <= self.target_timeout):
+            self._process_event(
+                MissionEvent.TARGET_DETECTED, {'target': self.target_data}
+            )
         
     def _on_start_tracking(self, data: Optional[Dict] = None):
         if data and 'target' in data:
@@ -521,18 +567,6 @@ class MissionManager:
                 except Exception:
                     pass
                 self._acquisition_start_time = None
-        
-    def _on_engage(self, data: Optional[Dict] = None):
-        self.logger.info("engaging_target", extra={
-            "correlation_id": self.correlation_id,
-            "target_id": self.target_data.get('id', 'unknown')
-        })
-        
-    def _on_attack(self, data: Optional[Dict] = None):
-        self.logger.warning("ATTACKING_TARGET", extra={
-            "correlation_id": self.correlation_id,
-            "target_id": self.target_data.get('id', 'unknown')
-        })
         
     def _on_complete(self, data: Optional[Dict] = None):
         duration = time.time() - getattr(self, 'mission_start_time', time.time())
@@ -611,49 +645,44 @@ class MissionManager:
     # ------------------------------------------------------------------
     
     def _is_initialized(self, data: Optional[Dict] = None) -> bool:
-        is_initialized = rospy.has_param('/system_initialized')
-        if not is_initialized:
-            self.logger.debug("system_not_initialized")
-        return is_initialized
-        
+        timeout = self.config.get('state_timeouts', {}).get('initializing', 10)
+        elapsed = time.time() - self.state_start_time
+        ready = elapsed >= timeout and (
+            self.mavros_connected or not self.require_mavros
+        )
+        if not ready:
+            self.logger.debug("system_not_ready", extra={
+                "elapsed": elapsed,
+                "timeout": timeout,
+                "mavros_connected": self.mavros_connected
+            })
+        return ready
+
     def _is_valid_target(self, data: Optional[Dict] = None) -> bool:
         if not data or 'target' not in data:
             return False
         target = data['target']
-        is_valid = target.get('confidence', 0) > 0.5
+        threshold = rospy.get_param('tracking/track_confidence_threshold', 0.3)
+        distance = float(target.get('distance', 0.0))
+        is_valid = target.get('confidence', 0) >= threshold and distance > 0.0
         if not is_valid:
             self.logger.debug("invalid_target", extra={
-                "confidence": target.get('confidence', 0)
+                "confidence": target.get('confidence', 0),
+                "distance": distance,
+                "threshold": threshold
             })
         return is_valid
-        
-    def _is_within_engagement_distance(self, data: Optional[Dict] = None) -> bool:
-        if not self.target_data:
-            return False
-        distance = self.target_data.get('distance', 100)
-        # Param read is safe – node is fully initialised
-        attack_distance = rospy.get_param('/tracking/attack_distance', 2.0)
-        is_within = distance < attack_distance
-        if is_within:
-            self.logger.debug("within_engagement_distance", extra={
-                "distance": distance,
-                "attack_distance": attack_distance
-            })
-        return is_within
-        
-    def _is_within_attack_distance(self, data: Optional[Dict] = None) -> bool:
-        if not self.target_data:
-            return False
-        distance = self.target_data.get('distance', 100)
-        attack_distance = rospy.get_param('/tracking/attack_distance', 2.0) * 0.5
-        is_within = distance < attack_distance
-        if is_within:
-            self.logger.debug("within_attack_distance", extra={
-                "distance": distance,
-                "attack_distance": attack_distance
-            })
-        return is_within
-        
+
+    def _is_safe(self, data: Optional[Dict] = None) -> bool:
+        return self._safety_ok
+
+    def _mavros_state_cb(self, msg):
+        self.mavros_connected = msg.connected
+
+    def _auto_start_cb(self, _event):
+        if self.current_state == MissionState.IDLE:
+            self._process_event(MissionEvent.START, {'source': 'auto_start'})
+
     # ------------------------------------------------------------------
     # CALLBACKS
     # ------------------------------------------------------------------
@@ -687,6 +716,7 @@ class MissionManager:
             "is_safe": msg.is_safe,
             "emergency_active": msg.emergency_active
         })
+        self._safety_ok = bool(msg.is_safe and not msg.emergency_active)
         
         if msg.emergency_active:
             self._process_event(MissionEvent.EMERGENCY, {'message': msg.emergency_reason or 'Emergency active'})
@@ -703,6 +733,7 @@ class MissionManager:
             
     def _target_callback(self, msg):
         if msg.targets and len(msg.targets) > 0:
+            self._last_target_time = time.time()
             target = msg.targets[0]
             self.target_data = {
                 'id': target.id,
@@ -728,9 +759,6 @@ class MissionManager:
                     })
                 
                 self._process_event(MissionEvent.TARGET_DETECTED, {'target': self.target_data})
-            elif self.current_state == MissionState.TRACKING:
-                if self._is_within_engagement_distance():
-                    self._process_event(MissionEvent.TARGET_ENGAGED, {'target': self.target_data})
 
 
 if __name__ == '__main__':

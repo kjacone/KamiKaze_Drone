@@ -8,23 +8,27 @@ import math
 import time
 
 import rospy
-from geometry_msgs.msg import Point, Vector3
+from geometry_msgs.msg import Point, PoseStamped, Vector3
 
-from drone_control import TrackedTarget, TrackedTargets
+from drone_control.msg import TrackedTarget, TrackedTargets
 
 
 class SimulatedTarget:
     """Generate simulated targets for testing"""
     
     def __init__(self):
-        rospy.init_node('simulated_target', anonymous=True)
+        rospy.init_node('simulated_target', anonymous=False)
         
         self.enable = rospy.get_param('~enable', True)
         self.update_rate = rospy.get_param('~update_rate', 30)
         self.scenario = rospy.get_param('~scenario', 'default')
         
         # Publisher
-        self.target_pub = rospy.Publisher('/tracked_targets', TrackedTargets, queue_size=10)
+        self.target_pub = rospy.Publisher('tracked_targets', TrackedTargets, queue_size=10)
+        rospy.Subscriber(
+            'mavros/local_position/pose', PoseStamped, self._pose_callback
+        )
+        self.drone_position = None
         
         # Target state
         self.target_position = Point()
@@ -45,6 +49,9 @@ class SimulatedTarget:
         if self.enable:
             self.timer = rospy.Timer(rospy.Duration(1.0/self.update_rate), self._publish_target)
         
+    def _pose_callback(self, msg):
+        self.drone_position = msg.pose.position
+
     def _publish_target(self, event):
         """Publish simulated target"""
         # Update target position (simple circular motion)
@@ -84,8 +91,9 @@ class SimulatedTarget:
             self.target_velocity.z = 0.21 * math.cos(elapsed * 0.7)
         
         # Create message
+        now = rospy.Time.now()
         msg = TrackedTargets()
-        msg.header.stamp = rospy.Time.now()
+        msg.header.stamp = now
         msg.header.frame_id = "map"
         
         target_msg = TrackedTarget()
@@ -93,16 +101,22 @@ class SimulatedTarget:
         target_msg.position = self.target_position
         target_msg.velocity = self.target_velocity
         
-        # Calculate distance from drone
-        distance = math.sqrt(
-            self.target_position.x**2 + 
-            self.target_position.y**2 + 
-            self.target_position.z**2
-        )
+        # Distance from the drone when odometry is available.
+        if self.drone_position is not None:
+            dx = self.target_position.x - self.drone_position.x
+            dy = self.target_position.y - self.drone_position.y
+            dz = self.target_position.z - self.drone_position.z
+            distance = math.sqrt(dx * dx + dy * dy + dz * dz)
+        else:
+            distance = math.sqrt(
+                self.target_position.x**2
+                + self.target_position.y**2
+                + self.target_position.z**2
+            )
         target_msg.distance = distance
         target_msg.confidence = 0.85 + 0.1 * math.sin(time.time() * 0.1)
         target_msg.heading = math.atan2(self.target_position.y, self.target_position.x)
-        target_msg.timestamp = rospy.Time.now()
+        target_msg.timestamp = now
         
         # Determine target state based on distance
         if distance < 2.0:

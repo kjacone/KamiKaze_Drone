@@ -1,0 +1,11 @@
+# Sourced by rcS after the gz_x500 airframe defaults.
+# The companion (MAVROS) is the only link; a missing GCS must not arm-block
+# or trigger Return. The airframe sets NAV_DLL_ACT=2, so override it here.
+param set NAV_DLL_ACT 0
+
+# SITL harness: SIM_BAT_DRAIN is the drain time to empty in seconds (default 60),
+# so a normal flight hits the battery failsafe (RTL) and afterwards PX4 can latch
+# "Preflight Fail: Battery unhealthy" and refuse to re-arm. Keep the simulated
+# battery full and bypass supply health checks; real airframes do not use this hook.
+param set SIM_BAT_DRAIN 36000
+param set CBRK_SUPPLY_CHK 894281

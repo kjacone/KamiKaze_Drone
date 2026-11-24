@@ -34,10 +34,10 @@ class ParameterValidationService:
         
         # Basic validation - check for required parameters
         required_params = [
-            '/target_params/detection/confidence_threshold',
-            '/target_params/tracking/engagement_distance',
-            '/flight_control/dynamics/constraints/max_velocity',
-            '/system_params/safety/geofence/radius'
+            '/detection/confidence_threshold',
+            '/tracking/engagement_distance',
+            '/dynamics/constraints/max_velocity',
+            '/safety/geofence/radius'
         ]
         
         for param in required_params:
@@ -47,12 +47,12 @@ class ParameterValidationService:
         # Check for valid values
         try:
             # Check confidence threshold
-            confidence = rospy.get_param('/target_params/detection/confidence_threshold', 0.5)
+            confidence = rospy.get_param('/detection/confidence_threshold', 0.5)
             if not 0 <= confidence <= 1:
                 errors.append(f"Confidence threshold must be between 0 and 1, got {confidence}")
                 
             # Check geofence radius
-            radius = rospy.get_param('/system_params/safety/geofence/radius', 100.0)
+            radius = rospy.get_param('/safety/geofence/radius', 100.0)
             if radius <= 0:
                 errors.append(f"Geofence radius must be positive, got {radius}")
                 

@@ -1,0 +1,20 @@
+fleet:
+  count: 2
+  simulation: true
+  auto_start: true
+  auto_resume: true
+  perception_demo: true
+  enable_safety: true
+  enable_diagnostics: false
+  px4_image: jonasvautherin/px4-gazebo-headless:1.17.0
+  px4_cpus: 1.25
+  px4_memory: 2g
+  px4_shm: 1g
+  portal_port: 8090
+defaults:
+  standoff_distance: 8.0
+  follow_altitude: 5.0
+  engagement_distance: 10.0
+  max_velocity: 5.0
+  geofence_radius: 100.0
+  geofence_height: 50.0

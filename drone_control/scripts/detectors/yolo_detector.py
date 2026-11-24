@@ -43,7 +43,7 @@ class YOLODetector:
         self.logger = get_logger_with_ros_level("yolo_detector")
         self.logger.info("node_initializing", extra={
             "version": "1.0.0",
-            "simulation_mode": rospy.get_param('/use_simulation', True)
+            "simulation_mode": rospy.get_param('use_simulation', True)
         })
 
         # Setup components
@@ -63,7 +63,7 @@ class YOLODetector:
         # Mode flags
         self.debug_mode = rospy.get_param('~debug_mode', False)
         self.test_mode = rospy.get_param('~test_mode', False)
-        self.simulation_mode = rospy.get_param('/use_simulation', True)
+        self.simulation_mode = rospy.get_param('use_simulation', True)
 
         # Test mode parameters
         if self.test_mode:
@@ -89,23 +89,23 @@ class YOLODetector:
         self.false_positives = 0
 
         # Health monitoring
-        self.health_pub = rospy.Publisher('/yolo_detector/node_health', NodeHealth, queue_size=10)
+        self.health_pub = rospy.Publisher('yolo_detector/node_health', NodeHealth, queue_size=10)
         self.health_timer = rospy.Timer(rospy.Duration(1.0), self._publish_health)
 
         # Command handling
-        self.command_sub = rospy.Subscriber('/drone_control/command', Command, self._handle_command)
-        self.response_pub = rospy.Publisher('/command_response', CommandResponse, queue_size=10)
+        self.command_sub = rospy.Subscriber('drone_control/command', Command, self._handle_command)
+        self.response_pub = rospy.Publisher('command_response', CommandResponse, queue_size=10)
 
         # Mission integration
-        self.mission_sub = rospy.Subscriber('/mission_status', MissionStatus, self._handle_mission_status)
+        self.mission_sub = rospy.Subscriber('mission_status', MissionStatus, self._handle_mission_status)
         self.current_mission_state = 'idle'
 
         # Load model
         self.model = self._load_model()
 
         # Subscribers and Publishers
-        self.image_sub = rospy.Subscriber('/camera/color/image_raw', Image, self.image_callback)
-        self.objects_pub = rospy.Publisher('/detected_objects', DetectedObjects, queue_size=10)
+        self.image_sub = rospy.Subscriber('camera/color/image_raw', Image, self.image_callback)
+        self.objects_pub = rospy.Publisher('detected_objects', DetectedObjects, queue_size=10)
 
         # Performance monitoring
         self.perf_timer = rospy.Timer(rospy.Duration(5.0), self._publish_performance)

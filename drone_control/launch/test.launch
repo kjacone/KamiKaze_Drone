@@ -22,8 +22,7 @@
     <arg name="enable_diagnostics" value="true"/>
     <arg name="test_scenario" value="$(arg scenario)"/>
     <arg name="test_timeout" value="$(arg timeout)"/>
-    <arg name="headless" value="$(arg headless)"/>
-    <arg name="record_test_data" value="$(arg record_data)"/>
+    <arg name="auto_start" value="false"/>
   </include>
   
   <!-- Test verification node -->
@@ -32,12 +31,6 @@
     <param name="expected_outputs" value="true"/>
     <param name="tolerance" value="0.1"/>
     <param name="scenario" value="$(arg scenario)"/>
-  </node>
-  
-  <!-- Test results publisher -->
-  <node pkg="drone_control" type="test_results_publisher.py" 
-        name="test_results_publisher" output="screen" required="false">
-    <param name="output_dir" value="$(find drone_control)/test_results/$(arg scenario)"/>
   </node>
   
 </launch>

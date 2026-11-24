@@ -112,14 +112,14 @@ RUN pip3 install --no-cache-dir \
 # ------------------------------------------------------------
 # Install MAVROS GeographicLib datasets
 # ------------------------------------------------------------
-# First try to install from local file if available
-COPY egm96-5.tar.bz2 /tmp/egm96-5.tar.bz2     
+# MAVROS aborts at startup without egm96-5.pgm; the bundled archive is
+# authoritative and avoids depending on the network installer.
+COPY egm96-5.tar.bz2 /tmp/egm96-5.tar.bz2
 
-RUN wget -O /tmp/install_geographiclib_datasets.sh \
-    https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh \
-    && chmod +x /tmp/install_geographiclib_datasets.sh \
-    && /tmp/install_geographiclib_datasets.sh \
-    && rm -f /tmp/install_geographiclib_datasets.sh
+RUN mkdir -p /usr/share/GeographicLib \
+    && tar xjf /tmp/egm96-5.tar.bz2 -C /usr/share/GeographicLib \
+    && test -r /usr/share/GeographicLib/geoids/egm96-5.pgm \
+    && rm -f /tmp/egm96-5.tar.bz2
 
 
 

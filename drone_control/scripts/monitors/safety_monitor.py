@@ -8,8 +8,9 @@ import time
 
 import numpy as np
 import rospy
-from geometry_msgs.msg import PoseStamped, Twist
+from geometry_msgs.msg import PoseStamped, TwistStamped
 from mavros_msgs.msg import State
+from mavros_msgs.srv import SetMode
 from std_msgs.msg import Bool, String
 from std_srvs.srv import Trigger, TriggerResponse
 
@@ -41,12 +42,21 @@ class SafetyMonitor:
         self.violation_counts = {}
         self.last_check_time = time.time()
         self.total_checks = 0
+        self.mavros_state = None
+        self.armed = False
+        self.has_taken_off = False
+        self.below_min_since = None
+        self.glitch_until = 0.0
+        self.pose_jump_threshold = 2.0
+        self.pose_glitch_hold = 3.0
+        self.max_velocity = 5.0
         
         # Place-holders – filled after pub/sub/svc are up
         self.geofence_enabled = True
         self.geofence_radius = 100.0
         self.max_altitude = 50.0
         self.min_altitude = 2.0
+        self.altitude_grace = 3.0
         self.enable_emergency_landing = True
         self.simulation_mode = True
         self.test_mode = False
@@ -65,18 +75,21 @@ class SafetyMonitor:
         # ------------------------------------------------------------------
         # 2. Create ALL publishers / subscribers / services FIRST
         # ------------------------------------------------------------------
-        rospy.Subscriber('/mavros/local_position/pose', PoseStamped, self._pose_callback)
-        rospy.Subscriber('/mavros/local_position/velocity', Twist, self._velocity_callback)
-        rospy.Subscriber('/mavros/state', State, self._state_callback)
+        rospy.Subscriber('mavros/local_position/pose', PoseStamped, self._pose_callback)
+        rospy.Subscriber('mavros/local_position/velocity_local', TwistStamped, self._velocity_callback)
+        rospy.Subscriber('mavros/state', State, self._state_callback)
         
-        self.safety_pub = rospy.Publisher('/safety_status', SafetyStatus, queue_size=10)
-        self.health_pub = rospy.Publisher('/safety_monitor/node_health', NodeHealth, queue_size=10)
-        self.emergency_pub = rospy.Publisher('/emergency_triggered', Bool, queue_size=10)
+        self.safety_pub = rospy.Publisher('safety_status', SafetyStatus, queue_size=10)
+        self.health_pub = rospy.Publisher('safety_monitor/node_health', NodeHealth, queue_size=10)
+        self.emergency_pub = rospy.Publisher('emergency_triggered', Bool, queue_size=10)
         
-        rospy.Service('/safety/geofence_enable', Trigger, self._enable_geofence)
-        rospy.Service('/safety/geofence_disable', Trigger, self._disable_geofence)
-        rospy.Service('/safety/check', Trigger, self._check_safety)
-        rospy.Service('/safety/status', Trigger, self._get_status)
+        self.set_mode_srv = rospy.ServiceProxy('mavros/set_mode', SetMode)
+
+        rospy.Service('safety/geofence_enable', Trigger, self._enable_geofence)
+        rospy.Service('safety/geofence_disable', Trigger, self._disable_geofence)
+        rospy.Service('safety/check', Trigger, self._check_safety)
+        rospy.Service('safety/status', Trigger, self._get_status)
+        rospy.Service('safety/emergency_clear', Trigger, self._clear_emergency)
         
         # ------------------------------------------------------------------
         # 3. NOW it is safe to touch the parameter server and heavy imports
@@ -97,15 +110,41 @@ class SafetyMonitor:
     def _load_parameters(self):
         """Load all parameters AFTER publishers/subscribers exist."""
         try:
-            self.geofence_enabled = rospy.get_param('~enable_geofence', True)
-            self.geofence_radius = rospy.get_param('~geofence_radius', 100.0)
-            self.max_altitude = rospy.get_param('~max_altitude', 50.0)
-            self.min_altitude = rospy.get_param('~min_altitude', 2.0)
-            self.enable_emergency_landing = rospy.get_param('~enable_emergency_landing', True)
+            self.geofence_enabled = rospy.get_param(
+                'safety/geofence/enabled',
+                rospy.get_param('~enable_geofence', True)
+            )
+            self.geofence_radius = rospy.get_param(
+                'safety/geofence/radius',
+                rospy.get_param('~geofence_radius', 100.0)
+            )
+            self.max_altitude = rospy.get_param(
+                'safety/geofence/height',
+                rospy.get_param('~max_altitude', 50.0)
+            )
+            self.min_altitude = rospy.get_param(
+                'safety/emergency/altitude_min',
+                rospy.get_param('~min_altitude', 2.0)
+            )
+            self.altitude_grace = float(rospy.get_param(
+                'safety/emergency/altitude_grace',
+                rospy.get_param('~altitude_grace', 3.0)
+            ))
+            self.pose_jump_threshold = float(rospy.get_param(
+                '~pose_jump_threshold', 2.0
+            ))
+            self.pose_glitch_hold = float(rospy.get_param(
+                '~pose_glitch_hold', 3.0
+            ))
+            self.max_velocity = rospy.get_param('dynamics/constraints/max_velocity', 5.0)
+            self.enable_emergency_landing = (
+                rospy.get_param('safety/emergency/action', 'land') == 'land'
+                and rospy.get_param('~enable_emergency_landing', True)
+            )
             
             # These two were previously called too early and could block
-            self.simulation_mode = rospy.get_param('/use_simulation', True)
-            self.test_mode = rospy.get_param('/test_mode', False)
+            self.simulation_mode = rospy.get_param('use_simulation', True)
+            self.test_mode = rospy.get_param('test_mode', False)
             
             rospy.loginfo("Safety parameters loaded")
         except Exception as e:
@@ -226,6 +265,15 @@ class SafetyMonitor:
             rospy.logwarn(f"Error publishing health: {e}")
         
     def _pose_callback(self, msg):
+        prev = self.current_pose
+        # A step larger than any real motion between two pose samples is an
+        # estimator reset, not flight; safety checks pause instead of firing.
+        if prev is not None:
+            dz = abs(msg.pose.position.z - prev.position.z)
+            if dz > self.pose_jump_threshold:
+                self.glitch_until = time.time() + self.pose_glitch_hold
+                rospy.logwarn_throttle(
+                    5.0, 'Ignoring position estimate jump of %.1fm', dz)
         self.current_pose = msg.pose
         
         if self.current_pose and not self.emergency_active:
@@ -246,11 +294,17 @@ class SafetyMonitor:
                 pass
         
     def _velocity_callback(self, msg):
-        self.current_velocity = msg
+        self.current_velocity = msg.twist
         
     def _state_callback(self, msg):
-        if not msg.connected:
+        was_connected = bool(self.mavros_state and self.mavros_state.connected)
+        if was_connected and not msg.connected and msg.armed:
             self._trigger_emergency("LOST_CONNECTION")
+        self.mavros_state = msg
+        self.armed = msg.armed
+        if not msg.armed:
+            self.has_taken_off = False
+            self.below_min_since = None
             
     def _check_safety_timer(self, event):
         """Periodic safety check"""
@@ -266,9 +320,19 @@ class SafetyMonitor:
         
         if self.current_pose is None:
             return
-            
+
+        # Re-read the radius so geofence changes apply without a restart.
+        self.geofence_radius = float(rospy.get_param(
+            'safety/geofence/radius', self.geofence_radius
+        ))
+
         violations = []
         pos = self.current_pose.position
+
+        if time.time() < self.glitch_until:
+            # Position estimate is recovering from a reset; skip pose checks.
+            self.below_min_since = None
+            return
         
         try:
             if self.geofence_enabled:
@@ -278,8 +342,25 @@ class SafetyMonitor:
                     
             if pos.z > self.max_altitude:
                 violations.append(("ALTITUDE_TOO_HIGH", f"{pos.z:.1f}m > {self.max_altitude}m"))
-            elif pos.z < self.min_altitude:
-                violations.append(("ALTITUDE_TOO_LOW", f"{pos.z:.1f}m < {self.min_altitude}m"))
+
+            # Altitude floor only applies to an airborne, non-landing vehicle;
+            # a normal descent or landing transit must not latch emergency.
+            landing = bool(
+                self.mavros_state
+                and self.mavros_state.mode in ('AUTO.LAND', 'LAND', 'AUTO.RTL')
+            )
+            if pos.z >= self.min_altitude and self.armed:
+                self.has_taken_off = True
+                self.below_min_since = None
+            elif self.armed and self.has_taken_off and not landing:
+                if self.below_min_since is None:
+                    self.below_min_since = time.time()
+                elif time.time() - self.below_min_since >= self.altitude_grace:
+                    violations.append(
+                        ("ALTITUDE_TOO_LOW", f"{pos.z:.1f}m < {self.min_altitude}m")
+                    )
+            else:
+                self.below_min_since = None
                 
             if self.current_velocity:
                 speed = np.linalg.norm([
@@ -287,9 +368,7 @@ class SafetyMonitor:
                     self.current_velocity.linear.y,
                     self.current_velocity.linear.z
                 ])
-                # Param read is now safe – node is fully initialised
-                max_speed = rospy.get_param('dynamics/constraints/max_velocity', 5.0)
-                if speed > max_speed * 1.5:
+                if speed > self.max_velocity * 1.2:
                     violations.append(("SPEED_EXCEEDED", f"{speed:.1f}m/s"))
                     
             if violations:
@@ -331,20 +410,38 @@ class SafetyMonitor:
             self.error_handler.handle_error(e, "Safety check failed")
             self.error_count += 1
             
+        self._publish_status()
+
+        self.last_check_time = time.time()
+
+    def _publish_status(self):
         status_msg = SafetyStatus()
         status_msg.is_safe = self.is_safe
         status_msg.violations = self.safety_violations
         status_msg.timestamp = rospy.Time.now()
         status_msg.emergency_active = self.emergency_active
-        status_msg.emergency_reason = self.safety_violations[0] if self.safety_violations else ""
+        status_msg.emergency_reason = (
+            self.safety_violations[0] if self.safety_violations else ""
+        )
+        status_msg.geofence_enabled = self.geofence_enabled
+        status_msg.geofence_radius = float(self.geofence_radius)
+
+        if self.current_pose is not None:
+            pos = self.current_pose.position
+            status_msg.current_distance = float(np.linalg.norm([pos.x, pos.y]))
+            status_msg.current_altitude = float(pos.z)
+        else:
+            status_msg.current_distance = 0.0
+            status_msg.current_altitude = 0.0
+
         self.safety_pub.publish(status_msg)
-        
-        self.last_check_time = time.time()
+        self.emergency_pub.publish(bool(self.emergency_active))
         
     def _trigger_emergency(self, reason: str):
         """Trigger emergency procedures"""
         if not self.emergency_active:
             self.emergency_active = True
+            self.is_safe = False
             self.is_healthy = False
             rospy.logerr(f"EMERGENCY TRIGGERED: {reason}")
             
@@ -372,8 +469,30 @@ class SafetyMonitor:
                 self._emergency_land()
                 
     def _emergency_land(self):
-        """Execute emergency landing"""
-        rospy.logwarn("Executing emergency landing...")
+        """Execute emergency landing through MAVROS."""
+        try:
+            response = self.set_mode_srv(0, 'AUTO.LAND')
+            if not response.mode_sent:
+                rospy.logerr("AUTO.LAND was rejected by the autopilot")
+        except Exception as exc:
+            rospy.logerr("AUTO.LAND failed: %s", exc)
+
+    def _clear_emergency(self, req):
+        """Clear a latched emergency after the vehicle is safe again."""
+        self._check_safety_timer(None)
+        if not self.is_safe:
+            return TriggerResponse(
+                success=False, message='Cannot clear while unsafe'
+            )
+
+        self.emergency_active = False
+        self.is_healthy = True
+        self.safety_violations = []
+        self.violation_counts = {}
+        self.emergency_pub.publish(False)
+        self._publish_status()
+        rospy.logwarn("Emergency cleared by operator")
+        return TriggerResponse(success=True, message='Emergency cleared')
         
     def _enable_geofence(self, req):
         self.geofence_enabled = True

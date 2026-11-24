@@ -10,22 +10,30 @@ from drone_control.msg import NodeHealth
 class CameraCalibration:
     def __init__(self):
         rospy.init_node('camera_calibration', anonymous=True)
-        self.pub_info = rospy.Publisher('/camera/camera_info', CameraInfo, queue_size=10)
+        self.pub_info = rospy.Publisher('camera/camera_info', CameraInfo, queue_size=10)
         self.tf_broadcaster = tf2_ros.TransformBroadcaster()
         # Static transform from drone base to camera
         self.tf_msg = geometry_msgs.msg.TransformStamped()
         self.tf_msg.header.frame_id = 'base_link'
         self.tf_msg.child_frame_id = 'camera_link'
-        self.tf_msg.transform.translation.x = 0.0
-        self.tf_msg.transform.translation.y = 0.0
-        self.tf_msg.transform.translation.z = 0.1
+        offset = rospy.get_param(
+            'camera_calib/camera/extrinsic/translation', [0.12, 0.03, 0.242])
+        self.tf_msg.transform.translation.x = offset[0]
+        self.tf_msg.transform.translation.y = offset[1]
+        self.tf_msg.transform.translation.z = offset[2]
         self.tf_msg.transform.rotation.w = 1.0
         # Camera info (from YAML)
+        fx = rospy.get_param('camera_calib/camera/intrinsic/fx', 269.97)
+        fy = rospy.get_param('camera_calib/camera/intrinsic/fy', 269.97)
+        cx = rospy.get_param('camera_calib/camera/intrinsic/cx', 320.0)
+        cy = rospy.get_param('camera_calib/camera/intrinsic/cy', 240.0)
+        width = rospy.get_param('camera_calib/camera/width', 640)
+        height = rospy.get_param('camera_calib/camera/height', 480)
         self.camera_info = CameraInfo()
-        self.camera_info.width = 640
-        self.camera_info.height = 480
-        self.camera_info.K = [500.0, 0.0, 320.0, 0.0, 500.0, 240.0, 0.0, 0.0, 1.0]
-        self.camera_info.P = [500.0, 0.0, 320.0, 0.0, 0.0, 500.0, 240.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+        self.camera_info.width = width
+        self.camera_info.height = height
+        self.camera_info.K = [fx, 0.0, cx, 0.0, fy, cy, 0.0, 0.0, 1.0]
+        self.camera_info.P = [fx, 0.0, cx, 0.0, 0.0, fy, cy, 0.0, 0.0, 0.0, 1.0, 0.0]
         self.camera_info.distortion_model = "plumb_bob"
         self.camera_info.D = [0.0, 0.0, 0.0, 0.0, 0.0]
         rospy.loginfo("Camera calibration node started")

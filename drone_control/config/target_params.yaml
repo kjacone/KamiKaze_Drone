@@ -29,6 +29,8 @@ tracking:
   engagement_distance: 10.0
   attack_distance: 2.0
   disengagement_distance: 15.0
+  standoff_distance: 8.0
+  follow_altitude: 5.0
   max_tracks: 20
   max_lost_frames: 10
   min_track_length: 3
@@ -85,12 +87,3 @@ performance:
     max_memory_mb: 2048
     max_cpu_percent: 80
     max_gpu_memory_mb: 1024
-
-camera:
-  fx: 500.0
-  fy: 500.0
-  cx: 320.0
-  cy: 240.0
-  width: 640
-  height: 480
-  fov: 60.0

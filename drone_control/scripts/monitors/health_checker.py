@@ -63,18 +63,18 @@ class HealthChecker:
 
         # Subscribers
         for node in self.monitored_nodes:
-            rospy.Subscriber(f'/{node}/node_health', NodeHealth, self._health_callback, callback_args=node)
+            rospy.Subscriber(f'{node}/node_health', NodeHealth, self._health_callback, callback_args=node)
 
         # Publishers (traced so system-health fan-out shows up in the
         # same trace as the health check that produced it)
         self.health_pub = create_traced_publisher(
-            '/system_health', NodeHealth, queue_size=10, tracer_name='health_checker'
+            'system_health', NodeHealth, queue_size=10, tracer_name='health_checker'
         )
 
         # Services (TracedService wraps rospy.Service registration itself,
         # so each call gets its own span with duration/success attributes)
-        TracedService('/health/check_all', Trigger, self._check_all, tracer_name='health_checker')
-        TracedService('/health/restart_node', Trigger, self._restart_node, tracer_name='health_checker')
+        TracedService('health/check_all', Trigger, self._check_all, tracer_name='health_checker')
+        TracedService('health/restart_node', Trigger, self._restart_node, tracer_name='health_checker')
 
         # Timer
         self.check_timer = rospy.Timer(rospy.Duration(self.check_interval), self._check_health)

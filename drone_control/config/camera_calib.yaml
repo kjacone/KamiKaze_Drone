@@ -6,17 +6,17 @@ camera:
   id: "camera_0"
   model: "pinhole"
   
-  # Image dimensions
+  # Image dimensions (gz mono_cam 1280x960 streamed at stride-2)
   width: 640
   height: 480
   
-  # Intrinsic parameters
+  # Intrinsic parameters: pinhole fit of the mono_cam sensor (hfov 1.74 rad)
   intrinsic:
-    fx: 500.0
-    fy: 500.0
+    fx: 269.97
+    fy: 269.97
     cx: 320.0
     cy: 240.0
-    fov: 60.0  # degrees
+    fov: 99.7  # degrees
     
   # Distortion coefficients
   distortion:
@@ -30,15 +30,15 @@ camera:
       
   # Projection matrix
   projection:
-    P: [500, 0, 320, 0, 0, 500, 240, 0, 0, 0, 1, 0]
+    P: [269.97, 0, 320, 0, 0, 269.97, 240, 0, 0, 0, 1, 0]
     
   # Rectification matrix
   rectification:
     R: [1, 0, 0, 0, 1, 0, 0, 0, 1]
     
-  # Extrinsic parameters (camera to drone body frame)
+  # Extrinsic parameters (camera to drone body frame), mono_cam mount
   extrinsic:
-    translation: [0.0, 0.0, 0.0]  # [x, y, z] in meters
+    translation: [0.12, 0.03, 0.242]  # [x, y, z] in meters
     rotation: [0.0, 0.0, 0.0]      # [roll, pitch, yaw] in radians
     rotation_matrix:
       - [1.0, 0.0, 0.0]

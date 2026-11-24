@@ -89,6 +89,13 @@ class MetricsCollector:
             auto_start_server: Whether to auto-start HTTP server (default: True)
         """
         self.component = component
+        # Metric names are process-global. Prefix with the ROS namespace so
+        # per-drone instances of the same node in one roscore don't collide.
+        try:
+            ns = rospy.get_namespace().strip('/')
+        except Exception:
+            ns = ''
+        self.metric_prefix = f"{ns.replace('/', '_')}_{component}" if ns else component
         self.port = port
         self.logger = get_logger(f"metrics_{component}")
         
@@ -165,7 +172,7 @@ class MetricsCollector:
         Returns:
             Prefixed metric name
         """
-        return f"{self.component}_{name}"
+        return f"{self.metric_prefix}_{name}"
     
     def _log_metric_creation(self, metric_type: str, name: str, description: str, labels: Optional[List[str]] = None):
         """Log metric creation for debugging"""

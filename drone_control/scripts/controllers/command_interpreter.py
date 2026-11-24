@@ -52,12 +52,12 @@ class CommandInterpreter:
         self._register_handlers()
         
         # Subscribers
-        self.command_sub = rospy.Subscriber('/drone_control/command', Command, self._command_callback)
+        self.command_sub = rospy.Subscriber('drone_control/command', Command, self._command_callback)
         
         # Publishers
-        self.response_pub = rospy.Publisher('/drone_control/command_response', CommandResponse, queue_size=10)
+        self.response_pub = rospy.Publisher('drone_control/command_response', CommandResponse, queue_size=10)
 
-        self.health_pub = rospy.Publisher('/command_interpreter/node_health', NodeHealth, queue_size=10)
+        self.health_pub = rospy.Publisher('command_interpreter/node_health', NodeHealth, queue_size=10)
         rospy.Timer(rospy.Duration(1.0), self._publish_health)
 
         rospy.loginfo("Command Interpreter initialized")
@@ -153,8 +153,8 @@ class CommandInterpreter:
             'success': True, 
             'message': 'Status retrieved',
             'data': {
-                'mode': rospy.get_param('/test_mode', False) and 'test' or 'production',
-                'simulation': rospy.get_param('/use_simulation', True),
+                'mode': rospy.get_param('test_mode', False) and 'test' or 'production',
+                'simulation': rospy.get_param('use_simulation', True),
                 'uptime': time.time() - rospy.get_time()
             }
         }
@@ -174,7 +174,7 @@ class CommandInterpreter:
         """Handle set speed command"""
         speed = data.get('speed', 2.0)
         rospy.loginfo(f"Setting speed to {speed} m/s")
-        rospy.set_param('/max_velocity', speed)
+        rospy.set_param('dynamics/constraints/max_velocity', speed)
         return {'success': True, 'message': f"Speed set to {speed} m/s"}
         
     def _handle_set_altitude(self, data: Dict) -> Dict:
@@ -201,13 +201,13 @@ class CommandInterpreter:
     def _handle_geofence_enable(self, data: Dict) -> Dict:
         """Handle geofence enable command"""
         rospy.loginfo("Geofence enabled")
-        rospy.set_param('/safety/geofence_enabled', True)
+        rospy.set_param('safety/geofence/enabled', True)
         return {'success': True, 'message': 'Geofence enabled'}
         
     def _handle_geofence_disable(self, data: Dict) -> Dict:
         """Handle geofence disable command"""
         rospy.loginfo("Geofence disabled")
-        rospy.set_param('/safety/geofence_enabled', False)
+        rospy.set_param('safety/geofence/enabled', False)
         return {'success': True, 'message': 'Geofence disabled'}
         
     def _handle_config_reload(self, data: Dict) -> Dict:

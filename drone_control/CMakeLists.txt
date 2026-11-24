@@ -16,6 +16,8 @@ add_message_files(
   FILES
   BBox.msg
   Object.msg
+  Detection.msg
+  DetectionArray.msg
   DetectedObjects.msg
   Target.msg
   TrackedTarget.msg
@@ -62,6 +64,7 @@ catkin_install_python(PROGRAMS
   # Core nodes
   scripts/core/camera_calibration.py
   scripts/core/sensor_fusion.py
+  scripts/core/synthetic_camera.py
   scripts/core/obstacle_avoidance_lib.py
   
   # Detectors
@@ -71,7 +74,11 @@ catkin_install_python(PROGRAMS
   scripts/controllers/mission_manager.py
   scripts/controllers/command_interpreter.py
   scripts/controllers/target_tracking_controller.py
+  scripts/controllers/target_follower.py
   scripts/controllers/performance_monitor.py
+
+  # Target sources
+  scripts/simulated_target.py
   
   # Monitors
   scripts/monitors/vehicle_state_monitor.py
@@ -91,7 +98,6 @@ catkin_install_python(PROGRAMS
   src/drone_control/utils/generate_schema_doc.py
   src/drone_control/utils/tracing.py
   src/drone_control/utils/ros_tracing.py
-  src/drone_control/utils/generate_schema_doc.py
   src/drone_control/utils/correlation.py
 
   # lib

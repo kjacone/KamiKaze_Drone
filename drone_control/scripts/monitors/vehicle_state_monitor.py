@@ -1,5 +1,6 @@
 import time
 
+import numpy as np
 import psutil
 import rospy
 from geometry_msgs.msg import TwistStamped
@@ -45,29 +46,26 @@ class VehicleStateMonitor:
         self.uptime = 0.0
         
         # Subscribers - FIXED: Added BatteryState import
-        rospy.Subscriber('/mavros/state', State, self.state_callback)
-        rospy.Subscriber('/mavros/battery', BatteryState, self.battery_callback)
-        rospy.Subscriber('/mavros/local_position/velocity', TwistStamped, self.velocity_callback)
+        rospy.Subscriber('mavros/state', State, self.state_callback)
+        rospy.Subscriber('mavros/battery', BatteryState, self.battery_callback)
+        rospy.Subscriber('mavros/local_position/velocity_local', TwistStamped, self.velocity_callback)
         
         # Publishers
-        self.status_pub = rospy.Publisher('/drone_status', String, queue_size=10)
-        self.diagnostic_pub = rospy.Publisher('/diagnostic_status', DiagnosticStatus, queue_size=10)
-        self.health_pub = rospy.Publisher('/vehicle_state_monitor/node_health', NodeHealth, queue_size=10)
-        self.battery_pub = rospy.Publisher('/battery_percentage', Float32, queue_size=10)
+        self.status_pub = rospy.Publisher('drone_status', String, queue_size=10)
+        self.diagnostic_pub = rospy.Publisher('diagnostic_status', DiagnosticStatus, queue_size=10)
+        self.health_pub = rospy.Publisher('vehicle_state_monitor/node_health', NodeHealth, queue_size=10)
+        self.battery_pub = rospy.Publisher('battery_percentage', Float32, queue_size=10)
         
         # Services
-        rospy.Service('/drone_emergency_stop', Trigger, self.emergency_stop)
-        rospy.Service('/drone_arm', Trigger, self.arm)
-        rospy.Service('/drone_disarm', Trigger, self.disarm)
-        rospy.Service('/drone_get_status', Trigger, self.get_status)
+        rospy.Service('drone_emergency_stop', Trigger, self.emergency_stop)
+        rospy.Service('drone_arm', Trigger, self.arm)
+        rospy.Service('drone_disarm', Trigger, self.disarm)
+        rospy.Service('drone_get_status', Trigger, self.get_status)
         
         # Timers
         self.health_timer = rospy.Timer(rospy.Duration(1.0), self._publish_health)
         self.diagnostic_timer = rospy.Timer(rospy.Duration(2.0), self._publish_diagnostic)
         self.status_timer = rospy.Timer(rospy.Duration(5.0), self._publish_status)
-
-        self.health_pub = rospy.Publisher('/vehicle_state_monitor/node_health', NodeHealth, queue_size=10)
-        rospy.Timer(rospy.Duration(1.0), self._publish_health)
         
         rospy.loginfo("Vehicle State Monitor started")
 
@@ -168,7 +166,6 @@ class VehicleStateMonitor:
 
 if __name__ == '__main__':
     try:
-        import numpy as np
         monitor = VehicleStateMonitor()
         rospy.spin()
     except rospy.ROSInterruptException:

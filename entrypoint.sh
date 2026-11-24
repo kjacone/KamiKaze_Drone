@@ -123,6 +123,15 @@ fi
 
 if [ "$#" -eq 0 ]; then
 
+    if [ "${ENABLE_SIMULATION:-false}" = "true" ] && [ -f /root/fleet/fleet.yaml ]; then
+        echo "Starting fleet control plane..."
+
+        # fleet_ctl reconciles one PX4 container per drone from fleet.yaml,
+        # renders the namespaced launch, supervises roslaunch and serves the
+        # config portal.
+        exec python3 /root/fleet/fleet_ctl.py run
+    fi
+
     echo "Starting default ROS application..."
 
     exec roslaunch drone_control kamikaze.launch mode:=production

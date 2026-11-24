@@ -1,0 +1,14 @@
+# drone_control/config/mavros.yaml
+# MAVROS link to the PX4 SITL instance. Loaded privately into mavros_node.
+#
+# PX4 1.17 offboard link: local 14580, remote 14540.
+# MAVROS binds 14540 and sends to PX4 on 14580. Both run in the same
+# network namespace (docker-compose network_mode: service:kamikaze).
+
+fcu_url: "udp://:14540@127.0.0.1:14580"
+target_system: 1
+target_component: 1
+
+conn:
+  timeout: 10.0
+  heartbeat_rate: 1.0

@@ -316,7 +316,7 @@ class ParameterValidator:
                 description="Lost connection timeout in seconds"
             ),
             ParameterSchema(
-                "performance/publish_rate",  # Fixed: changed dot to slash
+                "performance/timing/publish_rate",
                 ParameterType.POSITIVE_INT,
                 default=50,
                 min_value=10,
@@ -330,9 +330,19 @@ class ParameterValidator:
         errors = []
         warnings = []
         
+        # Configs loaded under their own namespace map to /<ns>/<schema>,
+        # the rest are loaded at the parameter root.
+        config_prefixes = {
+            "camera_calib": "camera_calib",
+            "kalman_filter": "kalman_filter",
+        }
+
         for config_name, schemas in self.schemas.items():
             for schema in schemas:
-                param_path = f"/{config_name}/{schema.name}"
+                prefix = config_prefixes.get(config_name)
+                param_path = (
+                    f"/{prefix}/{schema.name}" if prefix else f"/{schema.name}"
+                )
                 value = rospy.get_param(param_path, None)
                 
                 if value is None:

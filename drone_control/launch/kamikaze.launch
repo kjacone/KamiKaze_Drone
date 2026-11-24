@@ -11,6 +11,8 @@
   <arg name="enable_diagnostics" default="false" doc="Enable diagnostic tools"/>
   <arg name="gui" default="false" doc="Enable GUI visualization"/>
   <arg name="validate_params" default="true" doc="Validate parameters on startup"/>
+  <arg name="perception_demo" default="false" doc="Run the camera/YOLO pipeline instead of the simulated target (ground-only smoke test)"/>
+  <arg name="auto_start" default="true" doc="Start a mission automatically once MAVROS is connected"/>
 
   <!-- === TEST MODE SPECIFIC ARGUMENTS === -->
   <arg name="test_scenario" default="default" doc="Test scenario to run"/>
@@ -21,30 +23,26 @@
   <arg name="enable_profiling" default="true" doc="Enable performance profiling"/>
 
   <!-- === PARAMETER LOADING === -->
-  <rosparam file="$(find drone_control)/config/target_params.yaml" command="load" ns="target_params"/>
+  <rosparam file="$(find drone_control)/config/target_params.yaml" command="load"/>
   <rosparam file="$(find drone_control)/config/camera_calib.yaml" command="load" ns="camera_calib"/>
-  <rosparam file="$(find drone_control)/config/flight_control.yaml" command="load" ns="flight_control"/>
+  <rosparam file="$(find drone_control)/config/flight_control.yaml" command="load"/>
   <rosparam file="$(find drone_control)/config/kalman_filter.yaml" command="load" ns="kalman_filter"/>
-  <rosparam file="$(find drone_control)/config/system_params.yaml" command="load" ns="system_params"/>
-
-  <!-- Add required parameter that was missing -->
-  <param name="/system_params/performance/publish_rate" value="50"/>
+  <rosparam file="$(find drone_control)/config/system_params.yaml" command="load"/>
 
   <!-- === SIMULATION VS REAL HARDWARE === -->
   <param name="/use_simulation" value="$(arg simulation)"/>
 
   <!-- ============================================ -->
-  <!-- PARAMETER VALIDATION                         -->
+  <!-- MAVROS                                       -->
   <!-- ============================================ -->
 
-  <node pkg="drone_control" type="parameter_validator.py"
-        name="parameter_validator" output="screen" >
-    <param name="config_dir" value="$(find drone_control)/config"/>
-    <param name="validate_on_startup" value="true"/>
+  <node pkg="mavros" type="mavros_node" name="mavros"
+        output="screen" respawn="true" respawn_delay="2.0">
+    <rosparam file="$(find drone_control)/config/mavros.yaml" command="load"/>
   </node>
 
   <!-- ============================================ -->
-  <!-- CORE SYSTEM NODES (Existing)                -->
+  <!-- CORE SYSTEM NODES                            -->
   <!-- ============================================ -->
 
   <!-- Command Interpreter -->
@@ -55,35 +53,65 @@
   <node pkg="drone_control" type="mission_manager.py"
         name="mission_manager" output="screen" >
     <param name="mission_config" value="$(find drone_control)/config/mission_config.yaml"/>
+    <param name="auto_start" value="$(arg auto_start)"/>
+    <param name="require_mavros" value="true"/>
+    <param name="target_timeout" value="2.0"/>
   </node>
 
-  <!-- Camera Calibration -->
-  <node pkg="drone_control" type="camera_calibration.py"
-        name="camera_calibration" output="screen" >
-    <param name="simulation_mode" value="$(arg simulation)"/>
-  </node>
+  <!-- ============================================ -->
+  <!-- TARGET SOURCE                                -->
+  <!-- ============================================ -->
 
-  <!-- YOLO Detector - Comment out if model not available -->
-  <node pkg="drone_control" type="yolo_detector.py"
-        name="yolo_detector" output="screen" >
-    <param name="model_path" value="/PX4-Autopilot/yolov8s.pt"/>
-    <param name="device" value="cpu"/>
-  </node>
+  <!-- Real perception pipeline: ground-only smoke test until pixel-to-world
+       projection exists. Not a flight-capable target source. -->
+  <group if="$(arg perception_demo)">
+    <node pkg="drone_control" type="synthetic_camera.py"
+          name="synthetic_camera" output="screen" >
+      <param name="width" value="640"/>
+      <param name="height" value="480"/>
+      <param name="rate" value="10.0"/>
+    </node>
 
-  <!-- Sensor Fusion -->
-  <node pkg="drone_control" type="sensor_fusion.py"
-        name="sensor_fusion" output="screen" >
-    <param name="publish_rate" value="20"/>
-    <param name="simulation_mode" value="$(arg simulation)"/>
-  </node>
+    <node pkg="drone_control" type="camera_calibration.py"
+          name="camera_calibration" output="screen" >
+      <param name="simulation_mode" value="$(arg simulation)"/>
+    </node>
 
-  <!-- Target Tracking Controller -->
-  <node pkg="drone_control" type="target_tracking_controller.py"
-        name="target_tracking_controller" output="screen" >
-    <param name="simulation_mode" value="$(arg simulation)"/>
-  </node>
+    <node pkg="drone_control" type="yolo_detector.py"
+          name="yolo_detector" output="screen" >
+      <param name="model_path" value="/PX4-Autopilot/yolov8s.pt"/>
+      <param name="device" value="cpu"/>
+    </node>
 
-  <!-- Vehicle State Monitor -->
+    <node pkg="drone_control" type="sensor_fusion.py"
+          name="sensor_fusion" output="screen" >
+      <param name="publish_rate" value="20"/>
+      <param name="simulation_mode" value="$(arg simulation)"/>
+    </node>
+
+    <node pkg="drone_control" type="target_tracking_controller.py"
+          name="target_tracking_controller" output="screen" >
+      <param name="simulation_mode" value="$(arg simulation)"/>
+    </node>
+  </group>
+
+  <!-- Demoed target source and the single control owner. -->
+  <group unless="$(arg perception_demo)">
+    <node pkg="drone_control" type="simulated_target.py"
+          name="simulated_target" output="screen" >
+      <param name="scenario" value="default"/>
+    </node>
+
+    <node pkg="drone_control" type="target_follower.py"
+          name="target_follower" output="screen" >
+      <param name="target_timeout" value="2.0"/>
+    </node>
+  </group>
+
+  <!-- ============================================ -->
+  <!-- VEHICLE MONITORING                           -->
+  <!-- ============================================ -->
+
   <node pkg="drone_control" type="vehicle_state_monitor.py"
         name="vehicle_state_monitor" output="screen" >
     <param name="simulation_mode" value="$(arg simulation)"/>
@@ -94,10 +122,8 @@
   <!-- ============================================ -->
 
   <group if="$(arg enable_safety)">
-    <!-- Safety Monitor -->
     <node pkg="drone_control" type="safety_monitor.py"
           name="safety_monitor" output="screen" >
-      <param name="enable_geofence" value="true"/>
       <param name="simulation_mode" value="$(arg simulation)"/>
     </node>
   </group>
@@ -106,7 +132,6 @@
   <!-- HEALTH MONITORING                           -->
   <!-- ============================================ -->
 
-  <!-- System Health Monitor -->
   <node pkg="drone_control" type="system_health_monitor.py"
         name="system_health_monitor" output="screen" >
     <param name="monitoring_interval" value="2.0"/>
@@ -119,17 +144,17 @@
     <param name="enable_process_monitoring" value="true"/>
   </node>
 
-  <!-- Health Checker -->
+  <!-- Never restart controllers: a restart during an emergency would wipe
+       the latched safety state. -->
   <node pkg="drone_control" type="health_checker.py"
         name="health_checker" output="screen" >
     <param name="check_interval" value="5.0"/>
     <param name="timeout_threshold" value="10.0"/>
-    <param name="restart_on_failure" value="true"/>
-    <param name="max_restarts" value="3"/>
+    <param name="restart_on_failure" value="false"/>
+    <param name="max_restarts" value="0"/>
 
     <rosparam param="monitored_nodes">
-      ['yolo_detector', 'target_tracking_controller',
-       'vehicle_state_monitor', 'mission_manager',
+      ['vehicle_state_monitor', 'mission_manager',
        'safety_monitor', 'command_interpreter']
     </rosparam>
   </node>

@@ -21,15 +21,22 @@ services:
       ROS_MASTER_URI: http://kamikaze:11311
       ENABLE_GUI: "false"
       ENABLE_PERFORMANCE_MONITORING: "true"
-      ENABLE_SIMULATION: "false"
+      ENABLE_SIMULATION: "true"
       PYTHONUNBUFFERED: "1"
       DISPLAY: ${DISPLAY:-:0}
       QT_X11_NO_MITSHM: "1"
+      # fleet_ctl creates PX4 containers via the mounted Docker socket; bind
+      # mount sources must be host paths, not paths inside this container.
+      HOST_REPO_DIR: "${PWD}"
+      FLEET_PORTAL_PORT: "8090"
 
     volumes:
       - ./logs:/root/.ros/log
       - ./data:/root/data
       - ./yolov8s.pt:/root/catkin_ws/src/drone_control/data/models/yolov8s.pt:ro
+      # Fleet config + control plane (portal renders the launch from here)
+      - ./fleet:/root/fleet
+      - /var/run/docker.sock:/var/run/docker.sock
       # Mount for Fluent Bit to read logs
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
 
@@ -39,17 +46,18 @@ services:
     ports:
       - "11311:11311"  # ROS Master
       - "11312:11312"  # ROS parameter server
+      - "8090:8090"    # Fleet portal
 
     restart: unless-stopped
 
     deploy:
       resources:
         limits:
-          cpus: "4"
-          memory: 8G
+          cpus: "6"
+          memory: 6G
         reservations:
           cpus: "2"
-          memory: 4G
+          memory: 2G
 
     logging:
       driver: json-file
@@ -59,41 +67,21 @@ services:
         compress: "true"
 
     healthcheck:
+      # rosnode list piles up under fleet load; a master-port probe is cheap.
       test:
         [
           "CMD-SHELL",
-          "bash -c 'source /opt/ros/noetic/setup.bash && rosnode list 2>/dev/null | grep -q . || exit 1'"
+          "bash -c 'echo > /dev/tcp/127.0.0.1/11311'"
         ]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 45s
-  
-  px4_sitl:
-    image: jonasvautherin/px4-gazebo-headless:latest
-    platform: linux/amd64
-    container_name: px4_sitl
-    hostname: px4_sitl
-    command: ["kamikaze", "kamikaze"]
 
-    networks:
-      - drone_net
+  # PX4 SITL instances are not compose services: fleet/fleet_ctl.py creates
+  # one px4_<id> container per drone (own bridge, px4 -i <offset>) from
+  # fleet/fleet.yaml so the drone count is configurable from the portal.
 
-    ports:
-      - "14540:14540/udp"
-      - "14550:14550/udp"
-
-    restart: unless-stopped
-    depends_on:
-      - kamikaze
-
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-        compress: "true"
-           
   # ==========================================================
   # Performance Monitor (already has container metrics)
   # ==========================================================
